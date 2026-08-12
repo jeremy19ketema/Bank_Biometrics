@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TrustBank Admin - Edit Accountant</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#173bab",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#872d00",
+                        "on-tertiary-container": "#ffa583",
+                        "outline-variant": "#c4c5d5",
+                        "surface-dim": "#dad9e3",
+                        "outline": "#757684",
+                        "on-surface-variant": "#444653",
+                        "primary": "#00288e",
+                        "surface-container": "#eeedf7",
+                        "secondary": "#006a63",
+                        "inverse-on-surface": "#f1f0fa",
+                        "primary-container": "#1e40af",
+                        "on-primary-fixed": "#001453",
+                        "inverse-surface": "#2f3037",
+                        "on-tertiary-fixed": "#380d00",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e3e1eb",
+                        "tertiary-fixed": "#ffdbce",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "secondary-fixed-dim": "#80d5cb",
+                        "surface-tint": "#3755c3",
+                        "on-secondary-fixed-variant": "#00504a",
+                        "on-secondary-container": "#006f67",
+                        "surface": "#fbf8ff",
+                        "surface-bright": "#fbf8ff",
+                        "tertiary": "#611e00",
+                        "on-background": "#1a1b22",
+                        "background": "#fbf8ff",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "surface-variant": "#e3e1eb",
+                        "primary-fixed": "#dde1ff",
+                        "on-secondary-fixed": "#00201d",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#1a1b22",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f4f2fc",
+                        "surface-container-high": "#e8e7f1",
+                        "secondary-fixed": "#9cf2e8",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "inverse-primary": "#b8c4ff",
+                        "secondary-container": "#99efe5",
+                        "on-primary-container": "#a8b8ff",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "base": "8px",
+                        "3xl": "64px",
+                        "gutter": "24px",
+                        "container-max": "1440px",
+                        "xl": "32px",
+                        "2xl": "48px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "mono": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "mono": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .input-ring:focus-within {
+            box-shadow: 0 0 0 3px rgba(0, 40, 142, 0.2);
+            border-color: #00288e;
+        }
+        .btn-hover:hover {
+            box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row antialiased">
+<!-- TopNavBar (Mobile Only) -->
+<header class="md:hidden flex justify-between items-center h-16 px-md bg-surface-container-lowest border-b border-outline-variant shadow-sm w-full fixed top-0 z-50">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+<span class="font-headline-md text-headline-md text-primary">TrustBank Admin</span>
+</div>
+<div class="flex items-center gap-sm">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-sm rounded-full">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col h-screen p-md bg-surface border-r border-outline-variant w-[280px] fixed left-0 top-0 z-40 transition-all duration-200 ease-in-out">
+<div class="flex items-center gap-sm mb-2xl px-sm">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A clean, modern geometric logo for a corporate bank, utilizing deep navy blue and crisp white. The icon suggests security and stability, suitable for a high-end fintech interface. Ambient lighting, sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ_mygdOWbckL-74KB99m_VVnD3FcJX92_EnXwtvyxXH35CU28_h8VbIlvIvhEderUTjaToWfsGLtzMbksd8pCu4S0JKsdYnHKL4QG3Tr7kigkPS3zUSzfkTxYMMdYP7YkjAzs8E7VEIsNogerpvVGaldabZIszK8ly3giW0xTLSmgAIguCH_FXM4rmUy-zeRWJkeaaV3XQ34V-XdJo0t04hDNUtPX08xqMx6YBWRO8sesdoldwG5hsw"/>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">TrustBank Admin</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Enterprise Control</p>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<!-- Inactive -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<!-- Active -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-primary-container text-on-primary-container font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="supervisor_account" style="font-variation-settings: 'FILL' 1;">supervisor_account</span>
+<span class="font-label-md text-label-md">Accountants</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="font-label-md text-label-md">Verifications</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-md text-label-md">Transactions</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<div class="mt-auto pt-lg border-t border-outline-variant">
+<div class="flex items-center gap-md px-sm">
+<img class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A professional portrait of a senior system administrator in a corporate setting. The lighting is bright and even, highlighting a serious but approachable expression. Corporate modernism style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCISzwxSFjkDqQuHP1vvpBSZ_PZGHpBwkk-gJc-8k4WAFSfdRPxPUpJiEYSKAJQ99j8M1qtC3A-RU_b_G7yPQ7pkWeU2Y8XwH9azKhf0cWBOQyGvBJZHKimR_6Kx2YRPBZ95YNRA3XP1EjnwzKpbPPg4tcwrlPrAB95IbGEQwvi3N-peV59IPlFQnY78XTWDiOlHLqCJ_PO36gByxtkdI3ha5ntSOnBEvRPFr_yXbEVpQNdUGWmPQi1yQ"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Admin User</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">System Manager</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 flex flex-col min-h-screen pt-16 md:pt-0 md:ml-[280px]">
+<!-- TopAppBar (Desktop) -->
+<header class="hidden md:flex justify-between items-center h-16 px-lg bg-surface-container-lowest border-b border-outline-variant shadow-sm sticky top-0 z-30">
+<div class="flex-1 flex items-center">
+<!-- Search could go here if needed per component logic, but focus is on Edit screen -->
+</div>
+<div class="flex items-center gap-md text-on-surface-variant">
+<button class="hover:text-primary transition-opacity cursor-pointer active:opacity-80 p-xs rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:text-primary transition-opacity cursor-pointer active:opacity-80 p-xs rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="w-[1px] h-6 bg-outline-variant mx-xs"></div>
+<button class="font-label-md text-label-md hover:text-primary transition-colors flex items-center gap-xs">
+                    Profile
+                    <span class="material-symbols-outlined" data-icon="arrow_drop_down">arrow_drop_down</span>
+</button>
+</div>
+</header>
+<!-- Content Area -->
+<div class="flex-1 p-md md:p-xl max-w-container-max mx-auto w-full">
+<!-- Header Section -->
+<div class="mb-2xl flex flex-col gap-sm">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-xs text-on-surface-variant font-body-md text-body-md">
+<a class="hover:text-primary transition-colors" href="#">Dashboard</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Accountants</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">John Doe</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface font-medium">Edit</span>
+</nav>
+<div class="flex justify-between items-end flex-wrap gap-md">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Edit Accountant</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Update profile information and system access credentials.</p>
+</div>
+<div class="font-mono text-mono text-on-surface-variant bg-surface-container py-xs px-sm rounded border border-outline-variant">
+                        Last Updated: Oct 24, 2023, 14:32
+                    </div>
+</div>
+</div>
+<!-- Main Form Card -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<form class="divide-y divide-outline-variant">
+<!-- Section: Personal Details -->
+<div class="p-lg grid grid-cols-1 lg:grid-cols-12 gap-lg lg:gap-xl">
+<div class="lg:col-span-4">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Personal Details</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Basic identification information.</p>
+</div>
+<div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="fullName">Full Name</label>
+<div class="relative input-ring rounded transition-all">
+<input class="w-full bg-surface border border-outline-variant rounded px-md py-sm font-body-md text-body-md text-on-surface focus:outline-none placeholder-outline-variant" id="fullName" type="text" value="John Doe"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="email">Email Address</label>
+<div class="relative input-ring rounded transition-all">
+<input class="w-full bg-surface border border-outline-variant rounded px-md py-sm font-body-md text-body-md text-on-surface focus:outline-none placeholder-outline-variant" id="email" type="email" value="john@bank.com"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="phone">Phone Number</label>
+<div class="relative input-ring rounded transition-all">
+<input class="w-full bg-surface border border-outline-variant rounded px-md py-sm font-body-md text-body-md text-on-surface focus:outline-none placeholder-outline-variant" id="phone" type="tel" value="+251912345678"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: System Access -->
+<div class="p-lg grid grid-cols-1 lg:grid-cols-12 gap-lg lg:gap-xl">
+<div class="lg:col-span-4">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">System Access</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Credentials and organizational placement.</p>
+</div>
+<div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="username">Username</label>
+<div class="relative input-ring rounded transition-all">
+<input class="w-full bg-surface-container border border-outline-variant rounded px-md py-sm font-body-md text-body-md text-on-surface-variant focus:outline-none cursor-not-allowed" id="username" readonly="" type="text" value="johndoe"/>
+<span class="absolute right-sm top-1/2 -translate-y-1/2 material-symbols-outlined text-outline-variant text-[18px]" data-icon="lock">lock</span>
+</div>
+<p class="font-label-sm text-label-sm text-outline">Username cannot be changed.</p>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="branch">Branch</label>
+<div class="relative input-ring rounded transition-all">
+<select class="w-full bg-surface border border-outline-variant rounded px-md py-sm font-body-md text-body-md text-on-surface focus:outline-none appearance-none" id="branch">
+<option selected="" value="addis">Addis Ababa Branch</option>
+<option value="dire">Dire Dawa Branch</option>
+<option value="hq">Headquarters</option>
+</select>
+<span class="absolute right-sm top-1/2 -translate-y-1/2 material-symbols-outlined text-outline-variant pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-xs md:col-span-2">
+<label class="font-label-md text-label-md text-on-surface">Account Status</label>
+<div class="flex items-center gap-md mt-xs">
+<label class="flex items-center gap-xs cursor-pointer">
+<input checked="" class="form-radio text-primary border-outline-variant focus:ring-primary" name="status" type="radio" value="active"/>
+<span class="font-body-md text-body-md text-on-surface">Active</span>
+</label>
+<label class="flex items-center gap-xs cursor-pointer">
+<input class="form-radio text-error border-outline-variant focus:ring-error" name="status" type="radio" value="suspended"/>
+<span class="font-body-md text-body-md text-on-surface">Suspended</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="p-lg bg-surface-container-low flex flex-col sm:flex-row items-center justify-end gap-md">
+<button class="w-full sm:w-auto px-lg py-[10px] min-h-[40px] font-label-md text-label-md text-error hover:bg-error-container hover:text-on-error-container rounded transition-colors flex justify-center items-center" type="button">
+                            Cancel
+                        </button>
+<button class="w-full sm:w-auto px-lg py-[10px] min-h-[40px] font-label-md text-label-md text-primary bg-transparent border border-outline-variant hover:bg-surface-container-high rounded transition-colors flex justify-center items-center" type="button">
+                            Reset Changes
+                        </button>
+<button class="w-full sm:w-auto px-lg py-[10px] min-h-[40px] font-label-md text-label-md text-on-primary bg-primary btn-hover rounded transition-all flex justify-center items-center gap-xs shadow-sm" type="submit">
+<span class="material-symbols-outlined text-[18px]" data-icon="save">save</span>
+                            Update Accountant
+                        </button>
+</div>
+</form>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Biometric Verification Result - Branch North-01</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f4f2fc",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "surface-bright": "#fbf8ff",
+                        "secondary-fixed-dim": "#80d5cb",
+                        "secondary-container": "#99efe5",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e3e1eb",
+                        "inverse-on-surface": "#f1f0fa",
+                        "surface-container-high": "#e8e7f1",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "secondary": "#006a63",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#444653",
+                        "on-surface": "#1a1b22",
+                        "background": "#fbf8ff",
+                        "tertiary-container": "#872d00",
+                        "tertiary-fixed": "#ffdbce",
+                        "surface-variant": "#e3e1eb",
+                        "primary-fixed": "#dde1ff",
+                        "outline-variant": "#c4c5d5",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#00504a",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#9cf2e8",
+                        "on-tertiary-fixed": "#380d00",
+                        "primary": "#00288e",
+                        "on-primary-fixed-variant": "#173bab",
+                        "on-background": "#1a1b22",
+                        "inverse-surface": "#2f3037",
+                        "tertiary": "#611e00",
+                        "on-secondary-container": "#006f67",
+                        "on-primary-fixed": "#001453",
+                        "surface-container": "#eeedf7",
+                        "outline": "#757684",
+                        "inverse-primary": "#b8c4ff",
+                        "on-primary-container": "#a8b8ff",
+                        "surface-tint": "#3755c3",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#ffa583",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#fbf8ff",
+                        "surface-dim": "#dad9e3",
+                        "on-secondary-fixed": "#00201d",
+                        "primary-container": "#1e40af"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "xl": "32px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "3xl": "64px",
+                        "lg": "24px",
+                        "2xl": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display": ["Inter"],
+                        "mono": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[style*="'FILL' 1"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .focus-ring:focus-visible {
+            outline: 2px solid #00288e;
+            outline-offset: 2px;
+        }
+        .elevation-0 { background-color: #F8FAFC; }
+        .elevation-1 { border: 1px solid #E2E8F0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .elevation-2 { border: 1px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col p-lg gap-lg z-50 bg-surface-container-low dark:bg-inverse-surface border-r border-outline-variant dark:border-outline docked left-0 h-full w-[280px] fixed top-0 h-screen w-[280px]">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary text-3xl font-black">shield</span>
+<div class="font-headline-md text-headline-md font-black text-primary">BiometricBank</div>
+</div>
+<div class="flex items-center gap-md bg-surface-container-high rounded-lg p-md mt-md">
+<img alt="Accountant Profile" class="w-10 h-10 rounded-full object-cover elevation-1" data-alt="Professional headshot of a female accountant wearing glasses and a dark blazer in a modern, well-lit corporate office. Neutral corporate background. High resolution, sharp focus, professional banking context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ5F4esU1tzNdDXj59V1O_fdgYjERSe3xacyHOUq2Nz-YT5LmvebSEYOg8k1rw_LaweTJkkn0RwylnXeOhyZaJAvYpygavvYJRvNbHJP7TVKUjTtVwIrjFdjRSc3k7Ttg9XisBJ3JNoksAuGJHE9GuxUtfh-6rfxTfuKc9VwHSC6OqYji6XSl4LdizUrIF1Yte1Zz1cIRqu1IctpF4H-rr3y1fYwHRZorv-U06CJLZGpbvqK1QQLtZ7A"/>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Pro Accountant</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">ID: 98442-BA</div>
+</div>
+</div>
+<div class="flex flex-col gap-sm mt-xl flex-grow">
+<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant px-md py-sm hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg scale-98 transition-transform duration-150 focus-ring" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant px-md py-sm hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg scale-98 transition-transform duration-150 focus-ring" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-md text-label-md">Customer Search</span>
+</a>
+<a aria-current="page" class="flex items-center gap-md bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-lg px-md py-sm scale-98 transition-transform duration-150 focus-ring" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
+<span class="font-label-md text-label-md">Verifications</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant px-md py-sm hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg scale-98 transition-transform duration-150 focus-ring" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-md text-label-md">Transactions</span>
+</a>
+</div>
+<button class="bg-primary text-on-primary hover:opacity-90 font-label-md text-label-md py-md px-lg rounded-lg w-full flex justify-center items-center gap-sm mt-auto focus-ring transition-opacity">
+<span class="material-symbols-outlined">add</span>
+            New Verification
+        </button>
+<div class="flex flex-col gap-sm mt-lg pt-lg border-t border-outline-variant">
+<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant px-md py-sm hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg scale-98 transition-transform duration-150 focus-ring" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant dark:text-surface-variant px-md py-sm hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-lg scale-98 transition-transform duration-150 focus-ring" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-[280px] min-h-screen bg-background">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-lg py-md h-16 sticky top-0 z-40 bg-surface-bright dark:bg-inverse-surface border-b border-outline-variant dark:border-outline docked full-width top-0">
+<div class="flex items-center gap-md lg:hidden">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:bg-surface-container-low p-sm rounded-full transition-colors focus-ring" tabindex="0">menu</span>
+</div>
+<div class="hidden lg:flex items-center bg-surface-container-low rounded-full px-md py-sm border border-outline-variant focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all w-96">
+<span class="material-symbols-outlined text-on-surface-variant mr-sm">search</span>
+<input class="bg-transparent border-none outline-none font-body-md text-body-md w-full text-on-surface placeholder:text-on-surface-variant focus:ring-0" placeholder="Search ID, Name, or Transaction..." type="text"/>
+</div>
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim absolute left-1/2 -translate-x-1/2 lg:hidden">
+                Branch North-01
+            </div>
+<div class="flex items-center gap-md ml-auto">
+<div class="hidden md:block font-label-md text-label-md text-on-surface font-semibold mr-md">Accountant Name</div>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-sm rounded-full transition-colors focus-ring relative cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-sm rounded-full transition-colors focus-ring cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-md md:p-lg xl:p-2xl max-w-container-max mx-auto w-full">
+<div class="mb-xl flex items-center justify-between">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface md:hidden">Verification Result</h1>
+<h1 class="font-display text-display text-on-surface hidden md:block">Verification Result</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Reference: TXN-2023-8849-V1</p>
+</div>
+<div class="hidden md:flex gap-md">
+<button class="bg-surface-container-lowest border border-outline-variant text-on-surface hover:bg-surface-container-low font-label-md text-label-md py-sm px-md rounded-lg flex items-center gap-sm transition-colors focus-ring">
+<span class="material-symbols-outlined text-sm">print</span>
+                        Print Record
+                    </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Status Card (Spans full width on mobile, 8 cols on desktop) -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-xl p-xl elevation-1 flex flex-col items-center justify-center text-center min-h-[300px] border-t-4 border-t-secondary relative overflow-hidden">
+<div class="absolute inset-0 bg-secondary/5 z-0 pointer-events-none"></div>
+<div class="w-24 h-24 rounded-full bg-secondary-container flex items-center justify-center mb-lg z-10 relative">
+<div class="absolute inset-0 bg-secondary rounded-full animate-ping opacity-20"></div>
+<span class="material-symbols-outlined text-secondary text-5xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface z-10">Identity Verified Successfully</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-sm max-w-md z-10">Biometric fingerprint data matches national registry records with high confidence. Proceeding authorized.</p>
+<div class="mt-lg flex gap-sm items-center bg-surface-container px-md py-sm rounded-full z-10">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">timer</span>
+<span class="font-mono text-mono text-on-surface-variant">0.42s processing time</span>
+</div>
+</div>
+<!-- Customer Summary (4 cols) -->
+<div class="lg:col-span-4 bg-surface-container-lowest rounded-xl p-lg elevation-1 flex flex-col">
+<h3 class="font-headline-md text-headline-md border-b border-outline-variant pb-sm mb-md">Customer Profile</h3>
+<div class="flex items-center gap-md mb-lg">
+<img alt="Customer ID Photo" class="w-16 h-16 rounded-lg object-cover elevation-1 border border-outline-variant" data-alt="High-resolution, clear, well-lit formal ID photo of a middle-aged male customer with short dark hair, wearing a neutral grey collared shirt against a stark white background. Corporate biometric style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuKeKdhPDOhnOdYndxmFoFiUhmpddAESI2vJZ81foweJBiuYAjx2y_MOT0F2P2vgUuy7H7a1fY21v5BiuBb7GyITRmjElqNvDr_Vt5XHlPl2yqGn0LjN3RQ7VaY2L6N8DG17kE4siXUS3ZX1xHXfrPhd6jDQh7Bty6UONZ2J77sILFd2Bt4ACYnz3UTs2dsIxTG7qdCdwaL1ayo-EEvwTPnj31517HyqujzsgGO_kzzE32LOiVLpoSzQ"/>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">David M. Harrison</div>
+<div class="font-mono text-mono text-on-surface-variant mt-xs">ID: 884-291-55X</div>
+</div>
+</div>
+<div class="space-y-md flex-grow">
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Match Confidence</div>
+<div class="flex items-end gap-sm mt-xs">
+<span class="font-headline-lg text-headline-lg text-secondary">99.8%</span>
+<span class="font-label-md text-label-md text-on-surface-variant mb-sm">Accuracy</span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full mt-sm overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 99.8%"></div>
+</div>
+</div>
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Account Status</div>
+<div class="inline-flex items-center gap-xs bg-secondary-container/30 text-on-secondary-container px-sm py-xs rounded mt-xs font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">verified_user</span>
+                                Active &amp; Cleared
+                            </div>
+</div>
+</div>
+</div>
+<!-- Result Details (Full width) -->
+<div class="lg:col-span-12 bg-surface-container-lowest rounded-xl p-lg elevation-1">
+<h3 class="font-headline-md text-headline-md border-b border-outline-variant pb-sm mb-md">Verification Telemetry</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="bg-surface-container-low p-md rounded-lg flex items-start gap-md border border-outline-variant/50">
+<span class="material-symbols-outlined text-primary mt-xs">fingerprint</span>
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Modality</div>
+<div class="font-body-md text-body-md text-on-surface mt-xs font-medium">Right Thumb Print</div>
+<div class="font-mono text-mono text-on-surface-variant mt-xs text-xs">ISO/IEC 19794-2 Format</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-md rounded-lg flex items-start gap-md border border-outline-variant/50">
+<span class="material-symbols-outlined text-primary mt-xs">terminal</span>
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Device Node</div>
+<div class="font-body-md text-body-md text-on-surface mt-xs font-medium">Branch Terminal A4</div>
+<div class="font-mono text-mono text-on-surface-variant mt-xs text-xs">IP: 10.44.2.19</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-md rounded-lg flex items-start gap-md border border-outline-variant/50">
+<span class="material-symbols-outlined text-primary mt-xs">schedule</span>
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Timestamp</div>
+<div class="font-body-md text-body-md text-on-surface mt-xs font-medium">Oct 24, 2023 - 14:32:01</div>
+<div class="font-mono text-mono text-on-surface-variant mt-xs text-xs">UTC -05:00 EST</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="mt-xl pt-lg border-t border-outline-variant flex flex-col sm:flex-row justify-end gap-md">
+<button class="bg-surface-container-lowest border border-outline-variant text-on-surface hover:bg-surface-container-low font-label-md text-label-md py-md px-lg rounded-lg flex items-center justify-center gap-sm transition-colors focus-ring min-w-[160px]">
+<span class="material-symbols-outlined">refresh</span>
+                    Retry Verification
+                </button>
+<button class="bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md py-md px-lg rounded-lg flex items-center justify-center gap-sm transition-colors focus-ring elevation-1 min-w-[200px]">
+                    Proceed to Transaction
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</main>
+</div>
+</body></html>

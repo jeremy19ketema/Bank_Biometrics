@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Customer Search - Biometric Banking System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f4f2fc",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "surface-bright": "#fbf8ff",
+                        "secondary-fixed-dim": "#80d5cb",
+                        "secondary-container": "#99efe5",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e3e1eb",
+                        "inverse-on-surface": "#f1f0fa",
+                        "surface-container-high": "#e8e7f1",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "secondary": "#006a63",
+                        "on-primary": "#ffffff",
+                        "on-surface-variant": "#444653",
+                        "on-surface": "#1a1b22",
+                        "background": "#fbf8ff",
+                        "tertiary-container": "#872d00",
+                        "tertiary-fixed": "#ffdbce",
+                        "surface-variant": "#e3e1eb",
+                        "primary-fixed": "#dde1ff",
+                        "outline-variant": "#c4c5d5",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed-variant": "#00504a",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#9cf2e8",
+                        "on-tertiary-fixed": "#380d00",
+                        "primary": "#00288e",
+                        "on-primary-fixed-variant": "#173bab",
+                        "on-background": "#1a1b22",
+                        "inverse-surface": "#2f3037",
+                        "tertiary": "#611e00",
+                        "on-secondary-container": "#006f67",
+                        "on-primary-fixed": "#001453",
+                        "surface-container": "#eeedf7",
+                        "outline": "#757684",
+                        "inverse-primary": "#b8c4ff",
+                        "on-primary-container": "#a8b8ff",
+                        "surface-tint": "#3755c3",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#ffa583",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#fbf8ff",
+                        "surface-dim": "#dad9e3",
+                        "on-secondary-fixed": "#00201d",
+                        "primary-container": "#1e40af"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "xl": "32px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "3xl": "64px",
+                        "lg": "24px",
+                        "2xl": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display": ["Inter"],
+                        "mono": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen flex overflow-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] flex flex-col p-lg gap-lg z-50 bg-surface-container-low border-r border-outline-variant hidden md:flex">
+<!-- Brand -->
+<div class="px-md">
+<h1 class="font-headline-md text-headline-md font-black text-primary">Branch North-01</h1>
+</div>
+<!-- Header Profile -->
+<div class="flex items-center gap-md px-md mt-md">
+<img class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A highly detailed close-up portrait of a professional accountant, confident and trustworthy. The image is brightly lit with a clean, high-key, modern corporate light-mode aesthetic, utilizing deep navy blues and pristine whites. The background is a very subtle, soft-focus modern office setting, conveying institutional stability and security." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLSH_FOCL0s1TcSUUpdX5fU8AI-fQxdBk6fhy328akX0kre0JL13ReqKEVaN23gRxNmlGii8VsFH2Qa54HhAkRA85MAtGAig6K7149CgaMRQ6Aki1c9kiuB1jaUGBINPRT5x2Z6HdUychqckGPLCFj0MInDPMw15o2SLehKp3JlYb2zbEgjORmYK9b9IKFZniVzs5jpS0_L_i9QqQr5lQeRzdl_G5BPkuna-dLuRX6r_B7Hiqawyglcw"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Pro Accountant</span>
+<span class="font-mono text-mono text-on-surface-variant text-xs">ID: 98442-BA</span>
+</div>
+</div>
+<!-- CTA -->
+<div class="px-md mt-sm">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-sm px-md rounded flex items-center justify-center gap-sm hover:bg-primary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                New Verification
+            </button>
+</div>
+<!-- Navigation -->
+<nav class="flex-1 flex flex-col gap-xs mt-md">
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md bg-secondary-container text-on-secondary-container rounded-lg px-md py-sm scale-98 transition-transform duration-150 cursor-pointer" href="#">
+<span class="material-symbols-outlined fill">search</span>
+<span class="font-label-md text-label-md">Customer Search</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">fingerprint</span>
+<span class="font-label-md text-label-md">Verifications</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-label-md text-label-md">Transactions</span>
+</a>
+</nav>
+<!-- Footer -->
+<div class="mt-auto flex flex-col gap-xs border-t border-outline-variant pt-md">
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-container-high rounded-lg transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-[280px] w-full min-h-screen overflow-y-auto">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-lg py-md h-16 sticky top-0 z-40 bg-surface-bright border-b border-outline-variant">
+<div class="flex-1"></div> <!-- Spacer for center alignment if needed, or left-aligned search -->
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:bg-surface-container-low p-sm rounded-full transition-colors cursor-pointer active:opacity-80 flex items-center justify-center w-10 h-10">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-low p-sm rounded-full transition-colors cursor-pointer active:opacity-80 flex items-center justify-center w-10 h-10">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-6 w-px bg-outline-variant mx-sm hidden sm:block"></div>
+<span class="font-label-md text-label-md text-on-surface hidden sm:block">Accountant Name</span>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 p-lg md:p-2xl max-w-container-max mx-auto w-full">
+<div class="mb-xl">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Customer Search</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Locate customer profiles for biometric verification and account access.</p>
+</div>
+<!-- Search Interface Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-lg mb-xl">
+<form class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Field: Name -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface" for="search-name">Full Name</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 20px;">person</span>
+<input class="w-full h-10 pl-10 pr-sm bg-surface rounded border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-body-md text-body-md text-on-surface placeholder:text-outline" id="search-name" placeholder="e.g. Jane Doe" type="text"/>
+</div>
+</div>
+<!-- Field: National ID -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface" for="search-id">National ID</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 20px;">badge</span>
+<input class="w-full h-10 pl-10 pr-sm bg-surface rounded border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-body-md text-body-md text-on-surface placeholder:text-outline" id="search-id" placeholder="Enter ID number" type="text"/>
+</div>
+</div>
+<!-- Field: Account Number -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface" for="search-account">Account Number</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 20px;">account_balance</span>
+<input class="w-full h-10 pl-10 pr-sm bg-surface rounded border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-body-md text-body-md text-on-surface placeholder:text-outline" id="search-account" placeholder="Enter account number" type="text"/>
+</div>
+</div>
+<!-- Actions -->
+<div class="md:col-span-3 flex justify-end gap-md mt-sm pt-md border-t border-outline-variant border-dashed">
+<button class="h-10 px-md font-label-md text-label-md text-on-surface-variant border border-outline-variant rounded hover:bg-surface-container-low transition-colors focus:ring-2 focus:ring-primary/20 outline-none" type="reset">
+                            Clear Filters
+                        </button>
+<button class="h-10 px-lg bg-primary text-on-primary font-label-md text-label-md rounded flex items-center gap-sm hover:bg-primary-container transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.05)] focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 outline-none" type="button">
+<span class="material-symbols-outlined" style="font-size: 18px;">search</span>
+                            Search Customers
+                        </button>
+</div>
+</form>
+</div>
+<!-- Results Area - Placeholder State -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex flex-col items-center justify-center p-3xl text-center min-h-[400px]">
+<div class="w-16 h-16 bg-surface-container-low rounded-full flex items-center justify-center mb-md border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 32px;">search_check</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Search to begin</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">Enter at least one parameter above (Name, National ID, or Account Number) to locate a customer profile in the secure database.</p>
+</div>
+</main>
+</div>
+</body></html>

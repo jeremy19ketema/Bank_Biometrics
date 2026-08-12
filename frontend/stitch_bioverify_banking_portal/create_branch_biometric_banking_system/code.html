@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Branch - VaultOS Enterprise</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary": "#00288e",
+                      "on-secondary-fixed": "#00201d",
+                      "surface-container-high": "#e8e7f1",
+                      "background": "#fbf8ff",
+                      "secondary-fixed": "#9cf2e8",
+                      "on-tertiary-container": "#ffa583",
+                      "tertiary-fixed-dim": "#ffb59a",
+                      "inverse-primary": "#b8c4ff",
+                      "on-secondary": "#ffffff",
+                      "primary-fixed-dim": "#b8c4ff",
+                      "on-surface": "#1a1b22",
+                      "inverse-surface": "#2f3037",
+                      "surface-tint": "#3755c3",
+                      "on-primary-container": "#a8b8ff",
+                      "secondary": "#006a63",
+                      "surface-bright": "#fbf8ff",
+                      "surface-container-highest": "#e3e1eb",
+                      "on-background": "#1a1b22",
+                      "inverse-on-surface": "#f1f0fa",
+                      "outline-variant": "#c4c5d5",
+                      "tertiary-container": "#872d00",
+                      "tertiary-fixed": "#ffdbce",
+                      "primary-container": "#1e40af",
+                      "on-error": "#ffffff",
+                      "surface-container-low": "#f4f2fc",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#006f67",
+                      "surface-container": "#eeedf7",
+                      "primary-fixed": "#dde1ff",
+                      "on-primary-fixed": "#001453",
+                      "error-container": "#ffdad6",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#802a00",
+                      "secondary-fixed-dim": "#80d5cb",
+                      "secondary-container": "#99efe5",
+                      "on-secondary-fixed-variant": "#00504a",
+                      "outline": "#757684",
+                      "tertiary": "#611e00",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#e3e1eb",
+                      "on-tertiary-fixed": "#380d00",
+                      "surface-dim": "#dad9e3",
+                      "surface": "#fbf8ff",
+                      "on-primary-fixed-variant": "#173bab",
+                      "on-error-container": "#93000a",
+                      "on-surface-variant": "#444653"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "md": "16px",
+                      "2xl": "48px",
+                      "base": "8px",
+                      "lg": "24px",
+                      "sm": "8px",
+                      "gutter": "24px",
+                      "container-max": "1440px",
+                      "xs": "4px",
+                      "3xl": "64px"
+              },
+              "fontFamily": {
+                      "mono": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "display": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "mono": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .elevation-0 { background-color: #F8FAFC; }
+        .elevation-1 { border: 1px solid #E2E8F0; box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.05); }
+        .focus-ring:focus-within { border-color: #00288e; box-shadow: 0 0 0 3px rgba(0, 40, 142, 0.2); outline: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low text-primary w-[280px] h-screen fixed left-0 top-0 border-r border-outline-variant flex flex-col h-full py-xl px-md hidden md:flex z-40">
+<div class="mb-xl px-sm">
+<h1 class="font-headline-md text-headline-md font-black text-primary">Admin Console</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Global Controller</p>
+</div>
+<ul class="flex-1 space-y-sm">
+<li>
+<a class="flex items-center gap-sm p-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-md">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm rounded-lg bg-secondary-container text-on-secondary-container transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-md">account_balance</span>
+<span class="font-label-md text-label-md">Branch Management</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-md">payments</span>
+<span class="font-label-md text-label-md">Transactions</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-md">receipt_long</span>
+<span class="font-label-md text-label-md">Audit Logs</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-md">group</span>
+<span class="font-label-md text-label-md">Users</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto space-y-md">
+<button class="w-full py-sm px-md bg-primary text-on-primary rounded-DEFAULT font-label-md text-label-md hover:opacity-90 transition-opacity">
+                Generate Report
+            </button>
+<ul class="space-y-sm">
+<li>
+<a class="flex items-center gap-sm p-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-md">contact_support</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-md">logout</span>
+<span class="font-label-md text-label-md">Sign Out</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-[280px] w-full min-h-screen elevation-0">
+<!-- TopNavBar -->
+<header class="bg-surface-container-lowest text-primary font-body-md text-body-md w-full h-16 border-b border-outline-variant flex justify-between items-center px-lg sticky top-0 z-50">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary md:hidden">VaultOS Enterprise</span>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex relative text-on-surface-variant">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2">search</span>
+<input class="pl-xl pr-sm py-sm rounded-DEFAULT border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all w-64 text-body-md font-body-md" placeholder="Search..." type="text"/>
+</div>
+<div class="flex items-center gap-xs">
+<button class="p-xs text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant ml-sm">
+<img alt="Super Admin Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate executive in a neutral studio setting, sharp focus, modern business attire, soft lighting, minimalist background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCu6CwwCIWWbKL5YuJqZZctnoWbZ_9SQ4DnpMgSmpLB3_B3cuAlUKVjXi9zQjLVbyQ7ShAVlXggUa6UcCZZ3E9IWBtF2rscFUEkgBjtYyylnLHeISf0dEPHEwOKsMSxmsVbjD7t878Gtzx5XAQSwXXgwSPRv0NaD7uN51O2fZv39s7j9nR7GlvZjmKhDtEoKfz086Hjc7hi7NVYyHU-FtBrKziGScT2jzTe6e4kkCs838UbI1W4F23RPg"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-md md:p-xl w-full max-w-container-max mx-auto">
+<!-- Breadcrumbs -->
+<nav class="mb-lg flex items-center text-body-md font-body-md text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">Branches</a>
+<span class="material-symbols-outlined mx-xs text-outline text-[16px]">chevron_right</span>
+<span class="text-on-surface font-medium">Create New Branch</span>
+</nav>
+<div class="mb-xl">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">Create New Branch</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Provision a new operational node within the regional hierarchy.</p>
+</div>
+<!-- Form Card -->
+<div class="bg-surface-container-lowest rounded-xl elevation-1 p-lg md:p-2xl max-w-3xl">
+<form class="space-y-lg">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Branch Name -->
+<div class="space-y-sm">
+<label class="block font-label-md text-label-md text-on-surface" for="branchName">Branch Name <span class="text-error">*</span></label>
+<div class="relative focus-ring rounded-DEFAULT border border-outline-variant bg-surface-container-lowest transition-all">
+<input class="w-full px-sm py-sm rounded-DEFAULT border-none bg-transparent outline-none font-body-md text-body-md text-on-surface placeholder:text-outline" id="branchName" placeholder="e.g. Downtown Central Node" type="text"/>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">The primary operational designation.</p>
+</div>
+<!-- Branch Code -->
+<div class="space-y-sm">
+<label class="block font-label-md text-label-md text-on-surface" for="branchCode">Branch Code <span class="text-error">*</span></label>
+<div class="relative focus-ring rounded-DEFAULT border border-outline-variant bg-surface-container-lowest transition-all">
+<span class="absolute left-sm top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">tag</span>
+<input class="w-full pl-xl pr-sm py-sm rounded-DEFAULT border-none bg-transparent outline-none font-mono text-mono text-on-surface placeholder:text-outline" id="branchCode" placeholder="BR-XXXX" type="text"/>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Unique alphanumeric identifier (e.g., BR-4092).</p>
+</div>
+</div>
+<!-- Address -->
+<div class="space-y-sm">
+<label class="block font-label-md text-label-md text-on-surface" for="address">Physical Address <span class="text-error">*</span></label>
+<div class="relative focus-ring rounded-DEFAULT border border-outline-variant bg-surface-container-lowest transition-all">
+<textarea class="w-full px-sm py-sm rounded-DEFAULT border-none bg-transparent outline-none font-body-md text-body-md text-on-surface placeholder:text-outline resize-none" id="address" placeholder="Enter complete street address..." rows="3"></textarea>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- City -->
+<div class="space-y-sm">
+<label class="block font-label-md text-label-md text-on-surface" for="city">City <span class="text-error">*</span></label>
+<div class="relative focus-ring rounded-DEFAULT border border-outline-variant bg-surface-container-lowest transition-all">
+<span class="absolute left-sm top-1/2 -translate-y-1/2 material-symbols-outlined text-outline">location_city</span>
+<input class="w-full pl-xl pr-sm py-sm rounded-DEFAULT border-none bg-transparent outline-none font-body-md text-body-md text-on-surface placeholder:text-outline" id="city" placeholder="City name" type="text"/>
+</div>
+</div>
+<!-- Status -->
+<div class="space-y-sm">
+<label class="block font-label-md text-label-md text-on-surface" for="status">Operational Status <span class="text-error">*</span></label>
+<div class="relative focus-ring rounded-DEFAULT border border-outline-variant bg-surface-container-lowest transition-all">
+<select class="w-full px-sm py-sm rounded-DEFAULT border-none bg-transparent outline-none font-body-md text-body-md text-on-surface appearance-none cursor-pointer" id="status">
+<option value="active">Active</option>
+<option value="inactive">Inactive</option>
+<option value="pending">Pending Verification</option>
+</select>
+<span class="absolute right-sm top-1/2 -translate-y-1/2 material-symbols-outlined text-outline pointer-events-none">expand_more</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Determines immediate network availability.</p>
+</div>
+</div>
+<!-- Divider -->
+<hr class="border-outline-variant my-lg"/>
+<!-- Actions -->
+<div class="flex justify-end gap-md pt-sm">
+<button class="px-lg py-sm rounded-DEFAULT border border-outline text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors min-w-[100px]" type="button">
+                            Cancel
+                        </button>
+<button class="px-lg py-sm rounded-DEFAULT bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-all shadow-sm hover:shadow active:shadow-inner min-w-[120px] flex justify-center items-center gap-xs" type="submit">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                            Save Branch
+                        </button>
+</div>
+</form>
+</div>
+</main>
+</div>
+</body></html>

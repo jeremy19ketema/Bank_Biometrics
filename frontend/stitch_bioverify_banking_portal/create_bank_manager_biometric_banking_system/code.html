@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bank Manager Form - OmniBank Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#3755c3",
+                        "on-primary-container": "#a8b8ff",
+                        "secondary": "#006a63",
+                        "surface-bright": "#fbf8ff",
+                        "surface-container-highest": "#e3e1eb",
+                        "on-background": "#1a1b22",
+                        "inverse-on-surface": "#f1f0fa",
+                        "outline-variant": "#c4c5d5",
+                        "tertiary-fixed": "#ffdbce",
+                        "primary-container": "#1e40af",
+                        "tertiary-container": "#872d00",
+                        "primary": "#00288e",
+                        "on-secondary-fixed": "#00201d",
+                        "surface-container-high": "#e8e7f1",
+                        "secondary-fixed": "#9cf2e8",
+                        "background": "#fbf8ff",
+                        "on-tertiary-container": "#ffa583",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "inverse-primary": "#b8c4ff",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "on-surface": "#1a1b22",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2f3037",
+                        "outline": "#757684",
+                        "tertiary": "#611e00",
+                        "surface-variant": "#e3e1eb",
+                        "on-tertiary-fixed": "#380d00",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dad9e3",
+                        "on-primary-fixed-variant": "#173bab",
+                        "surface": "#fbf8ff",
+                        "on-surface-variant": "#444653",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f4f2fc",
+                        "on-error": "#ffffff",
+                        "surface-container": "#eeedf7",
+                        "primary-fixed": "#dde1ff",
+                        "on-primary-fixed": "#001453",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#006f67",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#80d5cb",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "secondary-container": "#99efe5",
+                        "on-secondary-fixed-variant": "#00504a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "sm": "8px",
+                        "gutter": "24px",
+                        "3xl": "64px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "base": "8px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "mono": ["JetBrains Mono"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F8FAFC; /* Level 0 Background */
+        }
+        .surface-card {
+            background-color: #ffffff;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 0.5rem;
+        }
+        .input-field {
+            border: 1px solid #CBD5E1;
+            border-radius: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #1a1b22;
+            transition: all 0.2s ease;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #00288e;
+            box-shadow: 0 0 0 3px rgba(0, 40, 142, 0.2);
+        }
+        .form-label {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: #444653;
+            margin-bottom: 0.25rem;
+        }
+        .btn-primary {
+            background-color: #00288e;
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            min-height: 40px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        .btn-primary:hover {
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.2);
+            background-color: #001453;
+        }
+        .btn-ghost {
+            background-color: transparent;
+            color: #444653;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            min-height: 40px;
+            border: 1px solid #CBD5E1;
+            transition: all 0.2s ease;
+        }
+        .btn-ghost:hover {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface flex h-screen overflow-hidden bg-background">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-surface-dim font-body-md text-body-md fixed left-0 top-0 h-full w-[280px] border-r border-outline-variant dark:border-outline shadow-sm flex flex-col p-lg gap-md z-50">
+<div class="mb-xl">
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary tracking-tight">OmniBank Admin</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-xs">Enterprise Control</p>
+</div>
+<div class="flex-1 overflow-y-auto">
+<ul class="flex flex-col gap-sm">
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200 active:scale-[0.98] rounded-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                        Dashboard
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200 active:scale-[0.98] rounded-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance</span>
+                        Branch Management
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-primary dark:text-primary-fixed-dim font-bold bg-secondary-container/20 dark:bg-secondary-container/10 rounded-lg active:scale-[0.98] transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">supervisor_account</span>
+                        Bank Managers
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200 active:scale-[0.98] rounded-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">admin_panel_settings</span>
+                        Role Management
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200 active:scale-[0.98] rounded-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">history_edu</span>
+                        Audit Logs
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200 active:scale-[0.98] rounded-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">group</span>
+                        Users
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="bg-surface-container-lowest/80 dark:bg-surface-dim/80 backdrop-blur-md font-label-md text-label-md fixed top-0 right-0 left-[280px] h-16 border-b border-outline-variant dark:border-outline flex items-center justify-between px-lg z-40">
+<div class="flex items-center gap-md">
+<div class="relative focus-within:ring-2 focus-within:ring-primary/20 rounded-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">search</span>
+<input class="pl-10 pr-4 py-2 border border-outline-variant rounded-full text-body-md font-body-md focus:outline-none focus:border-primary bg-surface-container-lowest w-64 transition-all" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<button class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors relative">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer">
+<img alt="Administrator Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAu8aBQEyRKhMzWbz83SmTkonXzOPL5Pzxmvd1bRMt-AVeM8i_dRqIcPmbql23WTr15LxeUo8s9YKc_slHncXxXTH05jeVrGJP5o8B-LSGp1_1IkXncER4udHOp2p_7WJO5OdWUMPec94LB6X1hG0wn3czF06YsHFSgini4hbdAYO9m1Mk73j5m8m7EgrR5CELczdHaP9LTxBCGCSVb_CVJCTUf9Dk-3osqMWTqCKMlyedhBGeM74FFOQ"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-[280px] mt-16 p-2xl w-full h-[calc(100vh-4rem)] overflow-y-auto">
+<div class="max-w-[1000px] mx-auto">
+<div class="mb-xl flex items-center justify-between">
+<div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Add New Manager</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mt-xs">Create a new administrative profile for branch oversight.</p>
+</div>
+<div class="flex gap-md">
+<button class="btn-ghost">Cancel</button>
+<button class="btn-primary">Save Manager</button>
+</div>
+</div>
+<form class="flex flex-col gap-xl">
+<!-- Personal Information -->
+<section class="surface-card p-xl">
+<div class="mb-lg border-b border-outline-variant pb-md flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 0;">person</span>
+<h3 class="text-headline-md font-headline-md text-on-surface">Personal Information</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div>
+<label class="form-label" for="firstName">First Name</label>
+<input class="input-field" id="firstName" placeholder="Enter first name" type="text"/>
+</div>
+<div>
+<label class="form-label" for="lastName">Last Name</label>
+<input class="input-field" id="lastName" placeholder="Enter last name" type="text"/>
+</div>
+<div>
+<label class="form-label" for="email">Email Address</label>
+<input class="input-field" id="email" placeholder="manager@omnibank.com" type="email"/>
+</div>
+<div>
+<label class="form-label" for="phone">Phone Number</label>
+<input class="input-field" id="phone" placeholder="+1 (555) 000-0000" type="tel"/>
+</div>
+</div>
+</section>
+<!-- Assignment & Credentials -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-xl">
+<!-- Branch Assignment -->
+<section class="surface-card p-xl flex-1">
+<div class="mb-lg border-b border-outline-variant pb-md flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 0;">domain</span>
+<h3 class="text-headline-md font-headline-md text-on-surface">Assignment</h3>
+</div>
+<div class="flex flex-col gap-lg">
+<div>
+<label class="form-label" for="branch">Primary Branch</label>
+<select class="input-field bg-white cursor-pointer appearance-none" id="branch">
+<option disabled="" selected="" value="">Select a branch...</option>
+<option value="ny-01">New York - Downtown (NY-01)</option>
+<option value="lon-02">London - City (LON-02)</option>
+<option value="sf-03">San Francisco - Main (SF-03)</option>
+</select>
+<div class="relative pointer-events-none -mt-[30px] ml-auto mr-3 w-5 h-5 text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 0;">expand_more</span>
+</div>
+</div>
+<div>
+<label class="form-label">Status</label>
+<div class="flex items-center gap-lg mt-sm">
+<label class="flex items-center gap-sm cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary h-4 w-4 border-outline-variant" name="status" type="radio" value="active"/>
+<span class="text-body-md font-body-md text-on-surface">Active</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="text-primary focus:ring-primary h-4 w-4 border-outline-variant" name="status" type="radio" value="inactive"/>
+<span class="text-body-md font-body-md text-on-surface">Inactive</span>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- Login Credentials -->
+<section class="surface-card p-xl flex-1">
+<div class="mb-lg border-b border-outline-variant pb-md flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 0;">key</span>
+<h3 class="text-headline-md font-headline-md text-on-surface">Credentials</h3>
+</div>
+<div class="flex flex-col gap-lg">
+<div>
+<label class="form-label" for="username">System Username</label>
+<div class="flex">
+<span class="inline-flex items-center px-3 border border-r-0 border-outline-variant bg-surface-container-low text-on-surface-variant text-sm rounded-l-md font-mono">
+                                        OMNI-
+                                    </span>
+<input class="input-field rounded-l-none" id="username" placeholder="jdoe" type="text"/>
+</div>
+</div>
+<div>
+<label class="form-label" for="password">Temporary Password</label>
+<div class="relative">
+<input class="input-field pr-10" id="password" type="password" value="TempPass123!"/>
+<button class="absolute inset-y-0 right-0 pr-3 flex items-center text-on-surface-variant hover:text-primary" type="button">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">visibility</span>
+</button>
+</div>
+<p class="text-xs text-on-surface-variant mt-xs font-label-sm font-normal">Manager will be forced to change this upon first login.</p>
+</div>
+</div>
+</section>
+</div>
+</form>
+</div>
+</main>
+</body></html>

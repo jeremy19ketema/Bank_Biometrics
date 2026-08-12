@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Edit Bank Manager - OmniBank Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#3755c3",
+                        "on-primary-container": "#a8b8ff",
+                        "secondary": "#006a63",
+                        "surface-bright": "#fbf8ff",
+                        "surface-container-highest": "#e3e1eb",
+                        "on-background": "#1a1b22",
+                        "inverse-on-surface": "#f1f0fa",
+                        "outline-variant": "#c4c5d5",
+                        "tertiary-fixed": "#ffdbce",
+                        "primary-container": "#1e40af",
+                        "tertiary-container": "#872d00",
+                        "primary": "#00288e",
+                        "on-secondary-fixed": "#00201d",
+                        "surface-container-high": "#e8e7f1",
+                        "secondary-fixed": "#9cf2e8",
+                        "background": "#fbf8ff",
+                        "on-tertiary-container": "#ffa583",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "inverse-primary": "#b8c4ff",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "on-surface": "#1a1b22",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#2f3037",
+                        "outline": "#757684",
+                        "tertiary": "#611e00",
+                        "surface-variant": "#e3e1eb",
+                        "on-tertiary-fixed": "#380d00",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dad9e3",
+                        "on-primary-fixed-variant": "#173bab",
+                        "surface": "#fbf8ff",
+                        "on-surface-variant": "#444653",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f4f2fc",
+                        "on-error": "#ffffff",
+                        "surface-container": "#eeedf7",
+                        "primary-fixed": "#dde1ff",
+                        "on-primary-fixed": "#001453",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#006f67",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#80d5cb",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "secondary-container": "#99efe5",
+                        "on-secondary-fixed-variant": "#00504a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "sm": "8px",
+                        "gutter": "24px",
+                        "3xl": "64px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "base": "8px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "mono": ["JetBrains Mono"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #F8FAFC; /* Level 0 Background */
+        }
+        .surface-card {
+            background-color: #ffffff;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .input-field {
+            border: 1px solid #CBD5E1;
+            transition: all 0.2s ease-in-out;
+        }
+        .input-field:focus {
+            border-color: #00288e; /* Primary */
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 40, 142, 0.2);
+        }
+        .btn-primary {
+            background-color: #00288e;
+            color: #ffffff;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.2);
+        }
+        .btn-ghost {
+            border: 1px solid #CBD5E1;
+            background-color: transparent;
+            color: #444653; /* on-surface-variant */
+            transition: all 0.2s;
+        }
+        .btn-ghost:hover {
+            background-color: #f1f5f9;
+        }
+        .focus-ring:focus-visible {
+            outline: 2px solid #00288e;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased overflow-x-hidden">
+<!-- Suppressed Nav Shells as this is a task-focused screen (Edit Manager) -->
+<main class="min-h-screen flex flex-col pt-3xl pb-2xl px-lg md:px-3xl max-w-container-max mx-auto">
+<!-- Header -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-2xl">
+<div>
+<a class="inline-flex items-center text-primary font-label-sm hover:underline focus-ring mb-sm" href="#">
+<span class="material-symbols-outlined text-[16px] mr-xs">arrow_back</span>
+                    Back to Bank Managers
+                </a>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Edit Bank Manager</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Update profile information and system access for David Chen.</p>
+</div>
+<div class="flex items-center gap-sm">
+<button class="btn-ghost px-md h-[40px] rounded focus-ring flex items-center justify-center font-label-md text-label-md text-error border-error/30 hover:bg-error-container/20">
+<span class="material-symbols-outlined mr-xs text-[18px]">lock_reset</span>
+                    Reset Password
+                </button>
+<button class="btn-ghost px-md h-[40px] rounded focus-ring flex items-center justify-center font-label-md text-label-md text-error border-error/30 hover:bg-error-container/20">
+                    Suspend Access
+                </button>
+</div>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg lg:gap-gutter">
+<!-- Left Column: Form -->
+<div class="lg:col-span-8 flex flex-col gap-lg">
+<!-- Personal Information -->
+<section class="surface-card rounded-lg p-lg md:p-xl">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Personal Information</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="firstName">First Name</label>
+<input class="input-field rounded h-[40px] px-sm font-body-md text-body-md text-on-surface bg-surface-container-lowest" id="firstName" required="" type="text" value="David"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="lastName">Last Name</label>
+<input class="input-field rounded h-[40px] px-sm font-body-md text-body-md text-on-surface bg-surface-container-lowest" id="lastName" required="" type="text" value="Chen"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="email">Corporate Email</label>
+<input class="input-field rounded h-[40px] px-sm font-body-md text-body-md text-on-surface bg-surface-container-lowest" id="email" required="" type="email" value="david.chen@omnibank.com"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="phone">Phone Number</label>
+<input class="input-field rounded h-[40px] px-sm font-body-md text-body-md text-on-surface bg-surface-container-lowest" id="phone" type="tel" value="+1 (555) 019-8234"/>
+</div>
+</div>
+</section>
+<!-- Professional Details -->
+<section class="surface-card rounded-lg p-lg md:p-xl">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Professional Details</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="employeeId">Employee ID</label>
+<input class="input-field rounded h-[40px] px-sm font-mono text-mono text-on-surface-variant bg-surface-container cursor-not-allowed" disabled="" id="employeeId" type="text" value="EMP-89234"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="department">Department</label>
+<select class="input-field rounded h-[40px] px-sm font-body-md text-body-md text-on-surface bg-surface-container-lowest" id="department">
+<option>Retail Banking</option>
+<option selected="">Corporate Banking</option>
+<option>Wealth Management</option>
+</select>
+</div>
+<div class="flex flex-col gap-xs md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="assignedBranch">Assigned Branch</label>
+<select class="input-field rounded h-[40px] px-sm font-body-md text-body-md text-on-surface bg-surface-container-lowest" id="assignedBranch">
+<option>Downtown Central (BR-001)</option>
+<option selected="">Westside Hub (BR-042)</option>
+<option>Northway Branch (BR-015)</option>
+</select>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Security & Status -->
+<div class="lg:col-span-4 flex flex-col gap-lg">
+<!-- Status Card -->
+<section class="surface-card rounded-lg p-lg flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-full overflow-hidden mb-md border-2 border-primary/20">
+<img alt="David Chen Profile Picture" class="w-full h-full object-cover" data-alt="Professional headshot of an Asian male bank manager in his 40s wearing a crisp navy suit and light blue shirt. Studio lighting, corporate banking environment background, high resolution, trustworthy expression. Neutral light-mode corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZfbIHyHUhc4Yja_LTwZd20NKni2J0PLq9DjE8SDbeY_PMqGfIOpwFVM67dNRYNN-7Jm0E8IBTKxt7JnSpiJ1ZFk47IMqOJALLxQBG8HSNURmhb_OsPE8dbBhOKflVVX-biguWO1pjXmrQfLJggG5e6Fnpt-Q3FgGnjEhpZBb9--i1tERdWdwh1fN6ljPhpgp-KMphuWbE-3jDtF-cPqmsFyUFDTZ8OxEgaaNY4UL4YVfE1Gv5Rv2DyA"/>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">David Chen</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Senior Branch Manager</p>
+<span class="inline-flex items-center px-sm py-[2px] rounded-full bg-secondary-container/30 text-on-secondary-container font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-secondary mr-xs"></span> Active
+                    </span>
+</section>
+<!-- Biometric Verification Status -->
+<section class="surface-card rounded-lg p-lg">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-md">Biometric Status</h3>
+<div class="flex flex-col gap-sm">
+<div class="flex items-center justify-between p-sm border border-outline-variant/50 rounded bg-surface-container-low">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">fingerprint</span>
+<span class="font-label-md text-label-md text-on-surface">Fingerprint</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Enrolled</span>
+</div>
+<div class="flex items-center justify-between p-sm border border-outline-variant/50 rounded bg-surface-container-low">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary">face</span>
+<span class="font-label-md text-label-md text-on-surface">Face ID</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary">Enrolled</span>
+</div>
+<button class="btn-ghost w-full h-[40px] mt-xs rounded focus-ring flex items-center justify-center font-label-md text-label-md">
+                            Require Re-enrollment
+                        </button>
+</div>
+</section>
+</div>
+</div>
+<!-- Footer Actions -->
+<footer class="mt-xl pt-lg border-t border-outline-variant flex justify-end gap-sm">
+<button class="btn-ghost px-lg h-[40px] rounded focus-ring font-label-md text-label-md">Cancel</button>
+<button class="btn-primary px-lg h-[40px] rounded focus-ring font-label-md text-label-md">Save Changes</button>
+</footer>
+</main>
+</body></html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Verification Statistics - BioVault Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#757684",
+                        "primary": "#00288e",
+                        "surface-tint": "#3755c3",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#872d00",
+                        "primary-container": "#1e40af",
+                        "on-secondary-fixed-variant": "#00504a",
+                        "surface": "#fbf8ff",
+                        "surface-dim": "#dad9e3",
+                        "on-surface-variant": "#444653",
+                        "on-tertiary-fixed": "#380d00",
+                        "background": "#fbf8ff",
+                        "surface-container-highest": "#e3e1eb",
+                        "on-surface": "#1a1b22",
+                        "on-secondary-fixed": "#00201d",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#a8b8ff",
+                        "inverse-on-surface": "#f1f0fa",
+                        "primary-fixed": "#dde1ff",
+                        "on-tertiary-container": "#ffa583",
+                        "inverse-primary": "#b8c4ff",
+                        "on-background": "#1a1b22",
+                        "secondary-container": "#99efe5",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#006f67",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdbce",
+                        "on-primary-fixed-variant": "#173bab",
+                        "surface-container-low": "#f4f2fc",
+                        "surface-container": "#eeedf7",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary": "#006a63",
+                        "outline-variant": "#c4c5d5",
+                        "secondary-fixed-dim": "#80d5cb",
+                        "inverse-surface": "#2f3037",
+                        "tertiary": "#611e00",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "surface-container-high": "#e8e7f1",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#9cf2e8",
+                        "surface-variant": "#e3e1eb",
+                        "surface-bright": "#fbf8ff",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "on-primary-fixed": "#001453"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "8px",
+                        "container-max": "1440px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "gutter": "24px",
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "base": "8px",
+                        "3xl": "64px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "mono": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Tonal Layering Utilities */
+        .layer-1 {
+            background-color: theme('colors.surface-container-lowest');
+            border: 1px solid theme('colors.surface-container-highest');
+            box-shadow: 0 2px 4px -1px rgba(0,0,0,0.05);
+        }
+        .layer-2 {
+            background-color: theme('colors.surface-container-lowest');
+            border: 1px solid theme('colors.surface-container-highest');
+            box-shadow: 0 12px 24px -4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex antialiased">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container-low dark:bg-surface-dim border-r border-outline-variant dark:border-outline flex flex-col py-lg px-md z-20 hidden md:flex">
+<!-- Brand / Header -->
+<div class="mb-xl flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">BV</div>
+<div>
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed-dim">BioVault Admin</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Institutional Oversight</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 space-y-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">account_balance</span>
+<span class="font-label-md text-label-md">Institutions</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">fingerprint</span>
+<span class="font-label-md text-label-md">Biometric Registry</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">verified_user</span>
+<span class="font-label-md text-label-md">Compliance</span>
+</a>
+<!-- Active Tab: Audit Logs (Closest match for Verification Statistics/Failure Analysis) -->
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high transition-all opacity-90" href="#">
+<span class="material-symbols-outlined icon-fill">history_edu</span>
+<span class="font-label-md text-label-md">Audit Logs</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<!-- CTA -->
+<div class="mt-auto pt-lg">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-sm rounded-lg hover:bg-primary-container transition-colors focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                New Report
+            </button>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col md:pl-[280px] min-w-0">
+<!-- TopNavBar -->
+<header class="bg-surface border-b border-outline-variant shadow-sm flex justify-between items-center h-16 w-full px-lg sticky top-0 z-10">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary">BioVault Administration</span>
+</div>
+<div class="flex items-center gap-lg">
+<!-- Search -->
+<div class="relative hidden sm:block focus-within:ring-2 focus-within:ring-primary rounded-lg">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-64 pl-xl pr-md py-sm bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md focus:outline-none" placeholder="Search records..." type="text"/>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-sm text-on-surface-variant">
+<button class="p-xs rounded-full hover:bg-surface-container transition-colors hover:text-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-xs rounded-full hover:bg-surface-container transition-colors hover:text-primary">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+<!-- Profile -->
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant">
+<img alt="Administrator Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8zkzKNYL90x-4sednSTe5ncnJYVS9Si69odaaKZiOU_gSwRieECvWLrXZjlXUhZ0TCvBlgMhopAX551I_9BxiO7gidLTNJQKZ-RbZ2yG-x-uuNkxLPptcMyDbt9mLgvUqpSN6_GcZuAJOQvheAcFUvdjbpg2AWs545F_D5e46j8WLtD_ltZQMWfiPTOYaayWwqEZRr40nP83WL2gMU_f3Cdfwt4tTXIjmxotXJIP9MSHQ9hcIPeAlyw"/>
+</div>
+</div>
+</header>
+<!-- Page Content Canvas -->
+<main class="flex-1 p-md md:p-lg lg:p-2xl overflow-y-auto">
+<div class="max-w-container-max mx-auto space-y-2xl">
+<!-- Page Header -->
+<section>
+<h2 class="font-display text-display text-on-surface mb-xs">Verification Statistics</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">System-wide accuracy and failure root cause analysis over the last 30 days.</p>
+</section>
+<!-- KPI Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- KPI 1 -->
+<div class="layer-1 rounded-xl p-lg flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-md opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-primary">check_circle</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Overall Success Rate</p>
+<div class="flex items-end gap-sm">
+<span class="font-display text-display text-primary">99.8%</span>
+<span class="font-label-sm text-label-sm text-secondary mb-1 flex items-center">
+<span class="material-symbols-outlined text-[16px]">arrow_upward</span> 0.1%
+                                </span>
+</div>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="layer-1 rounded-xl p-lg flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-md opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-4xl text-error">warning</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Failure Rate</p>
+<div class="flex items-end gap-sm">
+<span class="font-display text-display text-on-surface">0.2%</span>
+<span class="font-label-sm text-label-sm text-secondary mb-1 flex items-center">
+<span class="material-symbols-outlined text-[16px]">arrow_downward</span> 0.05%
+                                </span>
+</div>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="layer-1 rounded-xl p-lg flex flex-col justify-between h-32 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-md opacity-10">
+<span class="material-symbols-outlined text-4xl text-on-surface">analytics</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Total Attempts</p>
+<div class="flex items-end gap-sm">
+<span class="font-display text-display text-on-surface">1,245,892</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Charts Area (Asymmetric Layout) -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Daily Trends Chart -->
+<div class="layer-1 rounded-xl p-lg lg:col-span-2 flex flex-col">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md text-on-surface">Daily Verification Trends</h3>
+<button class="p-xs rounded hover:bg-surface-container text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<!-- Placeholder for Area Chart -->
+<div class="flex-1 min-h-[300px] w-full bg-surface-container-low rounded-lg border border-outline-variant flex items-center justify-center relative overflow-hidden">
+<!-- Visual mock of an area chart -->
+<div class="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-50"></div>
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,100 L0,50 Q25,30 50,60 T100,40 L100,100 Z" fill="rgba(0,40,142,0.1)"></path>
+<path d="M0,50 Q25,30 50,60 T100,40" fill="none" stroke="theme('colors.primary')" stroke-width="2"></path>
+<path d="M0,100 L0,95 Q25,90 50,92 T100,85 L100,100 Z" fill="rgba(186,26,26,0.1)"></path>
+<path d="M0,95 Q25,90 50,92 T100,85" fill="none" stroke="theme('colors.error')" stroke-dasharray="2 2" stroke-width="1"></path>
+</svg>
+<div class="absolute bottom-md left-md flex gap-md">
+<div class="flex items-center gap-xs font-label-sm text-label-sm"><div class="w-3 h-3 bg-primary rounded-sm"></div> Success</div>
+<div class="flex items-center gap-xs font-label-sm text-label-sm"><div class="w-3 h-3 bg-error rounded-sm"></div> Failure</div>
+</div>
+</div>
+</div>
+<!-- Root Cause Donut Chart -->
+<div class="layer-1 rounded-xl p-lg flex flex-col">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md text-on-surface">Failure Root Cause</h3>
+<button class="p-xs rounded hover:bg-surface-container text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<!-- Placeholder for Donut Chart -->
+<div class="flex-1 flex flex-col items-center justify-center min-h-[300px]">
+<div class="relative w-48 h-48 mb-lg">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<!-- Background Circle -->
+<path class="text-surface-container-highest" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="100, 100" stroke-width="4"></path>
+<!-- Image Quality (60%) -->
+<path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="60, 100" stroke-width="4"></path>
+<!-- Spoofing (25%) -->
+<path class="text-tertiary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="25, 100" stroke-dashoffset="-60" stroke-width="4"></path>
+<!-- DB Timeout (15%) -->
+<path class="text-error" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="15, 100" stroke-dashoffset="-85" stroke-width="4"></path>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display text-display text-on-surface">2.4k</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Total Failures</span>
+</div>
+</div>
+<div class="w-full space-y-sm">
+<div class="flex justify-between items-center font-label-sm text-label-sm">
+<div class="flex items-center gap-xs"><div class="w-3 h-3 bg-primary rounded-sm"></div> Image Quality</div>
+<span class="font-mono">60%</span>
+</div>
+<div class="flex justify-between items-center font-label-sm text-label-sm">
+<div class="flex items-center gap-xs"><div class="w-3 h-3 bg-tertiary rounded-sm"></div> Spoofing Attempt</div>
+<span class="font-mono">25%</span>
+</div>
+<div class="flex justify-between items-center font-label-sm text-label-sm">
+<div class="flex items-center gap-xs"><div class="w-3 h-3 bg-error rounded-sm"></div> DB Timeout</div>
+<span class="font-mono">15%</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Detailed Log Table -->
+<section class="layer-1 rounded-xl overflow-hidden">
+<div class="p-lg border-b border-surface-container-highest flex justify-between items-center bg-surface">
+<h3 class="font-headline-md text-headline-md text-on-surface">Recent Flagged Verifications</h3>
+<button class="flex items-center gap-xs px-sm py-xs border border-outline-variant rounded font-label-md text-label-md hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                        </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold">Timestamp</th>
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold">Request ID</th>
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold">Modality</th>
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold">Root Cause</th>
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold">Risk Score</th>
+<th class="p-md font-label-sm text-label-sm text-on-surface-variant font-semibold">Action</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md divide-y divide-surface-container-highest">
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="p-md font-mono text-on-surface">2023-10-27 14:32:01</td>
+<td class="p-md font-mono text-primary">REQ-88392A</td>
+<td class="p-md"><div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]">face</span> Facial</div></td>
+<td class="p-md">Spoofing Attempt</td>
+<td class="p-md"><span class="inline-block px-sm py-xs rounded bg-error-container text-on-error-container font-label-sm font-bold">98/100</span></td>
+<td class="p-md"><button class="text-primary hover:underline font-label-md">Investigate</button></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="p-md font-mono text-on-surface">2023-10-27 14:28:45</td>
+<td class="p-md font-mono text-primary">REQ-88391B</td>
+<td class="p-md"><div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]">fingerprint</span> Fingerprint</div></td>
+<td class="p-md">Image Quality (Blur)</td>
+<td class="p-md"><span class="inline-block px-sm py-xs rounded bg-surface-variant text-on-surface-variant font-label-sm font-bold">12/100</span></td>
+<td class="p-md"><button class="text-primary hover:underline font-label-md">View Log</button></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="p-md font-mono text-on-surface">2023-10-27 14:15:12</td>
+<td class="p-md font-mono text-primary">REQ-88390C</td>
+<td class="p-md"><div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]">face</span> Facial</div></td>
+<td class="p-md">Database Timeout</td>
+<td class="p-md"><span class="inline-block px-sm py-xs rounded bg-surface-variant text-on-surface-variant font-label-sm font-bold">--</span></td>
+<td class="p-md"><button class="text-primary hover:underline font-label-md">Retry Sync</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Transaction Analytics - VeriCore Enterprise</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Custom Scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2f3037; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #444653; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #757684; 
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e3e1eb",
+                        "on-secondary-fixed-variant": "#00504a",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#9cf2e8",
+                        "on-background": "#1a1b22",
+                        "tertiary-fixed": "#ffdbce",
+                        "on-secondary-fixed": "#00201d",
+                        "on-primary-fixed": "#001453",
+                        "secondary-container": "#99efe5",
+                        "outline-variant": "#c4c5d5",
+                        "on-error-container": "#93000a",
+                        "background": "#fbf8ff",
+                        "on-tertiary-container": "#ffa583",
+                        "surface-dim": "#dad9e3",
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#e3e1eb",
+                        "primary-container": "#1e40af",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbf8ff",
+                        "on-tertiary-fixed-variant": "#802a00",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#444653",
+                        "on-tertiary-fixed": "#380d00",
+                        "inverse-on-surface": "#f1f0fa",
+                        "primary": "#00288e",
+                        "outline": "#757684",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#a8b8ff",
+                        "inverse-primary": "#b8c4ff",
+                        "tertiary-fixed-dim": "#ffb59a",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#2f3037",
+                        "on-primary-fixed-variant": "#173bab",
+                        "surface": "#fbf8ff",
+                        "secondary-fixed-dim": "#80d5cb",
+                        "primary-fixed": "#dde1ff",
+                        "tertiary-container": "#872d00",
+                        "surface-tint": "#3755c3",
+                        "surface-container-high": "#e8e7f1",
+                        "tertiary": "#611e00",
+                        "secondary": "#006a63",
+                        "surface-container": "#eeedf7",
+                        "on-surface": "#1a1b22",
+                        "on-secondary-container": "#006f67",
+                        "surface-container-low": "#f4f2fc",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "3xl": "64px",
+                        "2xl": "48px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "display": ["Inter"],
+                        "mono": ["JetBrains Mono"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface dark:bg-inverse-surface text-on-surface dark:text-surface font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-full py-xl w-[280px] h-screen fixed left-0 top-0 border-r border-outline-variant dark:border-outline bg-surface-container-lowest dark:bg-inverse-surface z-50">
+<div class="px-lg mb-2xl">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">VeriCore Enterprise</h1>
+<p class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant mt-xs">Institutional Access</p>
+</div>
+<div class="px-lg mb-lg">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary font-label-md text-label-md h-10 rounded-DEFAULT hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                New Verification
+            </button>
+</div>
+<ul class="flex-1 px-md flex flex-col gap-xs overflow-y-auto">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-4 border-primary bg-primary-container/10 dark:bg-primary-container/20 scale-98 duration-200" href="#">
+<span class="material-symbols-outlined filled">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-all" href="#">
+<span class="material-symbols-outlined">fingerprint</span>
+<span class="font-label-md text-label-md">Verification</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-all" href="#">
+<span class="material-symbols-outlined">face</span>
+<span class="font-label-md text-label-md">Biometrics</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-all" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">Audit Logs</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Clients</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">System Settings</span>
+</a>
+</li>
+</ul>
+<div class="px-md mt-auto pt-lg border-t border-outline-variant dark:border-outline">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container dark:hover:bg-surface-variant transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Log Out</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-[280px] min-h-screen flex flex-col">
+<!-- TopAppBar (Mobile & Desktop) -->
+<header class="w-full h-16 border-b border-outline-variant dark:border-outline bg-surface dark:bg-inverse-surface flex justify-between items-center px-lg w-full max-w-container-max mx-auto sticky top-0 z-40">
+<div class="flex items-center gap-md md:hidden">
+<button class="text-on-surface-variant dark:text-surface-variant">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">VeriCore Enterprise</h1>
+</div>
+<div class="hidden md:flex items-center bg-surface-container dark:bg-surface-variant rounded-lg px-md py-sm border border-outline-variant dark:border-outline focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all w-96">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-surface-variant mr-sm" style="font-size: 20px;">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md font-body-md w-full text-on-surface dark:text-surface placeholder:text-on-surface-variant dark:placeholder:text-surface-variant p-0 h-5" placeholder="Search transactions, logs, clients..." type="text"/>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors p-sm rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors p-sm rounded-full hidden md:block">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="hidden lg:block text-primary dark:text-primary-fixed-dim font-label-md text-label-md hover:bg-surface-container-low dark:hover:bg-surface-variant px-md py-sm rounded-DEFAULT transition-colors border border-outline-variant dark:border-outline">
+                    Support
+                </button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant dark:border-outline">
+<img alt="Administrator profile" class="w-full h-full object-cover" data-alt="A highly detailed close-up professional headshot of a corporate system administrator. The subject has a neutral, focused expression. Lighting is bright and even, set against a pristine, minimal white background, embodying a sterile, secure corporate banking environment. Sharp focus, high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAAaVKMcc-YBQTaT-r3fKGL4dnaAVKgZIiAvg0vyjC4xs23YXwbCawHjMfjwIkhW9cC0KHfaHp9xo6a2ylTMJCn0qZPY1C6j671etwPO1zI7bzytZS550TWkD6WnxGe5aItcwqIW9Kc-ak8H9L6H5mT_jkCOM2jGaHk3UCmw-RwVUX91WiG1dvqu0zeT77TUsoAVkjC-rfrJk-3RFGQGnTK0Ek2FRJM6llQcz5_INpqAlwUOqJisqUNQ"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="flex-1 p-md md:p-xl max-w-container-max mx-auto w-full flex flex-col gap-xl">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<h2 class="font-headline-lg text-headline-lg md:font-display md:text-display text-on-surface dark:text-surface mb-xs">Transaction Analytics</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant dark:text-surface-variant">Real-time monitoring of financial flows and system health.</p>
+</div>
+<div class="flex items-center gap-sm">
+<button class="flex items-center gap-xs px-md py-sm rounded-DEFAULT border border-outline-variant dark:border-outline text-on-surface dark:text-surface font-label-md text-label-md hover:bg-surface-container dark:hover:bg-surface-variant transition-colors bg-surface dark:bg-inverse-surface">
+<span class="material-symbols-outlined" style="font-size: 18px;">calendar_today</span>
+                        Last 24 Hours
+                    </button>
+<button class="flex items-center gap-xs px-md py-sm rounded-DEFAULT border border-outline-variant dark:border-outline text-on-surface dark:text-surface font-label-md text-label-md hover:bg-surface-container dark:hover:bg-surface-variant transition-colors bg-surface dark:bg-inverse-surface">
+<span class="material-symbols-outlined" style="font-size: 18px;">filter_list</span>
+                        Filter
+                    </button>
+</div>
+</div>
+<!-- Summary Cards (Bento Grid Top Row) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md md:gap-lg">
+<!-- Total Value -->
+<div class="bg-surface-container-lowest dark:bg-inverse-surface border border-outline-variant dark:border-outline rounded-xl p-lg shadow-[0_2px_4px_rgba(0,0,0,0.05)] relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-lg opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined" style="font-size: 64px;">account_balance</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant uppercase tracking-wider mb-sm">Total Transaction Value</p>
+<h3 class="font-headline-lg text-headline-lg text-on-surface dark:text-surface mb-xs font-mono tracking-tight">$42,891,050<span class="text-on-surface-variant dark:text-surface-variant text-body-lg">.00</span></h3>
+<div class="flex items-center gap-xs text-secondary dark:text-secondary-fixed font-label-md text-label-md">
+<span class="material-symbols-outlined" style="font-size: 16px;">trending_up</span>
+<span>+12.4% vs yesterday</span>
+</div>
+</div>
+<!-- Active Sessions -->
+<div class="bg-surface-container-lowest dark:bg-inverse-surface border border-outline-variant dark:border-outline rounded-xl p-lg shadow-[0_2px_4px_rgba(0,0,0,0.05)] relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-lg opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined" style="font-size: 64px;">devices</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant uppercase tracking-wider mb-sm">Active Biometric Sessions</p>
+<h3 class="font-headline-lg text-headline-lg text-on-surface dark:text-surface mb-xs font-mono tracking-tight">8,402</h3>
+<div class="flex items-center gap-xs text-secondary dark:text-secondary-fixed font-label-md text-label-md">
+<span class="material-symbols-outlined" style="font-size: 16px;">trending_up</span>
+<span>+3.1% vs yesterday</span>
+</div>
+</div>
+<!-- Peak Hour Load -->
+<div class="bg-surface-container-lowest dark:bg-inverse-surface border border-outline-variant dark:border-outline rounded-xl p-lg shadow-[0_2px_4px_rgba(0,0,0,0.05)] relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-lg opacity-10 group-hover:opacity-20 transition-opacity text-error dark:text-error-container">
+<span class="material-symbols-outlined" style="font-size: 64px;">speed</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant uppercase tracking-wider mb-sm">Peak Hour Load (TPS)</p>
+<h3 class="font-headline-lg text-headline-lg text-on-surface dark:text-surface mb-xs font-mono tracking-tight">1,245</h3>
+<div class="flex items-center gap-xs text-error dark:text-error-container font-label-md text-label-md">
+<span class="material-symbols-outlined" style="font-size: 16px;">warning</span>
+<span>Nearing capacity threshold</span>
+</div>
+</div>
+</div>
+<!-- Charts Row (Bento Grid Middle) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-md md:gap-lg">
+<!-- Main Area Chart -->
+<div class="lg:col-span-2 bg-surface-container-lowest dark:bg-inverse-surface border border-outline-variant dark:border-outline rounded-xl p-lg shadow-[0_2px_4px_rgba(0,0,0,0.05)] flex flex-col h-[400px]">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-headline-md text-headline-md text-on-surface dark:text-surface">Transaction Volume Flow</h3>
+<div class="flex gap-sm">
+<span class="flex items-center gap-xs font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant">
+<span class="w-3 h-3 rounded-full bg-primary inline-block"></span> Verified
+                            </span>
+<span class="flex items-center gap-xs font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant">
+<span class="w-3 h-3 rounded-full bg-outline-variant inline-block"></span> Unverified
+                            </span>
+</div>
+</div>
+<div class="flex-1 relative w-full h-full">
+<canvas id="volumeChart"></canvas>
+</div>
+</div>
+<!-- Donut Chart -->
+<div class="bg-surface-container-lowest dark:bg-inverse-surface border border-outline-variant dark:border-outline rounded-xl p-lg shadow-[0_2px_4px_rgba(0,0,0,0.05)] flex flex-col h-[400px]">
+<h3 class="font-headline-md text-headline-md text-on-surface dark:text-surface mb-lg">Status Distribution</h3>
+<div class="flex-1 relative w-full h-full flex items-center justify-center">
+<div class="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
+<span class="font-headline-lg text-headline-lg text-on-surface dark:text-surface font-mono">98.2%</span>
+<span class="font-label-sm text-label-sm text-secondary dark:text-secondary-fixed uppercase tracking-wider">Success Rate</span>
+</div>
+<canvas id="statusChart"></canvas>
+</div>
+<div class="mt-lg grid grid-cols-2 gap-sm border-t border-outline-variant dark:border-outline pt-md">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant">Success</p>
+<p class="font-label-md text-label-md text-on-surface dark:text-surface font-mono">42,105</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant">Failed</p>
+<p class="font-label-md text-label-md text-error dark:text-error-container font-mono">786</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Row: Alerts List -->
+<div class="bg-surface-container-lowest dark:bg-inverse-surface border border-outline-variant dark:border-outline rounded-xl overflow-hidden shadow-[0_2px_4px_rgba(0,0,0,0.05)]">
+<div class="p-lg border-b border-outline-variant dark:border-outline flex justify-between items-center bg-surface-container-low dark:bg-surface-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface dark:text-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-error dark:text-error-container">campaign</span>
+                        High-Value Alerts
+                    </h3>
+<button class="text-primary dark:text-primary-fixed-dim font-label-md text-label-md hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low dark:bg-surface-variant border-b border-outline-variant dark:border-outline">
+<th class="py-sm px-lg font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">Tx ID</th>
+<th class="py-sm px-lg font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">Time</th>
+<th class="py-sm px-lg font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">Amount</th>
+<th class="py-sm px-lg font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">Flag Reason</th>
+<th class="py-sm px-lg font-label-sm text-label-sm text-on-surface-variant dark:text-surface-variant uppercase tracking-wider text-right">Action</th>
+</tr>
+</thead>
+<tbody class="font-body-md">
+<tr class="border-b border-outline-variant dark:border-outline hover:bg-surface-container dark:hover:bg-surface-variant transition-colors group">
+<td class="py-md px-lg font-mono text-on-surface dark:text-surface">TX-992A-4B</td>
+<td class="py-md px-lg text-on-surface-variant dark:text-surface-variant font-mono">10:42:05 UTC</td>
+<td class="py-md px-lg font-mono text-on-surface dark:text-surface">$1,250,000.00</td>
+<td class="py-md px-lg">
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded-sm bg-error/10 dark:bg-error-container/20 text-error dark:text-error-container font-label-sm text-label-sm">
+                                        Velocity Exceeded
+                                    </span>
+</td>
+<td class="py-md px-lg text-right">
+<button class="text-primary dark:text-primary-fixed-dim font-label-md text-label-md border border-outline-variant dark:border-outline px-sm py-xs rounded hover:bg-primary-container/10 transition-colors">Review</button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant dark:border-outline hover:bg-surface-container dark:hover:bg-surface-variant transition-colors group">
+<td class="py-md px-lg font-mono text-on-surface dark:text-surface">TX-771C-9X</td>
+<td class="py-md px-lg text-on-surface-variant dark:text-surface-variant font-mono">10:38:12 UTC</td>
+<td class="py-md px-lg font-mono text-on-surface dark:text-surface">$850,000.00</td>
+<td class="py-md px-lg">
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded-sm bg-tertiary/10 dark:bg-tertiary-container/20 text-tertiary dark:text-tertiary-fixed font-label-sm text-label-sm">
+                                        Geo-Mismatch
+                                    </span>
+</td>
+<td class="py-md px-lg text-right">
+<button class="text-primary dark:text-primary-fixed-dim font-label-md text-label-md border border-outline-variant dark:border-outline px-sm py-xs rounded hover:bg-primary-container/10 transition-colors">Review</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container dark:hover:bg-surface-variant transition-colors group">
+<td class="py-md px-lg font-mono text-on-surface dark:text-surface">TX-440P-2M</td>
+<td class="py-md px-lg text-on-surface-variant dark:text-surface-variant font-mono">10:15:44 UTC</td>
+<td class="py-md px-lg font-mono text-on-surface dark:text-surface">$500,000.00</td>
+<td class="py-md px-lg">
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded-sm bg-tertiary/10 dark:bg-tertiary-container/20 text-tertiary dark:text-tertiary-fixed font-label-sm text-label-sm">
+                                        New Device
+                                    </span>
+</td>
+<td class="py-md px-lg text-right">
+<button class="text-primary dark:text-primary-fixed-dim font-label-md text-label-md border border-outline-variant dark:border-outline px-sm py-xs rounded hover:bg-primary-container/10 transition-colors">Review</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Chart.js Configuration for Dark/Light mode responsiveness
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        const gridColor = isDarkMode ? '#444653' : '#e3e1eb'; // outline-variant / surface-variant
+        const textColor = isDarkMode ? '#c4c5d5' : '#444653'; // outline-variant / on-surface-variant
+        const primaryColor = '#00288e';
+        const primaryColorAlpha = 'rgba(0, 40, 142, 0.1)';
+        const secondaryColor = '#006a63';
+        const errorColor = '#ba1a1a';
+        const outlineColor = isDarkMode ? '#757684' : '#c4c5d5';
+
+        // Volume Area Chart
+        const ctxVolume = document.getElementById('volumeChart').getContext('2d');
+        new Chart(ctxVolume, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                datasets: [
+                    {
+                        label: 'Verified Transactions',
+                        data: [1200, 800, 3500, 5000, 4200, 2800, 1500],
+                        borderColor: primaryColor,
+                        backgroundColor: primaryColorAlpha,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Unverified',
+                        data: [150, 100, 400, 600, 500, 300, 200],
+                        borderColor: outlineColor,
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: isDarkMode ? '#2f3037' : '#ffffff',
+                        titleColor: isDarkMode ? '#ffffff' : '#1a1b22',
+                        bodyColor: isDarkMode ? '#c4c5d5' : '#444653',
+                        borderColor: gridColor,
+                        borderWidth: 1,
+                        padding: 12,
+                        bodyFont: { family: 'JetBrains Mono', size: 13 }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { color: textColor, font: { family: 'Inter', size: 12 } }
+                    },
+                    y: {
+                        grid: { color: gridColor, borderDash: [4, 4], drawBorder: false },
+                        ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 12 }, maxTicksLimit: 6 }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // Status Donut Chart
+        const ctxStatus = document.getElementById('statusChart').getContext('2d');
+        new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: ['Success', 'Failed', 'Pending'],
+                datasets: [{
+                    data: [98.2, 1.2, 0.6],
+                    backgroundColor: [
+                        secondaryColor, // secondary
+                        errorColor,     // error
+                        outlineColor    // outline
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '80%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: isDarkMode ? '#2f3037' : '#ffffff',
+                        titleColor: isDarkMode ? '#ffffff' : '#1a1b22',
+                        bodyColor: isDarkMode ? '#c4c5d5' : '#444653',
+                        borderColor: gridColor,
+                        borderWidth: 1,
+                        padding: 12,
+                        bodyFont: { family: 'JetBrains Mono', size: 13 }
+                    }
+                }
+            }
+        });
+    </script>
+</body></html>

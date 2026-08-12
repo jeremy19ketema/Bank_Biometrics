@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile Settings - Aegis Biometric</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error": "#ba1a1a",
+                    "surface-container": "#eeedf7",
+                    "surface-tint": "#3755c3",
+                    "on-tertiary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#006f67",
+                    "surface-container-low": "#f4f2fc",
+                    "on-surface": "#1a1b22",
+                    "surface-variant": "#e3e1eb",
+                    "outline-variant": "#c4c5d5",
+                    "on-tertiary-container": "#ffa583",
+                    "on-primary-fixed": "#001453",
+                    "on-background": "#1a1b22",
+                    "primary-fixed": "#dde1ff",
+                    "on-tertiary-fixed-variant": "#802a00",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2f3037",
+                    "on-primary-container": "#a8b8ff",
+                    "inverse-on-surface": "#f1f0fa",
+                    "primary": "#00288e",
+                    "secondary-fixed": "#9cf2e8",
+                    "primary-container": "#1e40af",
+                    "background": "#fbf8ff",
+                    "secondary-fixed-dim": "#80d5cb",
+                    "secondary-container": "#99efe5",
+                    "surface-container-highest": "#e3e1eb",
+                    "on-secondary-fixed": "#00201d",
+                    "tertiary-fixed": "#ffdbce",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#b8c4ff",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed-dim": "#b8c4ff",
+                    "on-primary-fixed-variant": "#173bab",
+                    "surface-container-high": "#e8e7f1",
+                    "surface-bright": "#fbf8ff",
+                    "tertiary": "#611e00",
+                    "on-secondary-fixed-variant": "#00504a",
+                    "on-error-container": "#93000a",
+                    "secondary": "#006a63",
+                    "surface-dim": "#dad9e3",
+                    "surface": "#fbf8ff",
+                    "on-tertiary-fixed": "#380d00",
+                    "on-surface-variant": "#444653",
+                    "tertiary-fixed-dim": "#ffb59a",
+                    "outline": "#757684",
+                    "tertiary-container": "#872d00",
+                    "error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "base": "8px",
+                    "md": "16px",
+                    "container-max": "1440px",
+                    "2xl": "48px",
+                    "gutter": "24px",
+                    "3xl": "64px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Inter"
+                    ],
+                    "label-sm": [
+                            "Inter"
+                    ],
+                    "headline-lg-mobile": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "mono": [
+                            "JetBrains Mono"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "display": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "mono": [
+                            "13px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display": [
+                            "36px",
+                            {
+                                    "lineHeight": "44px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex antialiased">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col py-md px-base bg-surface-container-low text-primary fixed left-0 top-0 h-full w-[280px] border-r border-outline-variant z-20 transition-all duration-200">
+<div class="mb-xl px-base">
+<h1 class="font-headline-md text-headline-md text-primary font-bold">Aegis Biometric</h1>
+</div>
+<div class="flex items-center gap-md mb-2xl px-base">
+<img class="w-12 h-12 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a corporate system administrator in a brightly lit modern office setting. The individual is wearing a crisp collared shirt. The background features subtle biometric UI overlays in cool blue tones, reinforcing the high-security fintech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiHc43a8FSkNcM_QqUPSlHlFmND26-2NmtTr-0Foa2tANOJMqolrHibOgTh8HLevF9mvr1nF-UrkfjnO5-i4pDhD6sNFWfKjJXNNo5JoXZSMstfKamW_FLffv3uasQQ8gb3SB6_H3B8ROcKtQKq0sJCSx_NLyMz-Hm-_uBezd0Ruc4WbjqNbM-e7Db1zyUkcpJxt1dBi1mRwuURDnITUFtNToh-lrgj9K00kvKMER--J7AlrOjxAhzTw"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface">System Admin</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Tier 1 Access</p>
+</div>
+</div>
+<div class="flex-1 space-y-sm">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">fingerprint</span>
+<span class="font-label-md text-label-md">Identity Vault</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">Logs</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container font-bold rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined fill">security</span>
+<span class="font-label-md text-label-md">Security</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">help_center</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</div>
+<div class="mt-auto space-y-md">
+<button class="w-full bg-primary text-on-primary py-sm px-md rounded font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm">
+                Verify Identity
+            </button>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-[280px] flex flex-col min-h-screen">
+<!-- TopNavBar (Mobile) -->
+<header class="md:hidden flex justify-between items-center h-16 px-gutter w-full top-0 bg-surface text-primary border-b border-outline-variant z-10 sticky">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined">menu</span>
+<span class="font-headline-md text-headline-md font-bold">Aegis Biometric</span>
+</div>
+<img class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a corporate system administrator in a brightly lit modern office setting. The individual is wearing a crisp collared shirt. The background features subtle biometric UI overlays in cool blue tones, reinforcing the high-security fintech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP0pvKt41SoUTuXstkByrtsOfHDCKYiDbGjohiQNBlVjhCo-CXv2v7f_7xFyH0DE8XfyOylrVP4gx_uzA2Xq8sCqAg9GN0RLLKV8tWBR_Rejjfc2q1IG8w1YR60XGPiVk9wKqtI2FUiF_JIygQZ3Hewh4L_bkuqEDHOk08SBcn9jpioMiDmaDD1aW0C2Pn-23qFJbGI9vbmkgkO8ECjbVRo1sSuw5q9UjrdZvD-l6qBD-_CdEHhTTuuQ"/>
+</header>
+<div class="flex-1 p-gutter md:p-2xl max-w-[1200px] w-full mx-auto space-y-2xl">
+<div class="space-y-sm">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">Profile &amp; Security Settings</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Manage your institutional identity and authentication credentials.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Profile Card -->
+<div class="lg:col-span-5 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="p-lg border-b border-outline-variant bg-surface-container-low/50">
+<h3 class="font-headline-md text-headline-md text-on-surface">Institutional Profile</h3>
+</div>
+<div class="p-lg space-y-xl">
+<div class="flex items-center gap-lg">
+<div class="relative group">
+<img class="w-24 h-24 rounded-full object-cover border-2 border-primary-container/20" data-alt="A high-quality, professional headshot of a corporate system administrator. The image is taken in a well-lit, modern corporate environment with subtle depth of field. The subject conveys trust and authority, suitable for a secure banking platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-P1Y_zHnvDtnLl0VYPYeeyRKMqGEevaQK4iFhL4S3YgGM3BP1SZoI8qiOoa3DqabMpSzSbqDmFJ81NIKK362FN5Vhq9l9AtFdOvmGnEgGM0gZ1qDDGPELrWWOB_ZOZPqIhhPq2AsDSOYcoXG_waV7bQaG1h0tHgyosuSthUqO6JuytGOjT_6IYkxBOUpGcH5OManzr1VU4adSH1hzOfXxiHPKmwVIXUorcQyQ-LY9OcEH-VCu1ta3bQ"/>
+<button class="absolute bottom-0 right-0 bg-surface-container border border-outline-variant rounded-full p-1 shadow-sm hover:bg-surface-variant transition-colors group-hover:scale-105">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">edit</span>
+</button>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-surface">Elias Vance</h4>
+<span class="inline-flex items-center gap-xs px-2 py-1 mt-sm bg-secondary-container/20 text-on-secondary-container border border-secondary-container/30 rounded font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">shield_person</span>
+                                    System Admin (Tier 1)
+                                </span>
+</div>
+</div>
+<div class="space-y-md">
+<div class="grid grid-cols-3 gap-sm items-center py-sm border-b border-outline-variant/50">
+<span class="font-label-md text-label-md text-on-surface-variant col-span-1">Username</span>
+<span class="font-body-md text-body-md text-on-surface col-span-2 font-mono">evance_adm</span>
+</div>
+<div class="grid grid-cols-3 gap-sm items-center py-sm border-b border-outline-variant/50">
+<span class="font-label-md text-label-md text-on-surface-variant col-span-1">Email</span>
+<span class="font-body-md text-body-md text-on-surface col-span-2">e.vance@aegis-bio.internal</span>
+</div>
+<div class="grid grid-cols-3 gap-sm items-center py-sm border-b border-outline-variant/50">
+<span class="font-label-md text-label-md text-on-surface-variant col-span-1">Branch</span>
+<span class="font-body-md text-body-md text-on-surface col-span-2">HQ - Frankfurt Data Center</span>
+</div>
+<div class="grid grid-cols-3 gap-sm items-center py-sm">
+<span class="font-label-md text-label-md text-on-surface-variant col-span-1">Last Login</span>
+<span class="font-body-md text-body-md text-on-surface col-span-2 text-primary font-mono text-[12px]">Oct 24, 2023 - 14:32 UTC</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Password Settings Card -->
+<div class="lg:col-span-7 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)]">
+<div class="p-lg border-b border-outline-variant bg-surface-container-low/50">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">key</span>
+                            Authentication Credentials
+                        </h3>
+</div>
+<div class="p-lg space-y-xl">
+<div class="bg-surface-container p-md rounded-lg border border-outline-variant/50 flex gap-md items-start">
+<span class="material-symbols-outlined text-primary mt-1">info</span>
+<p class="font-body-md text-body-md text-on-surface-variant">Passwords must be at least 16 characters long and contain a mix of uppercase, lowercase, numbers, and symbols. Biometric 2FA will be required to confirm this change.</p>
+</div>
+<form class="space-y-lg">
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">Current Password</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded px-md py-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow outline-none" placeholder="Enter current password" type="password"/>
+</div>
+</div>
+<div class="h-px bg-outline-variant/50 w-full my-xl"></div>
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">New Password</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded px-md py-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow outline-none" placeholder="Enter new password" type="password"/>
+</div>
+<!-- Password Strength Indicator -->
+<div class="pt-sm space-y-xs">
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Password Strength</span>
+<span class="font-label-sm text-label-sm text-secondary">Strong</span>
+</div>
+<div class="flex gap-1 h-1.5 w-full rounded-full overflow-hidden">
+<div class="w-1/4 bg-secondary"></div>
+<div class="w-1/4 bg-secondary"></div>
+<div class="w-1/4 bg-secondary"></div>
+<div class="w-1/4 bg-surface-variant"></div>
+</div>
+</div>
+</div>
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface block">Confirm New Password</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded px-md py-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-shadow outline-none" placeholder="Re-enter new password" type="password"/>
+</div>
+</div>
+<div class="pt-xl flex gap-md justify-end border-t border-outline-variant/50">
+<button class="px-xl py-sm border border-outline-variant text-on-surface rounded font-label-md text-label-md hover:bg-surface-variant transition-colors min-h-[40px]" type="button">
+                                    Cancel
+                                </button>
+<button class="px-xl py-sm bg-primary text-on-primary rounded font-label-md text-label-md hover:bg-primary-container transition-colors min-h-[40px] shadow-sm flex items-center gap-sm" onclick="showToast()" type="button">
+                                    Save Changes
+                                </button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Success Toast (Hidden by default) -->
+<div class="fixed bottom-lg right-lg bg-surface-container-lowest border border-outline-variant shadow-[0_4px_24px_-4px_rgba(0,0,0,0.1)] rounded-lg p-md flex items-center gap-md transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none" id="success-toast">
+<div class="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+<div>
+<h5 class="font-label-md text-label-md text-on-surface">Credentials Updated</h5>
+<p class="font-body-md text-body-md text-on-surface-variant text-[13px]">Your security settings have been saved.</p>
+</div>
+</div>
+<script>
+        function showToast() {
+            const toast = document.getElementById('success-toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body></html>

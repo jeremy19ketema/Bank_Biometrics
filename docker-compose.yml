@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Enterprise Database
+  postgres:
+    build:
+      context: .
+      dockerfile: docker/postgres.Dockerfile
+    container_name: aegis_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aegis_biometrics_db}
+      POSTGRES_USER: ${POSTGRES_USER:-aegis_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./database/seed/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aegis_admin -d aegis_biometrics_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Express Node.js Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: aegis_backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-aegis_admin}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres:5432/${POSTGRES_DB:-aegis_biometrics_db}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Next.js Frontend Web Application
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    container_name: aegis_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:80/api
+      BACKEND_INTERNAL_URL: http://backend:5000
+    depends_on:
+      - backend
+
+  # Nginx Production Reverse Proxy Gateway
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: aegis_nginx_gateway
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:

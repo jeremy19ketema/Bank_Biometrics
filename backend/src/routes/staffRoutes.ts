@@ -12,7 +12,11 @@ import {
   createBankManager,
   createAccountant,
   createBranchIT,
-  createSuperAdminRole
+  createSuperAdminRole,
+  getHR,
+  createHR,
+  getHRDetails,
+  updateHR
 } from "../controllers/staffController.js";
 import { authenticateJWT, requireRole, requireBranchAccess } from "../middleware/auth.js";
 
@@ -22,6 +26,12 @@ const router = Router();
 router.get("/managers", authenticateJWT, getManagers);
 router.get("/accountants", authenticateJWT, getAccountants);
 router.get("/branch-it", authenticateJWT, getBranchIT);
+
+// HR routes (only accessible by Super Admin, Super Admin Manager, or HR)
+router.get("/hr", authenticateJWT, requireRole(["SUPER_ADMIN", "SUPER_ADMIN_MANAGER", "HR"]), getHR);
+router.get("/hr/:id", authenticateJWT, requireRole(["SUPER_ADMIN", "SUPER_ADMIN_MANAGER", "HR"]), getHRDetails);
+router.post("/hr", authenticateJWT, requireRole(["HR"]), createHR);  // HR creates users
+router.put("/hr/:id", authenticateJWT, requireRole(["SUPER_ADMIN", "SUPER_ADMIN_MANAGER"]), updateHR);
 
 // Super Admin role-specific read routes
 router.get("/super-admin-managers", authenticateJWT, requireRole(["SUPER_ADMIN"]), getSuperAdminManagers);

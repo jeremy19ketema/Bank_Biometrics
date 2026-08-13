@@ -179,6 +179,34 @@ export async function getSuperAdminFOREX(req: AuthenticatedRequest, res: Respons
   }
 }
 
+export async function getHR(req: AuthenticatedRequest, res: Response): Promise<void> {
+  try {
+    const hrUsers = await prisma.user.findMany({
+      where: { role: "HR" },
+      include: { branch: true },
+      orderBy: { fullName: "asc" }
+    });
+
+    const formatted = hrUsers.map(u => ({
+      id: u.id,
+      employeeId: `EMP-${u.username.toUpperCase()}`,
+      fullName: u.fullName,
+      email: u.email,
+      phone: "+251911000555",
+      branchId: u.branchId || "Unassigned",
+      branchName: u.branch?.name || "Unassigned",
+      status: u.status,
+      isFirstLogin: u.isFirstLogin,
+      isActive: u.isActive,
+      lastLogin: u.lastLoginAt,
+      createdAt: u.createdAt
+    }));
+
+    res.status(200).json({ success: true, data: formatted });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || "Failed to retrieve HR users" });
+  }
+}
 // ──────────────────────────────────────────────
 // CREATE ROUTES
 // ──────────────────────────────────────────────
@@ -439,6 +467,99 @@ export async function createSuperAdminRole(req: AuthenticatedRequest, res: Respo
   }
 }
 
+// HR creates users (goes through approval by Super Admin Manager)
+export async function createHR(req: AuthenticatedRequest, res: Response): Promise<void> {
+  const { username, fullName, email, role, branchId, passcode } = req.body;
+  const ipAddress = req.ip || "unknown";
+
+  if (!req.user) {
+    res.status(401).json({ success: false, message: "Unauthorized" });
+    return;
+  }
+
+  // HR can only create specific roles
+  const allowedRolesForHR = ["BANK_MANAGER", "BRANCH_IT", "ACCOUNTANT", "SUPER_ADMIN_IT", "SUPER_ADMIN_FOREX"];
+  if (!allowedRolesForHR.includes(role)) {
+    res.status(403).json({ 
+      success: false, 
+      message: `HR cannot create role: ${role}. Allowed roles: ${allowedRolesForHR.join(", ")}` 
+    });
+    return;
+  }
+
+  // HR cannot create SUPER_ADMIN or SUPER_ADMIN_MANAGER (blocked by allowedRolesForHR)
+
+  if (!username || !fullName || !email || !passcode) {
+    res.status(400).json({ success: false, message: "Missing required fields" });
+    return;
+  }
+
+  try {
+    const existingUser = await prisma.user.findFirst({
+      where: { OR: [{ username }, { email }] }
+    });
+    if (existingUser) {
+      res.status(400).json({ success: false, message: "Username or email already exists" });
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(passcode, 10);
+
+    // Create user with PENDING_APPROVAL status (HR-created users need approval)
+    const user = await prisma.user.create({
+      data: {
+        username,
+        fullName,
+        email,
+        passwordHash,
+        role: role as any,
+        branchId: branchId || null,
+        isActive: true,
+        status: "PENDING_APPROVAL",
+        isFirstLogin: true
+      }
+    });
+
+    // Create approval request
+    await prisma.approvalRequest.create({
+      data: {
+        requestType: `CREATE_${role}`,
+        requestedById: req.user.id,
+        requestedByName: req.user.username,
+        targetUserId: user.id,
+        targetRole: role as any,
+        targetBranchId: branchId || null,
+        details: `HR created ${role}: ${fullName} (${username})`,
+        status: "PENDING"
+      }
+    });
+
+    await logAuditEvent(
+      req.user.id,
+      "HR_USER_CREATE_PENDING",
+      "ADMINISTRATION",
+      ipAddress,
+      `HR created ${role} pending approval: ${fullName}`,
+      "SUCCESS"
+    );
+
+    res.status(201).json({
+      success: true,
+      message: `${role.replace("_", " ")} created and pending approval by Super Admin Manager.`,
+      data: {
+        id: user.id,
+        username: user.username,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        branchId: user.branchId,
+        status: user.status
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || "Failed to create user" });
+  }
+}
 // ──────────────────────────────────────────────
 // GENERIC STAFF CRUD
 // ──────────────────────────────────────────────
@@ -446,6 +567,23 @@ export async function createSuperAdminRole(req: AuthenticatedRequest, res: Respo
 export async function createStaff(req: AuthenticatedRequest, res: Response): Promise<void> {
   const { username, fullName, email, role, branchId, passcode } = req.body;
   const ipAddress = req.ip || "unknown";
+
+  if (!req.user) {
+    res.status(401).json({ success: false, message: "Unauthorized" });
+    return;
+  }
+
+  // If HR is creating, block SUPER_ADMIN and SUPER_ADMIN_MANAGER
+  if (req.user.role === "HR") {
+    const blockedRoles = ["SUPER_ADMIN", "SUPER_ADMIN_MANAGER"];
+    if (blockedRoles.includes(role)) {
+      res.status(403).json({ 
+        success: false, 
+        message: `HR cannot create ${role}. This role requires Super Admin privileges.` 
+      });
+      return;
+    }
+  }
 
   if (!username || !fullName || !email || !role || !passcode) {
     res.status(400).json({ success: false, message: "Missing required personnel fields" });
@@ -466,6 +604,12 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
 
     const passwordHash = await bcrypt.hash(passcode, 10);
 
+    // Determine status based on creator's role
+    // HR-created users go to PENDING_APPROVAL (needs Super Admin Manager approval)
+    // Super Admin / Super Admin Manager created users go to PENDING_FIRST_LOGIN
+    const isHRCreating = req.user.role === "HR";
+    const userStatus = isHRCreating ? "PENDING_APPROVAL" : "PENDING_FIRST_LOGIN";
+
     const user = await prisma.user.create({
       data: {
         username,
@@ -475,29 +619,74 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
         role: role as any,
         branchId: branchId || null,
         isActive: true,
-        status: "PENDING_FIRST_LOGIN",
+        status: userStatus,
         isFirstLogin: true
       }
     });
 
-    if (req.user) {
-      await logAuditEvent(req.user.id, "STAFF_CREATE", "ADMINISTRATION", ipAddress, `Created new staff member: ${fullName} as ${role} for branch: ${branchId || 'None'}`, "SUCCESS");
-    }
+    // If HR created this user, create an approval request
+    if (isHRCreating) {
+      await prisma.approvalRequest.create({
+        data: {
+          requestType: `CREATE_${role}`,
+          requestedById: req.user.id,
+          requestedByName: req.user.username,
+          targetUserId: user.id,
+          targetRole: role as any,
+          targetBranchId: branchId || null,
+          details: `HR created ${role}: ${fullName} (${username})`,
+          status: "PENDING"
+        }
+      });
 
-    res.status(201).json({
-      success: true,
-      data: {
-        id: user.id,
-        username: user.username,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
-        branchId: user.branchId,
-        isActive: user.isActive,
-        status: user.status,
-        isFirstLogin: user.isFirstLogin
-      }
-    });
+      await logAuditEvent(
+        req.user.id,
+        "HR_USER_CREATE_PENDING",
+        "ADMINISTRATION",
+        ipAddress,
+        `HR created ${role} pending approval: ${fullName}`,
+        "SUCCESS"
+      );
+
+      res.status(201).json({
+        success: true,
+        message: `${role.replace("_", " ")} created and pending approval by Super Admin Manager.`,
+        data: {
+          id: user.id,
+          username: user.username,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role,
+          branchId: user.branchId,
+          status: user.status
+        }
+      });
+    } else {
+      // Super Admin or Super Admin Manager created user directly
+      await logAuditEvent(
+        req.user.id, 
+        "STAFF_CREATE", 
+        "ADMINISTRATION", 
+        ipAddress, 
+        `Created new staff member: ${fullName} as ${role} for branch: ${branchId || 'None'}`, 
+        "SUCCESS"
+      );
+
+      res.status(201).json({
+        success: true,
+        data: {
+          id: user.id,
+          username: user.username,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role,
+          branchId: user.branchId,
+          isActive: user.isActive,
+          status: user.status,
+          isFirstLogin: user.isFirstLogin
+        }
+      });
+    }
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || "Failed to create staff member" });
   }
@@ -577,5 +766,90 @@ export async function updateStaff(req: AuthenticatedRequest, res: Response): Pro
     res.status(200).json({ success: true, data: updated });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || "Failed to update staff profile" });
+  }
+}
+
+export async function updateHR(req: AuthenticatedRequest, res: Response): Promise<void> {
+  const id = String(req.params.id);
+  const { fullName, email, branchId, status, isActive } = req.body;
+  const ipAddress = req.ip || "unknown";
+
+  try {
+    const targetUser = await prisma.user.findUnique({ where: { id } });
+    if (!targetUser) {
+      res.status(404).json({ success: false, message: "HR user not found" });
+      return;
+    }
+
+    // Only Super Admin or Super Admin Manager can update HR users
+    if (req.user && req.user.role !== "SUPER_ADMIN" && req.user.role !== "SUPER_ADMIN_MANAGER") {
+      res.status(403).json({ success: false, message: "Access denied: Only Super Admin or Super Admin Manager can update HR users" });
+      return;
+    }
+
+    const updated = await prisma.user.update({
+      where: { id },
+      data: {
+        fullName: fullName ?? undefined,
+        email: email ?? undefined,
+        branchId: branchId ?? undefined,
+        status: status ?? undefined,
+        isActive: isActive ?? undefined
+      }
+    });
+
+    await logAuditEvent(
+      req.user.id, 
+      "HR_UPDATE", 
+      "ADMINISTRATION", 
+      ipAddress, 
+      `Updated HR profile for: ${updated.fullName}`, 
+      "SUCCESS"
+    );
+
+    res.status(200).json({ success: true, data: updated });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || "Failed to update HR user" });
+  }
+}
+
+export async function getHRDetails(req: AuthenticatedRequest, res: Response): Promise<void> {
+  const id = String(req.params.id);
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: { branch: true }
+    });
+
+    if (!user) {
+      res.status(404).json({ success: false, message: "HR user not found" });
+      return;
+    }
+
+    if (user.role !== "HR") {
+      res.status(404).json({ success: false, message: "User is not an HR staff member" });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: user.id,
+        username: user.username,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        branchId: user.branchId,
+        branchName: user.branch?.name || "Unassigned",
+        status: user.status,
+        isActive: user.isActive,
+        isFirstLogin: user.isFirstLogin,
+        lastLoginAt: user.lastLoginAt,
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || "Failed to retrieve HR details" });
   }
 }

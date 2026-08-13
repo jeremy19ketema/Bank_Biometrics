@@ -18,7 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { useSuperAdminStore, ITUser, FOREXUser } from "@/store/superAdminStore";
-import { BankManager } from "@/types";
+import { BankManager, StaffStatus } from "@/types";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -33,7 +33,7 @@ type UnifiedUser = {
   email: string;
   phone?: string;
   role: "IT" | "Bank Manager" | "FOREX";
-  status: "ACTIVE" | "INACTIVE" | "SUSPENDED";
+  status: StaffStatus;
   branchOrDepartment: string;
   lastLogin?: string;
   createdAt: string;

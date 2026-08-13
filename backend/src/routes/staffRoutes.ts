@@ -16,7 +16,9 @@ import {
   getHR,
   createHR,
   getHRDetails,
-  updateHR
+  updateHR,
+  deleteStaff,
+  deleteHR
 } from "../controllers/staffController.js";
 import { authenticateJWT, requireRole, requireBranchAccess } from "../middleware/auth.js";
 
@@ -54,5 +56,7 @@ router.post("/branch-it", authenticateJWT, requireRole(["SUPER_ADMIN", "BANK_MAN
 router.post("/", authenticateJWT, requireRole(["SUPER_ADMIN"]), createStaff);
 router.get("/:id", authenticateJWT, getStaffDetails);
 router.put("/:id", authenticateJWT, requireRole(["SUPER_ADMIN", "BANK_MANAGER"]), updateStaff);
+router.delete("/:id", authenticateJWT, requireRole(["SUPER_ADMIN", "BANK_MANAGER"]), deleteStaff);
+router.delete("/hr/:id", authenticateJWT, requireRole(["SUPER_ADMIN", "SUPER_ADMIN_MANAGER"]), deleteHR);
 
 export default router;

@@ -196,6 +196,7 @@ export default function LoginPage() {
           BANK_MANAGER: "/manager",
           BRANCH_IT: "/it",
           ACCOUNTANT: "/accountant",
+          HR: "/hr-dash",
         };
         const redirectPath = roleMap[user.role] || "/super-admin";
         router.push(redirectPath);

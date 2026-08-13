@@ -19,7 +19,7 @@ import {
   Currency,
 } from "lucide-react";
 
-type UserRole = "SUPER_ADMIN" | "SUPER_ADMIN_MANAGER" | "SUPER_ADMIN_IT" | "SUPER_ADMIN_FOREX" | "BANK_MANAGER" | "BRANCH_IT" | "ACCOUNTANT";
+type UserRole = "SUPER_ADMIN" | "SUPER_ADMIN_MANAGER" | "SUPER_ADMIN_IT" | "SUPER_ADMIN_FOREX" | "BANK_MANAGER" | "BRANCH_IT" | "ACCOUNTANT" | "HR";
 
 interface NavItem {
   label: string;
@@ -36,6 +36,7 @@ const roleDashboard: Record<UserRole, string> = {
   BANK_MANAGER: "/manager",
   BRANCH_IT: "/it",
   ACCOUNTANT: "/accountant",
+  HR: "/hr-dash",
 };
 
 const VaultSidebar: React.FC = () => {
@@ -128,6 +129,13 @@ const VaultSidebar: React.FC = () => {
         { label: "Transactions", href: "/transactions", icon: Currency },
         { label: "Customers", href: "/customers/search", icon: Users },
         { label: "Biometrics", href: "/biometrics", icon: Fingerprint },
+      ];
+    }
+
+    if (role === "HR") {
+      return [
+        { label: "Dashboard", href: "/hr-dash", icon: LayoutDashboard },
+        { label: "Employee Directory", href: "/hr-dash/directory", icon: Users },
       ];
     }
 

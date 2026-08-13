@@ -5,7 +5,8 @@ export type UserRole =
   | "SUPER_ADMIN_FOREX"
   | "BANK_MANAGER"
   | "BRANCH_IT"
-  | "ACCOUNTANT";
+  | "ACCOUNTANT"
+  | "HR";
 
 export type StaffStatus =
   | "PENDING_APPROVAL"
@@ -45,6 +46,7 @@ export interface ApprovalRequest {
   targetBranchId?: string;
   details: string;
   status: ApprovalStatus;
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT" | string;
   approvedById?: string;
   rejectionReason?: string;
   createdAt: string;

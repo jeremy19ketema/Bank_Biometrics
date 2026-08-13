@@ -1,6 +1,6 @@
 "use client";
 
-export type UserRole = "SUPER_ADMIN" | "SUPER_ADMIN_MANAGER" | "SUPER_ADMIN_IT" | "SUPER_ADMIN_FOREX" | "BANK_MANAGER" | "BRANCH_IT" | "ACCOUNTANT";
+export type UserRole = "SUPER_ADMIN" | "SUPER_ADMIN_MANAGER" | "SUPER_ADMIN_IT" | "SUPER_ADMIN_FOREX" | "BANK_MANAGER" | "BRANCH_IT" | "ACCOUNTANT" | "HR";
 
 export type StaffStatus = "PENDING_APPROVAL" | "PENDING_FIRST_LOGIN" | "ACTIVE" | "INACTIVE" | "SUSPENDED" | "LOCKED" | "DISABLED" | "ON_LEAVE";
 
@@ -27,6 +27,7 @@ export const ROLE_ROUTES: Record<UserRole, string> = {
   BANK_MANAGER: "/manager",
   BRANCH_IT: "/it",
   ACCOUNTANT: "/accountant",
+  HR: "/hr-dash",
 };
 
 // Role-based accessible route prefixes
@@ -34,11 +35,11 @@ export const ROLE_ACCESS: Record<UserRole, string[]> = {
   SUPER_ADMIN: [
     "/super-admin", "/branches", "/managers", "/accountants", "/reports",
     "/governance", "/settings", "/transactions", "/it-users", "/forex",
-    "/approvals", "/branch-it"
+    "/approvals", "/branch-it", "/hr-dash"
   ],
   SUPER_ADMIN_MANAGER: [
     "/internal-manager", "/it", "/forex", "/it-users", "/reports",
-    "/settings", "/approvals", "/transactions"
+    "/settings", "/approvals", "/transactions", "/hr-dash"
   ],
   SUPER_ADMIN_IT: [
     "/it", "/it-users", "/settings", "/reports", "/biometrics"
@@ -56,6 +57,9 @@ export const ROLE_ACCESS: Record<UserRole, string[]> = {
   ACCOUNTANT: [
     "/accountant", "/transactions", "/customers", "/biometrics"
   ],
+  HR: [
+    "/hr-dash", "/users"
+  ]
 };
 
 export function hasAccess(role: UserRole, pathname: string): boolean {

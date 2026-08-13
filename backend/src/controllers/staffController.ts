@@ -798,14 +798,16 @@ export async function updateHR(req: AuthenticatedRequest, res: Response): Promis
       }
     });
 
-    await logAuditEvent(
-      req.user.id, 
-      "HR_UPDATE", 
-      "ADMINISTRATION", 
-      ipAddress, 
-      `Updated HR profile for: ${updated.fullName}`, 
-      "SUCCESS"
-    );
+    if (req.user) {
+      await logAuditEvent(
+        req.user.id, 
+        "HR_UPDATE", 
+        "ADMINISTRATION", 
+        ipAddress, 
+        `Updated HR profile for: ${updated.fullName}`, 
+        "SUCCESS"
+      );
+    }
 
     res.status(200).json({ success: true, data: updated });
   } catch (error: any) {
@@ -851,5 +853,68 @@ export async function getHRDetails(req: AuthenticatedRequest, res: Response): Pr
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || "Failed to retrieve HR details" });
+  }
+}
+
+// ──────────────────────────────────────────────
+// DELETE ROUTES
+// ──────────────────────────────────────────────
+
+export async function deleteStaff(req: AuthenticatedRequest, res: Response): Promise<void> {
+  const id = String(req.params.id);
+  const ipAddress = req.ip || "unknown";
+
+  try {
+    const targetUser = await prisma.user.findUnique({ where: { id } });
+    if (!targetUser) {
+      res.status(404).json({ success: false, message: "Staff member not found" });
+      return;
+    }
+
+    // Authorization checks
+    if (req.user?.role === "BANK_MANAGER") {
+      if (targetUser.branchId !== req.user.branchId) {
+        res.status(403).json({ success: false, message: "Access denied" });
+        return;
+      }
+    }
+
+    await prisma.user.delete({ where: { id } });
+
+    if (req.user) {
+      await logAuditEvent(req.user.id, "STAFF_DELETE", "ADMINISTRATION", ipAddress, `Deleted staff member: ${targetUser.fullName}`, "SUCCESS");
+    }
+
+    res.status(200).json({ success: true, message: "Staff member deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || "Failed to delete staff member" });
+  }
+}
+
+export async function deleteHR(req: AuthenticatedRequest, res: Response): Promise<void> {
+  const id = String(req.params.id);
+  const ipAddress = req.ip || "unknown";
+
+  try {
+    const targetUser = await prisma.user.findUnique({ where: { id } });
+    if (!targetUser) {
+      res.status(404).json({ success: false, message: "HR member not found" });
+      return;
+    }
+
+    if (req.user?.role !== "SUPER_ADMIN" && req.user?.role !== "SUPER_ADMIN_MANAGER") {
+      res.status(403).json({ success: false, message: "Access denied: Only Super Admin or Super Admin Manager can delete HR users" });
+      return;
+    }
+
+    await prisma.user.delete({ where: { id } });
+
+    if (req.user) {
+      await logAuditEvent(req.user.id, "HR_DELETE", "ADMINISTRATION", ipAddress, `Deleted HR member: ${targetUser.fullName}`, "SUCCESS");
+    }
+
+    res.status(200).json({ success: true, message: "HR member deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || "Failed to delete HR member" });
   }
 }

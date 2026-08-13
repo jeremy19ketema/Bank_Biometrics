@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-export type UserRole = "SUPER_ADMIN" | "SUPER_ADMIN_MANAGER" | "SUPER_ADMIN_IT" | "SUPER_ADMIN_FOREX" | "BANK_MANAGER" | "BRANCH_IT" | "ACCOUNTANT";
+export type UserRole = "SUPER_ADMIN" | "SUPER_ADMIN_MANAGER" | "SUPER_ADMIN_IT" | "SUPER_ADMIN_FOREX" | "BANK_MANAGER" | "BRANCH_IT" | "ACCOUNTANT" | "HR";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -69,7 +69,7 @@ export function requireBranchAccess(req: AuthenticatedRequest, res: Response, ne
   const targetBranchId = req.params.branchId || req.body.branchId;
 
   // Super Admin roles can access any branch
-  if (role === "SUPER_ADMIN" || role === "SUPER_ADMIN_MANAGER" || role === "SUPER_ADMIN_IT" || role === "SUPER_ADMIN_FOREX") {
+  if (role === "SUPER_ADMIN" || role === "SUPER_ADMIN_MANAGER" || role === "SUPER_ADMIN_IT" || role === "SUPER_ADMIN_FOREX" || role =="HR") {
     return next();
   }
 

@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       passcode: string;
       fullName: string;
       email: string;
-      role: "SUPER_ADMIN" | "SUPER_ADMIN_MANAGER" | "SUPER_ADMIN_IT" | "SUPER_ADMIN_FOREX" | "BANK_MANAGER" | "BRANCH_IT" | "ACCOUNTANT";
+      role: "SUPER_ADMIN" | "SUPER_ADMIN_MANAGER" | "SUPER_ADMIN_IT" | "SUPER_ADMIN_FOREX" | "BANK_MANAGER" | "BRANCH_IT" | "ACCOUNTANT" | "HR";
       branchId?: string;
       branchName?: string;
       department?: string;
@@ -128,6 +128,18 @@ export async function POST(request: Request) {
         isFirstLogin: true,
         branchId: "br-2",
         branchName: "Bole Diplomatic Branch",
+        avatarUrl:
+          "https://lh3.googleusercontent.com/aida-public/AB6AXuDBPBvdaB33vhwc7-RKZCTFZqO0q8MBerQj0VIHDFzDP_AKBwTBhYhj4XXRfkwf4-zbHNr12cOFovYoobY_U4RKtAuzDm-IZ6WksoE48skAJFx9oygmdm2scL_Vq6V209SbBcRDdLgELDwwLNnh7MHZ9kQMpu2mm4IkMVR3i4ec_3a4ZVLdSEMGwlmIIjwkl77x1C1iMjmpldUzIl5tzAvAXyfiI66V4C6PT_hO5Le1lKL-JrpC5TZjoQ",
+      },
+      {
+        id: "hr-1",
+        username: "hr_admin",
+        passcode: "hrpass123",
+        fullName: "HR Administrator",
+        email: "hr@bank.com",
+        role: "HR",
+        isFirstLogin: false,
+        department: "Human Resources",
         avatarUrl:
           "https://lh3.googleusercontent.com/aida-public/AB6AXuDBPBvdaB33vhwc7-RKZCTFZqO0q8MBerQj0VIHDFzDP_AKBwTBhYhj4XXRfkwf4-zbHNr12cOFovYoobY_U4RKtAuzDm-IZ6WksoE48skAJFx9oygmdm2scL_Vq6V209SbBcRDdLgELDwwLNnh7MHZ9kQMpu2mm4IkMVR3i4ec_3a4ZVLdSEMGwlmIIjwkl77x1C1iMjmpldUzIl5tzAvAXyfiI66V4C6PT_hO5Le1lKL-JrpC5TZjoQ",
       },

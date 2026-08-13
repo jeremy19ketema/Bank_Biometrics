@@ -26,6 +26,17 @@ export interface FOREXUser {
   createdAt: string;
 }
 
+export interface HRUser {
+  id: string;
+  employeeId: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  department: string;
+  status: "ACTIVE" | "INACTIVE" | "SUSPENDED";
+  createdAt: string;
+}
+
 interface SuperAdminState {
   // Branches
   branches: Branch[];
@@ -55,6 +66,13 @@ interface SuperAdminState {
   updateFOREXUser: (id: string, user: Partial<FOREXUser>) => void;
   deleteFOREXUser: (id: string) => void;
   getFOREXUserById: (id: string) => FOREXUser | undefined;
+
+  // HR Users
+  hrUsers: HRUser[];
+  addHRUser: (user: Omit<HRUser, "id" | "createdAt">) => void;
+  updateHRUser: (id: string, user: Partial<HRUser>) => void;
+  deleteHRUser: (id: string) => void;
+  getHRUserById: (id: string) => HRUser | undefined;
 }
 
 // Mock data
@@ -225,6 +243,29 @@ const initialFOREXUsers: FOREXUser[] = [
   },
 ];
 
+const initialHRUsers: HRUser[] = [
+  {
+    id: "hr-1",
+    employeeId: "HR-001",
+    fullName: "Abeba Tafesse",
+    email: "a.tafesse@aegisbank.eth",
+    phone: "+251-911-111-222",
+    department: "Talent Acquisition",
+    status: "ACTIVE",
+    createdAt: "2023-11-05T08:00:00Z",
+  },
+  {
+    id: "hr-2",
+    employeeId: "HR-002",
+    fullName: "Solomon Getachew",
+    email: "s.getachew@aegisbank.eth",
+    phone: "+251-911-333-444",
+    department: "Employee Relations",
+    status: "ACTIVE",
+    createdAt: "2024-01-12T08:00:00Z",
+  }
+];
+
 export const useSuperAdminStore = create<SuperAdminState>((set, get) => ({
   // Branches State
   branches: initialBranches,
@@ -352,7 +393,33 @@ export const useSuperAdminStore = create<SuperAdminState>((set, get) => ({
     }));
   },
 
-  getFOREXUserById: (id) => {
-    return get().forexUsers.find((user) => user.id === id);
+  getFOREXUserById: (id) => get().forexUsers.find((user) => user.id === id),
+
+  // HR Users State
+  hrUsers: initialHRUsers,
+
+  addHRUser: (user) => {
+    const newUser: HRUser = {
+      ...user,
+      id: `hr-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    set((state) => ({ hrUsers: [...state.hrUsers, newUser] }));
   },
+
+  updateHRUser: (id, updatedFields) => {
+    set((state) => ({
+      hrUsers: state.hrUsers.map((user) =>
+        user.id === id ? { ...user, ...updatedFields } : user
+      ),
+    }));
+  },
+
+  deleteHRUser: (id) => {
+    set((state) => ({
+      hrUsers: state.hrUsers.filter((user) => user.id !== id),
+    }));
+  },
+
+  getHRUserById: (id) => get().hrUsers.find((user) => user.id === id),
 }));

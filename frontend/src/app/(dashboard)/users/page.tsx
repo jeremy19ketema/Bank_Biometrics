@@ -17,7 +17,7 @@ import {
   Filter,
   X,
 } from "lucide-react";
-import { useSuperAdminStore, ITUser, FOREXUser } from "@/store/superAdminStore";
+import { useSuperAdminStore, ITUser, FOREXUser, HRUser } from "@/store/superAdminStore";
 import { BankManager, StaffStatus } from "@/types";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
@@ -32,7 +32,7 @@ type UnifiedUser = {
   fullName: string;
   email: string;
   phone?: string;
-  role: "IT" | "Bank Manager" | "FOREX";
+  role: "IT" | "Bank Manager" | "FOREX" | "HR";
   status: StaffStatus;
   branchOrDepartment: string;
   lastLogin?: string;
@@ -41,25 +41,26 @@ type UnifiedUser = {
   original:
     | (ITUser & { type: "it" })
     | (BankManager & { type: "manager" })
-    | (FOREXUser & { type: "forex" });
+    | (FOREXUser & { type: "forex" })
+    | (HRUser & { type: "hr" });
 };
 
 const PAGE_SIZE = 8;
 
-const roleOptions = ["ALL", "IT", "Bank Manager", "FOREX"] as const;
+const roleOptions = ["ALL", "IT", "Bank Manager", "FOREX", "HR"] as const;
 
 export default function UsersPage() {
-  const { itUsers, managers, forexUsers, deleteITUser, deleteManager, deleteFOREXUser, resetITUserPassword } =
+  const { itUsers, managers, forexUsers, hrUsers, deleteITUser, deleteManager, deleteFOREXUser, deleteHRUser, resetITUserPassword } =
     useSuperAdminStore();
   const { toasts, toast, dismissToast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: "it" | "manager" | "forex" } | null>(
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string; type: "it" | "manager" | "forex" | "hr" } | null>(
     null
   );
-  const [resetTarget, setResetTarget] = useState<{ id: string; name: string; type: "it" } | null>(null);
+  const [resetTarget, setResetTarget] = useState<{ id: string; name: string; type: "it" | "hr" } | null>(null);
 
   // Combine all users into one unified list
   const allUsers = useMemo<UnifiedUser[]>(() => {
@@ -116,9 +117,26 @@ export default function UsersPage() {
       });
     });
 
+    // HR Users
+    hrUsers.forEach((h) => {
+      result.push({
+        id: h.id,
+        employeeId: h.employeeId,
+        fullName: h.fullName,
+        email: h.email,
+        phone: h.phone,
+        role: "HR",
+        status: h.status,
+        branchOrDepartment: h.department,
+        lastLogin: undefined,
+        createdAt: h.createdAt,
+        original: { ...h, type: "hr" },
+      });
+    });
+
     // Sort by createdAt descending (newest first)
     return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [itUsers, managers, forexUsers]);
+  }, [itUsers, managers, forexUsers, hrUsers]);
 
   // Filter & search
   const filtered = useMemo(() => {
@@ -158,6 +176,9 @@ export default function UsersPage() {
     } else if (type === "forex") {
       deleteFOREXUser(id);
       toast.success("User Removed", "FOREX user has been deactivated.");
+    } else if (type === "hr") {
+      deleteHRUser(id);
+      toast.success("User Removed", "HR user has been deactivated.");
     }
     setDeleteTarget(null);
   };
@@ -174,7 +195,8 @@ export default function UsersPage() {
     const original = user.original;
     if (original.type === "it") return `/it-users/edit?id=${user.id}`;
     if (original.type === "manager") return `/managers/edit?id=${user.id}`;
-    if (original.type === "forex") return `/forex/edit?id=${user.id}`; // may not exist yet
+    if (original.type === "forex") return `/forex/edit?id=${user.id}`;
+    if (original.type === "hr") return `/hr-users/edit?id=${user.id}`;
     return "#";
   };
 
@@ -183,6 +205,7 @@ export default function UsersPage() {
     if (original.type === "it") return `/it-users/details?id=${user.id}`;
     if (original.type === "manager") return `/managers/details?id=${user.id}`;
     if (original.type === "forex") return `/forex/details?id=${user.id}`;
+    if (original.type === "hr") return `/hr-users/details?id=${user.id}`;
     return "#";
   };
 
@@ -226,6 +249,13 @@ export default function UsersPage() {
           >
             <Plus className="w-4 h-4" />
             <span>Add FOREX</span>
+          </Link>
+          <Link
+            href="/hr-dash"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[color:var(--vault-charcoal)] hover:bg-slate-800 text-[color:var(--brass)] border border-[color:var(--brass)]/30 font-bold text-xs transition-all shadow-lg"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add HR</span>
           </Link>
         </div>
       </div>

@@ -1,26 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useHRStore } from "@/store/hrStore";
+import React, { useState } from "react";
 import {
-  Users,
-  UserPlus,
-  Building2,
-  Clock,
-  ShieldCheck,
-  CheckCircle2,
-  XCircle,
-  FileText,
-  BadgeCheck
+  Users, UserPlus, FileDown, CheckCircle2,
+  Clock, ShieldCheck, AlertCircle, Calendar,
+  BarChart3, Activity, Briefcase, ChevronRight, XCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
+import { useHRStore } from "@/store/hrStore";
 
 export default function HRDashboardPage() {
-  const { stats, loading, fetchDashboardStats, createStaffRequest } = useHRStore();
   const { toast, toasts, dismissToast } = useToast();
+  const [showAddModal, setShowAddModal] = useState(false);
   
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { loading, createStaffRequest } = useHRStore();
   const [formData, setFormData] = useState({
     username: "",
     fullName: "",
@@ -29,10 +23,6 @@ export default function HRDashboardPage() {
     branchId: "",
     passcode: "",
   });
-
-  useEffect(() => {
-    fetchDashboardStats();
-  }, [fetchDashboardStats]);
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +34,7 @@ export default function HRDashboardPage() {
     const success = await createStaffRequest(formData);
     if (success) {
       toast.success("Success", `${formData.role.replace(/_/g, " ")} created and sent for Super Admin approval.`);
-      setShowCreateModal(false);
+      setShowAddModal(false);
       setFormData({
         username: "",
         fullName: "",
@@ -53,211 +43,229 @@ export default function HRDashboardPage() {
         branchId: "",
         passcode: "",
       });
-      fetchDashboardStats();
     } else {
       toast.error("Error", "Failed to create staff member. Check console or try again.");
     }
   };
 
-  const metrics = [
-    {
-      label: "Total users created",
-      value: stats.totalUsersCreated.toString(),
-      delta: "+5 this week",
-      icon: Users,
-    },
-    {
-      label: "Pending approvals",
-      value: stats.pendingApprovals.toString(),
-      delta: "2 urgent",
-      icon: Clock,
-    },
-    {
-      label: "Active employees",
-      value: stats.activeEmployees.toString(),
-      delta: "+1.2%",
-      icon: Building2,
-    },
-    {
-      label: "Compliance score",
-      value: "99.4%",
-      delta: "Stable",
-      icon: ShieldCheck,
-    },
+  // Mock Data for KPI Cards
+  const kpis = [
+    { label: "Total Active Employees", value: "842", delta: "+12 this month", icon: Users },
+    { label: "New Hires This Month", value: "18", delta: "On track", icon: UserPlus },
+    { label: "Pending Approvals", value: "24", delta: "5 high priority", icon: Clock },
+    { label: "On Leave Today", value: "32", delta: "4% of workforce", icon: Calendar },
+    { label: "Attendance Exceptions", value: "15", delta: "Today", icon: AlertCircle },
+    { label: "Compliance Completion", value: "94%", delta: "+2% from last week", icon: ShieldCheck },
+    { label: "Offboarding Overdue", value: "3", delta: "Needs action", icon: Activity },
+    { label: "Access Reviews Due", value: "45", delta: "Quarterly review", icon: Briefcase },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Header Section matching advanced styling */}
-      <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <div className="section-title mb-2 text-xs uppercase tracking-wider text-[color:var(--brass)]">HR Operations</div>
-            <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">
-              Human Resources Control Center
-            </h1>
-            <p className="mt-2 text-sm text-[color:var(--ledger-paper-dim)]">
-              Manage personnel, track staffing requests, and monitor employee statistics across all branches.
-            </p>
-          </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)]"
+      {/* Header & Top Action Bar */}
+      <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div>
+          <div className="section-title mb-2 text-xs uppercase tracking-wider text-[color:var(--brass)]">HR Control Center</div>
+          <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">
+            Overview & Actions
+          </h1>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <button 
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-[color:var(--brass)] px-4 py-2.5 text-sm font-bold text-[#16233A] shadow-lg transition hover:bg-[#d7ab5c]"
           >
-            <UserPlus className="h-4 w-4 text-[color:var(--brass)]" />
-            Create Staff
+            <UserPlus className="h-4 w-4" /> Add Employee
+          </button>
+          <button className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)]">
+             Start Onboarding
+          </button>
+          <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+            Approve Leave
+          </button>
+          <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+            Attendance Exception
+          </button>
+          <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+            <FileDown className="h-4 w-4" /> Export Report
           </button>
         </div>
       </section>
 
-      {/* KPI Stats */}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {metrics.map((metric) => {
-          const Icon = metric.icon;
+      {/* KPI Cards */}
+      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {kpis.map((kpi, idx) => {
+          const Icon = kpi.icon;
           return (
-            <div
-              key={metric.label}
-              className="rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.78)] p-5 shadow-[0_16px_40px_rgba(2,8,23,0.28)]"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[color:var(--ledger-paper-dim)]">{metric.label}</span>
-                <div className="rounded-2xl border border-[color:var(--brass)]/20 bg-[rgba(198,154,76,0.12)] p-2 text-[color:var(--brass)]">
+            <div key={idx} className="rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.78)] p-5 shadow-[0_16px_40px_rgba(2,8,23,0.28)]">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm font-medium text-[color:var(--ledger-paper-dim)]">{kpi.label}</span>
+                <div className="rounded-xl bg-white/5 p-2 text-[color:var(--brass)]">
                   <Icon className="h-4 w-4" />
                 </div>
               </div>
-              <div className="mt-5 text-3xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">
-                {metric.value}
-              </div>
-              <div className="mt-2 text-xs text-[color:var(--ledger-paper-dim)]">
-                {metric.delta}
+              <div className="flex items-end justify-between">
+                <div className="text-3xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">{kpi.value}</div>
+                <div className="text-xs text-[color:var(--moss)] mb-1">{kpi.delta}</div>
               </div>
             </div>
           );
         })}
       </section>
 
-      {/* HR Actions Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-[color:var(--ledger-paper)]">Recent Staffing Requests</h3>
-            <span className="text-xs font-semibold text-[color:var(--brass)] cursor-pointer hover:underline">View All</span>
-          </div>
-          <div className="space-y-3">
-            <div className="p-4 rounded-[20px] bg-[rgba(15,23,40,0.6)] border border-white/5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[rgba(198,154,76,0.12)] flex items-center justify-center text-[color:var(--brass)] font-bold text-sm border border-[color:var(--brass)]/20">JD</div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-200">John Doe</p>
-                  <p className="text-xs text-[color:var(--ledger-paper-dim)]">BANK MANAGER</p>
-                </div>
-              </div>
-              <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold">Pending</span>
+      {/* Priority Work Queue & Operational Insights */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Column: Priority Work Queue (takes 2 columns space) */}
+        <div className="lg:col-span-2 space-y-6">
+          <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Activity className="w-5 h-5 text-amber-500" />
+                Priority Work Queue
+              </h2>
             </div>
-            <div className="p-4 rounded-[20px] bg-[rgba(15,23,40,0.6)] border border-white/5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[rgba(76,122,94,0.12)] flex items-center justify-center text-[color:var(--moss)] font-bold text-sm border border-[color:var(--moss)]/20">AS</div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-200">Alice Smith</p>
-                  <p className="text-xs text-[color:var(--ledger-paper-dim)]">SUPER ADMIN IT</p>
+            
+            <div className="space-y-3">
+              {/* Queue Items */}
+              {[
+                { title: "New staff waiting for approval", count: 8, urgent: true },
+                { title: "Biometric enrollment incomplete", count: 12, urgent: false },
+                { title: "Leave requests awaiting decision", count: 24, urgent: false },
+                { title: "Missing clock-in/out or unusual attendance", count: 15, urgent: true },
+                { title: "Expiring contracts, IDs, or trainings", count: 34, urgent: false },
+                { title: "Employees whose access must be removed/reviewed", count: 7, urgent: true },
+              ].map((item, idx) => (
+                <div key={idx} className="group cursor-pointer flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-2 h-2 rounded-full ${item.urgent ? 'bg-red-500' : 'bg-amber-500'}`} />
+                    <span className="text-sm font-medium text-slate-200">{item.title}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-lg font-semibold text-white">{item.count}</span>
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />
+                  </div>
                 </div>
-              </div>
-              <span className="px-3 py-1 rounded-full bg-[color:var(--moss)]/10 text-[color:var(--moss)] border border-[color:var(--moss)]/20 text-xs font-semibold">Approved</span>
+              ))}
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-[color:var(--ledger-paper)]">HR Bulletins & Policies</h3>
-            <FileText className="w-5 h-5 text-[color:var(--brass)]" />
+          {/* Additional Insights row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.78)] p-6">
+              <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-[color:var(--brass)]"/> Headcount by Branch</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-xs mb-1"><span className="text-slate-300">Main Branch</span><span className="text-white">342</span></div>
+                  <div className="h-2 bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-[color:var(--brass)] w-[40%]"></div></div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs mb-1"><span className="text-slate-300">North Branch</span><span className="text-white">215</span></div>
+                  <div className="h-2 bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-[color:var(--brass)] opacity-80 w-[25%]"></div></div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs mb-1"><span className="text-slate-300">South Branch</span><span className="text-white">180</span></div>
+                  <div className="h-2 bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-[color:var(--brass)] opacity-60 w-[20%]"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.78)] p-6">
+              <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-[color:var(--moss)]"/> Mandatory Training</h3>
+              <div className="flex items-center justify-center py-4">
+                <div className="relative w-24 h-24 flex items-center justify-center rounded-full border-4 border-white/10">
+                  <div className="absolute inset-0 rounded-full border-4 border-[color:var(--moss)] border-l-transparent border-b-transparent transform rotate-45"></div>
+                  <span className="text-xl font-bold text-white">94%</span>
+                </div>
+              </div>
+              <p className="text-center text-xs text-slate-400 mt-2">Overall Completion</p>
+            </div>
           </div>
-          <div className="space-y-4">
-            <div className="flex gap-3">
-              <CheckCircle2 className="w-5 h-5 text-[color:var(--moss)] shrink-0 mt-0.5"/>
-              <div>
-                <p className="text-sm font-medium text-slate-200">Q3 Performance Reviews due Nov 15.</p>
-                <p className="text-xs text-[color:var(--ledger-paper-dim)] mt-1">Please ensure all department heads submit reviews via the portal.</p>
+        </div>
+
+        {/* Right Column: Insight Panels */}
+        <div className="space-y-6">
+          
+          <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl">
+            <h3 className="text-sm font-semibold text-white mb-5 flex items-center gap-2">
+              <Users className="w-4 h-4 text-[color:var(--brass)]" />
+              Onboarding Progress
+            </h3>
+            <div className="space-y-4">
+               {/* Just showing counts/status as requested */}
+               <div className="flex justify-between items-center text-sm">
+                 <span className="text-slate-300">Documentation Phase</span>
+                 <span className="font-semibold text-white">12</span>
+               </div>
+               <div className="flex justify-between items-center text-sm">
+                 <span className="text-slate-300">IT Setup & Provisioning</span>
+                 <span className="font-semibold text-white">5</span>
+               </div>
+               <div className="flex justify-between items-center text-sm">
+                 <span className="text-slate-300">Orientation Scheduled</span>
+                 <span className="font-semibold text-white">8</span>
+               </div>
+            </div>
+          </section>
+
+          <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl">
+            <h3 className="text-sm font-semibold text-white mb-5 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[color:var(--moss)]" />
+              Recent HR Activity
+            </h3>
+            <div className="space-y-4 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/10 before:to-transparent hidden-timeline-line">
+              <div className="relative flex items-center justify-between gap-4">
+                <div className="w-2 h-2 rounded-full bg-[color:var(--moss)] shrink-0" />
+                <div className="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">
+                  <p className="text-xs font-medium text-white">Leave Approved</p>
+                  <p className="text-[10px] text-slate-400">Branch Manager (North)</p>
+                </div>
+              </div>
+              <div className="relative flex items-center justify-between gap-4">
+                <div className="w-2 h-2 rounded-full bg-[color:var(--brass)] shrink-0" />
+                <div className="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">
+                  <p className="text-xs font-medium text-white">New Hire Provisioned</p>
+                  <p className="text-[10px] text-slate-400">IT Department</p>
+                </div>
+              </div>
+              <div className="relative flex items-center justify-between gap-4">
+                <div className="w-2 h-2 rounded-full bg-slate-500 shrink-0" />
+                <div className="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">
+                  <p className="text-xs font-medium text-white">Policy Acknowledgement</p>
+                  <p className="text-[10px] text-slate-400">45 employees completed</p>
+                </div>
               </div>
             </div>
-            <div className="flex gap-3">
-              <CheckCircle2 className="w-5 h-5 text-[color:var(--moss)] shrink-0 mt-0.5"/>
-              <div>
-                <p className="text-sm font-medium text-slate-200">Open Enrollment begins next month.</p>
-                <p className="text-xs text-[color:var(--ledger-paper-dim)] mt-1">Health and benefits enrollment details will be distributed.</p>
-              </div>
+          </section>
+
+          <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl">
+             <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+              <Activity className="w-4 h-4 text-blue-400" />
+              Announcements
+            </h3>
+            <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+              <p className="text-xs font-semibold text-blue-400 mb-1">Upcoming Performance Review</p>
+              <p className="text-xs text-slate-300">Q3 performance reviews are due by end of month. Ensure all managers have submitted evaluations.</p>
             </div>
-            <div className="flex gap-3">
-              <CheckCircle2 className="w-5 h-5 text-[color:var(--moss)] shrink-0 mt-0.5"/>
-              <div>
-                <p className="text-sm font-medium text-slate-200">New IT onboarding protocol established.</p>
-                <p className="text-xs text-[color:var(--ledger-paper-dim)] mt-1">Updated security checks required for all new IT staff.</p>
-              </div>
-            </div>
-          </div>
-        </section>
+          </section>
+
+        </div>
       </div>
 
-      {/* Create Staff Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowCreateModal(false)} />
-          <div className="relative w-full max-w-lg rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.95)] p-8 shadow-[0_24px_80px_rgba(2,8,23,0.6)] backdrop-blur-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-xl font-semibold text-white tracking-tight">Create New Staff</h3>
-                <p className="text-sm text-[color:var(--ledger-paper-dim)] mt-1">Submit a request to provision a new employee account.</p>
-              </div>
-              <button onClick={() => setShowCreateModal(false)} className="p-2 rounded-full hover:bg-white/10 text-slate-400 transition-colors">
-                <XCircle className="w-6 h-6" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateSubmit} className="space-y-5">
-              <div className="grid grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Full Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full bg-[rgba(15,23,40,0.6)] border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-colors"
-                    placeholder="e.g. Jane Doe"
-                  />
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+           <div className="relative w-full max-w-lg rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.95)] p-8 shadow-2xl">
+              <h3 className="text-xl font-semibold text-white mb-2">Add Employee</h3>
+              <p className="text-sm text-slate-400 mb-6">Initiate onboarding for a new staff member.</p>
+              
+              <form onSubmit={handleCreateSubmit} className="space-y-4 mb-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <input required type="text" placeholder="Full Name" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                  <input required type="text" placeholder="Username" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Username</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    className="w-full bg-[rgba(15,23,40,0.6)] border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-colors"
-                    placeholder="e.g. janedoe"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Email</label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full bg-[rgba(15,23,40,0.6)] border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-colors"
-                    placeholder="jane@bank.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Role</label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                    className="w-full bg-[rgba(15,23,40,0.6)] border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-colors appearance-none"
-                  >
+                <div className="grid grid-cols-2 gap-4">
+                  <input required type="email" placeholder="Email Address" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                  <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none appearance-none">
                     <option value="BANK_MANAGER">Bank Manager</option>
                     <option value="SUPER_ADMIN_IT">Super Admin IT</option>
                     <option value="SUPER_ADMIN_FOREX">Super Admin Forex</option>
@@ -265,55 +273,25 @@ export default function HRDashboardPage() {
                     <option value="ACCOUNTANT">Accountant</option>
                   </select>
                 </div>
-              </div>
 
-              {["BANK_MANAGER", "BRANCH_IT", "ACCOUNTANT"].includes(formData.role) && (
-                <div className="space-y-2">
-                  <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Branch ID (Optional)</label>
-                  <input
-                    type="text"
-                    value={formData.branchId}
-                    onChange={(e) => setFormData({ ...formData, branchId: e.target.value })}
-                    className="w-full bg-[rgba(15,23,40,0.6)] border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-colors"
-                    placeholder="Leave blank for unassigned"
-                  />
+                {["BANK_MANAGER", "BRANCH_IT", "ACCOUNTANT"].includes(formData.role) && (
+                  <input type="text" placeholder="Branch ID (Optional)" value={formData.branchId} onChange={e => setFormData({...formData, branchId: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                )}
+
+                <input required type="password" placeholder="Initial Passcode" value={formData.passcode} onChange={e => setFormData({...formData, passcode: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+
+                <div className="flex gap-3 justify-end pt-4">
+                  <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 rounded-xl border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Cancel</button>
+                  <button type="submit" disabled={loading} className="px-5 py-2.5 rounded-xl bg-[color:var(--brass)] text-[#16233A] text-sm font-bold hover:bg-[#d7ab5c] flex items-center gap-2">
+                    {loading && <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />}
+                    Submit Request
+                  </button>
                 </div>
-              )}
-
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Initial Passcode</label>
-                <input
-                  type="password"
-                  required
-                  value={formData.passcode}
-                  onChange={(e) => setFormData({ ...formData, passcode: e.target.value })}
-                  className="w-full bg-[rgba(15,23,40,0.6)] border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-colors"
-                  placeholder="Set temporary password"
-                />
-              </div>
-
-              <div className="pt-6 flex justify-end gap-4">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white text-sm font-semibold transition-colors border border-white/10"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-6 py-3 rounded-2xl bg-[color:var(--brass)] hover:bg-[#d7ab5c] text-[#16233A] text-sm font-bold transition-all shadow-lg flex items-center gap-2"
-                >
-                  {loading && <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />}
-                  Submit Request
-                </button>
-              </div>
-            </form>
-          </div>
+              </form>
+           </div>
         </div>
       )}
-      
+
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   );

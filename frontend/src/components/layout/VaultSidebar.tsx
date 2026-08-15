@@ -17,14 +17,19 @@ import {
   LogOut,
   UserRound,
   Currency,
+  UserPlus,
+  UserMinus,
+  CalendarDays,
+  GraduationCap,
 } from "lucide-react";
 
 type UserRole = "SUPER_ADMIN" | "SUPER_ADMIN_MANAGER" | "SUPER_ADMIN_IT" | "SUPER_ADMIN_FOREX" | "BANK_MANAGER" | "BRANCH_IT" | "ACCOUNTANT" | "HR";
 
 interface NavItem {
   label: string;
-  href: string;
-  icon: React.FC<{ className?: string }>;
+  href?: string;
+  icon?: React.FC<{ className?: string }>;
+  isSection?: boolean;
 }
 
 // Role → dashboard path mapping
@@ -135,7 +140,19 @@ const VaultSidebar: React.FC = () => {
     if (role === "HR") {
       return [
         { label: "Dashboard", href: "/hr-dash", icon: LayoutDashboard },
+        { label: "People", isSection: true },
         { label: "Employee Directory", href: "/hr-dash/directory", icon: Users },
+        { label: "Employee Lifecycle", isSection: true },
+        { label: "Onboarding", href: "/hr-dash/onboarding", icon: UserPlus },
+        { label: "Offboarding", href: "/hr-dash/offboarding", icon: UserMinus },
+        { label: "Time & Leave", isSection: true },
+        { label: "Attendance & Exceptions", href: "/hr-dash/attendance", icon: Clock },
+        { label: "Leave Management", href: "/hr-dash/leave", icon: CalendarDays },
+        { label: "Talent & Compliance", isSection: true },
+        { label: "Training & Compliance", href: "/hr-dash/training", icon: GraduationCap },
+        { label: "Operations", isSection: true },
+        { label: "Approval Queue", href: "/approvals", icon: ShieldCheck },
+        { label: "Reports & Audit Log", href: "/reports/system", icon: FileText },
       ];
     }
 
@@ -187,13 +204,23 @@ const VaultSidebar: React.FC = () => {
 
       {/* Navigation */}
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.href);
+        {navItems.map((item, index) => {
+          if (item.isSection) {
+            return (
+              <div key={`section-${index}`} className="mt-4 mb-1 px-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--ledger-paper-dim)] opacity-70">
+                  {item.label}
+                </span>
+              </div>
+            );
+          }
+          
+          const Icon = item.icon!;
+          const active = isActive(item.href!);
           return (
             <button
               key={item.href}
-              onClick={() => router.push(item.href)}
+              onClick={() => router.push(item.href!)}
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all duration-200 ${
                 active
                   ? "bg-[rgba(198,154,76,0.15)] text-[color:var(--brass)]"

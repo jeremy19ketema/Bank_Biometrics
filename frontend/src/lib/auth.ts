@@ -58,7 +58,7 @@ export const ROLE_ACCESS: Record<UserRole, string[]> = {
     "/accountant", "/transactions", "/customers", "/biometrics"
   ],
   HR: [
-    "/hr-dash", "/users"
+    "/hr-dash", "/users", "/approvals", "/reports"
   ]
 };
 

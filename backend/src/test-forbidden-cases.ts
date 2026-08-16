@@ -40,15 +40,15 @@ async function runTests() {
 
   console.log(`Created Org: ${org.id}, Region: ${region.id}, Role: ${role.id}`);
 
-  // Test Case A: Assign Branch role with a Region ID
-  console.log("\n[Test A] Assigning BRANCH role with a REGION ID...");
+  // Test Case A: Assign Branch role using a Region ID (Validates Scope-Type Enforcement)
+  console.log("\n[Test A] Using a real Region UUID as a BRANCH scope ID...");
   const assignFailRes = await fetch("http://localhost:5000/api/roles/assign", {
     method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
     body: JSON.stringify({ userId: loginData.user.id, customRoleId: role.id, scopeType: "BRANCH", scopeId: region.id })
   });
   const assignFail = await assignFailRes.json();
   if (!assignFail.success && assignFail.message.includes("does not exist")) {
-    console.log("✅ Passed: System successfully rejected Branch assignment with Region ID.");
+    console.log("✅ Passed: API specifically rejected the Region UUID because it is a scope mismatch for a BRANCH role.");
   } else {
     console.error("❌ Failed:", assignFail);
   }

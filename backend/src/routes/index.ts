@@ -9,6 +9,7 @@ import auditRoutes from "./auditRoutes.js";
 import approvalRoutes from "./approvalRoutes.js";
 import orgRoutes from "./orgRoutes.js";
 import roleRoutes from "./roleRoutes.js";
+import securityRoutes from "./securityRoutes.js";
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use("/audit", auditRoutes);
 router.use("/approvals", approvalRoutes);
 router.use("/org", orgRoutes);
 router.use("/roles", roleRoutes);
+router.use("/security", securityRoutes);
 
 export default router;

@@ -204,6 +204,29 @@ model BiometricPolicy {
 
 // --- INTEGRATIONS & ALERTS ---
 
+model SystemBackup {
+  id              String    @id @default(uuid())
+  type            String
+  status          String
+  sizeBytes       BigInt?
+  path            String?
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  lastRestoreTest DateTime?
+  restoreStatus   String?
+}
+
+model MaintenanceWindow {
+  id              String   @id @default(uuid())
+  title           String
+  description     String
+  startTime       DateTime
+  endTime         DateTime
+  status          String   @default("SCHEDULED")
+  createdById     String
+  createdBy       User     @relation(fields: [createdById], references: [id])
+}
+
 model SystemIntegration {
   id         String    @id @default(uuid())
   name       String    @unique
@@ -217,15 +240,19 @@ model SystemIntegration {
 }
 
 model SecurityAlert {
-  id           String        @id @default(uuid())
-  severity     AlertSeverity @default(MEDIUM)
-  eventType    String // e.g., "SUSPICIOUS_LOGIN", "BRUTE_FORCE", "EXPORT_ATTEMPT"
-  description  String
-  sourceIp     String?
-  targetUserId String?
-  isResolved   Boolean       @default(false)
-  resolvedAt   DateTime?
-  createdAt    DateTime      @default(now())
+  id              String        @id @default(uuid())
+  severity        AlertSeverity @default(MEDIUM)
+  eventType       String
+  description     String
+  sourceIp        String?
+  targetUserId    String?
+  isResolved      Boolean       @default(false)
+  resolvedAt      DateTime?
+  assignedToId    String?
+  assignedTo      User?         @relation(fields: [assignedToId], references: [id])
+  acknowledgedAt  DateTime?
+  escalationLevel String        @default("TIER_1")
+  createdAt       DateTime      @default(now())
 }
 
 // --- CORE SYSTEM MODELS ---
@@ -258,6 +285,8 @@ model User {
   biometricScans        BiometricScanResult[]
   approvalRequests      ApprovalRequest[]     @relation("ApprovalRequester")
   approvalActions       ApprovalRequest[]     @relation("ApprovalActor")
+  securityAlerts        SecurityAlert[]
+  maintenanceWindows    MaintenanceWindow[]
 }
 
 model Branch {
@@ -333,15 +362,22 @@ model Transaction {
 }
 
 model SystemAuditLog {
-  id        String        @id @default(uuid())
-  timestamp DateTime      @default(now())
-  actorId   String
-  actor     User          @relation(fields: [actorId], references: [id])
-  action    String
-  category  AuditCategory
-  ipAddress String
-  details   String
-  status    AuditStatus
+  id             String        @id @default(uuid())
+  timestamp      DateTime      @default(now())
+  actorId        String
+  actor          User          @relation(fields: [actorId], references: [id])
+  action         String
+  category       AuditCategory
+  severity       AlertSeverity @default(LOW)
+  ipAddress      String
+  details        String
+  status         AuditStatus
+  organizationId String?
+  regionId       String?
+  branchId       String?
+  departmentId   String?
+  targetType     String?
+  targetId       String?
 }
 
 model ApprovalRequest {

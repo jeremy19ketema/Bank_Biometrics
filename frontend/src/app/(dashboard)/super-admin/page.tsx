@@ -17,6 +17,7 @@ import {
   UserPlus,
   Eye,
   EyeOff,
+  ShieldAlert,
 } from "lucide-react";
 import { useSuperAdminStore } from "@/store/superAdminStore";
 import { useToast } from "@/hooks/useToast";
@@ -415,6 +416,36 @@ export default function SuperAdminDashboard() {
             </h3>
             <p className="text-sm text-[color:var(--ledger-paper-dim)]">
               Export compliance reports, user activity summaries, and system health data.
+            </p>
+          </div>
+        </Link>
+
+        <Link
+          href="/super-admin/security"
+          className="panel hover:border-[color:var(--clay)] transition-all group"
+        >
+          <div className="flex justify-between items-start">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-[color:var(--clay)]/10 text-[color:var(--clay)] border border-[color:var(--clay)]/30 flex items-center justify-center group-hover:bg-[color:var(--clay)] group-hover:text-white transition-colors">
+                <ShieldAlert className="w-6 h-6" />
+              </div>
+              <div className="vault-dial" style={{ width: "40px", height: "40px" }}>
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                  <circle className="track" cx="20" cy="20" r="16" strokeWidth="3" />
+                  <circle className="arc clay" cx="20" cy="20" r="16" strokeWidth="3" strokeDasharray="100.5" strokeDashoffset="60" />
+                </svg>
+              </div>
+            </div>
+            <span className="material-symbols-outlined text-[color:var(--ledger-paper-dim)] group-hover:text-[color:var(--clay)] group-hover:translate-x-1 transition-all">
+              arrow_forward
+            </span>
+          </div>
+          <div className="mt-4">
+            <h3 className="font-semibold text-lg text-[color:var(--ledger-paper)] group-hover:text-[color:var(--clay)] transition-colors">
+              Security & Compliance
+            </h3>
+            <p className="text-sm text-[color:var(--ledger-paper-dim)]">
+              Audit trails, policy maker-checker, and security alerts.
             </p>
           </div>
         </Link>

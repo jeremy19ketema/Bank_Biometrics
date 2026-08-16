@@ -1,5 +1,15 @@
 import { prisma } from "../config/db.js";
-import { AuditCategory, AuditStatus } from "@prisma/client";
+import { AuditCategory, AuditStatus, AlertSeverity } from "@prisma/client";
+
+export interface AuditScopes {
+  organizationId?: string;
+  regionId?: string;
+  branchId?: string;
+  departmentId?: string;
+  targetType?: string;
+  targetId?: string;
+  severity?: AlertSeverity;
+}
 
 export async function logAuditEvent(
   actorId: string,
@@ -7,7 +17,8 @@ export async function logAuditEvent(
   category: AuditCategory,
   ipAddress: string,
   details: string,
-  status: AuditStatus
+  status: AuditStatus,
+  scopes?: AuditScopes
 ): Promise<void> {
   try {
     await prisma.systemAuditLog.create({
@@ -18,6 +29,13 @@ export async function logAuditEvent(
         ipAddress,
         details,
         status,
+        organizationId: scopes?.organizationId,
+        regionId: scopes?.regionId,
+        branchId: scopes?.branchId,
+        departmentId: scopes?.departmentId,
+        targetType: scopes?.targetType,
+        targetId: scopes?.targetId,
+        severity: scopes?.severity || "LOW",
       },
     });
   } catch (error) {

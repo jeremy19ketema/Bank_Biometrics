@@ -16,12 +16,14 @@ enum Role {
   BRANCH_IT
   ACCOUNTANT
   HR
+  // We keep the enum for bootstrap/essential platform identities
 }
 
 enum BranchStatus {
   ACTIVE
   INACTIVE
   MAINTENANCE
+  SUSPENDED
 }
 
 enum StaffStatus {
@@ -66,6 +68,7 @@ enum AuditCategory {
   TRANSACTION
   BIOMETRIC
   ADMINISTRATION
+  POLICY_CHANGE
 }
 
 enum AuditStatus {
@@ -74,45 +77,195 @@ enum AuditStatus {
   FAILURE
 }
 
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// --- ORGANIZATIONAL HIERARCHY ---
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  code      String   @unique
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  regions Region[]
+}
+
+model Region {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  code           String       @unique
+  status         String       @default("ACTIVE")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  branches Branch[]
+}
+
+model Department {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User[]
+}
+
+model CostCenter {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  budget    Float?
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- DYNAMIC ROLES & PERMISSIONS ---
+
+model CustomRole {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  permissions CustomPermission[]
+  users       UserCustomRole[]
+}
+
+model CustomPermission {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g. "VIEW_REPORTS", "MANAGE_FOREX"
+  description String?
+  createdAt   DateTime @default(now())
+
+  roles CustomRole[]
+}
+
+model UserCustomRole {
+  id           String     @id @default(uuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  customRoleId String
+  customRole   CustomRole @relation(fields: [customRoleId], references: [id])
+  scopeType    String? // e.g., "GLOBAL", "REGION", "BRANCH", "DEPARTMENT"
+  scopeId      String? // UUID of the specific scope entity
+  assignedAt   DateTime   @default(now())
+  assignedById String?
+}
+
+// --- GLOBAL POLICIES ---
+
+model GlobalSecurityPolicy {
+  id                    String   @id @default(uuid())
+  name                  String   @unique
+  mfaRequired           Boolean  @default(false)
+  sessionTimeoutMinutes Int      @default(30)
+  passwordRegex         String   @default("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")
+  maxFailedAttempts     Int      @default(5)
+  accountLockoutMinutes Int      @default(15)
+  ipRestrictions        String[]
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model BiometricPolicy {
+  id                   String   @id @default(uuid())
+  name                 String   @unique
+  requireMultiFinger   Boolean  @default(false)
+  retentionDays        Int      @default(365)
+  strictMatchThreshold Float    @default(85.0)
+  allowReEnrollment    Boolean  @default(true)
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+// --- INTEGRATIONS & ALERTS ---
+
+model SystemIntegration {
+  id         String    @id @default(uuid())
+  name       String    @unique
+  type       String // e.g., "SMS", "CORE_BANKING", "EMAIL"
+  endpoint   String?
+  apiKey     String?
+  status     String    @default("ACTIVE")
+  lastSyncAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model SecurityAlert {
+  id           String        @id @default(uuid())
+  severity     AlertSeverity @default(MEDIUM)
+  eventType    String // e.g., "SUSPICIOUS_LOGIN", "BRUTE_FORCE", "EXPORT_ATTEMPT"
+  description  String
+  sourceIp     String?
+  targetUserId String?
+  isResolved   Boolean       @default(false)
+  resolvedAt   DateTime?
+  createdAt    DateTime      @default(now())
+}
+
+// --- CORE SYSTEM MODELS ---
+
 model User {
-  id           String      @id @default(uuid())
-  username     String      @unique
-  fullName     String
-  email        String      @unique
-  passwordHash String      // For passcode security
-  role         Role
-  branchId     String?
-  branch       Branch?     @relation(fields: [branchId], references: [id])
-  department   String?
-  avatarUrl    String?
-  isActive     Boolean     @default(true)
-  status       StaffStatus @default(PENDING_FIRST_LOGIN)
-  isFirstLogin Boolean     @default(true)
-  lastLoginAt  DateTime?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id             String      @id @default(uuid())
+  username       String      @unique
+  fullName       String
+  email          String      @unique
+  passwordHash   String
+  role           Role
+  branchId       String?
+  branch         Branch?     @relation(fields: [branchId], references: [id])
+  departmentId   String?
+  department     Department? @relation(fields: [departmentId], references: [id])
+  departmentName String? // Kept for backward compatibility with existing code where department is a string
+  avatarUrl      String?
+  isActive       Boolean     @default(true)
+  status         StaffStatus @default(PENDING_FIRST_LOGIN)
+  isFirstLogin   Boolean     @default(true)
+  lastLoginAt    DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
   // Relationships
-  processedTransactions Transaction[] @relation("AccountantRelation")
-  approvedTransactions  Transaction[] @relation("ApproverRelation")
+  customRoles           UserCustomRole[]
+  processedTransactions Transaction[]         @relation("AccountantRelation")
+  approvedTransactions  Transaction[]         @relation("ApproverRelation")
   auditLogs             SystemAuditLog[]
   biometricScans        BiometricScanResult[]
-  approvalRequests      ApprovalRequest[] @relation("ApprovalRequester")
-  approvalActions       ApprovalRequest[] @relation("ApprovalActor")
+  approvalRequests      ApprovalRequest[]     @relation("ApprovalRequester")
+  approvalActions       ApprovalRequest[]     @relation("ApprovalActor")
 }
 
 model Branch {
-  id                    String        @id @default(uuid())
-  code                  String        @unique
+  id                    String       @id @default(uuid())
+  regionId              String?
+  region                Region?      @relation(fields: [regionId], references: [id])
+  code                  String       @unique
   name                  String
   city                  String
   address               String
   phone                 String
   email                 String
-  status                BranchStatus  @default(ACTIVE)
+  status                BranchStatus @default(ACTIVE)
   dailyTransactionLimit Float
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
 
   // Relationships
   users        User[]
@@ -120,31 +273,31 @@ model Branch {
 }
 
 model Customer {
-  id                  String         @id @default(uuid())
-  accountNumber       String         @unique
-  fullName            String
-  nationalId          String         @unique
-  phone               String
-  email               String
-  accountType         String         // e.g. SAVINGS, CHECKING, CORPORATE
-  balance             Float
-  isBiometricEnrolled Boolean        @default(false)
-  enrolledFingerprints String[]      // biometric template markers (simulated)
-  status              CustomerStatus @default(ACTIVE)
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  id                   String         @id @default(uuid())
+  accountNumber        String         @unique
+  fullName             String
+  nationalId           String         @unique
+  phone                String
+  email                String
+  accountType          String
+  balance              Float
+  isBiometricEnrolled  Boolean        @default(false)
+  enrolledFingerprints String[]
+  status               CustomerStatus @default(ACTIVE)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 
   // Relationships
-  biometricScans      BiometricScanResult[]
+  biometricScans BiometricScanResult[]
 }
 
 model BiometricScanResult {
   scanId       String    @id @default(uuid())
   customerId   String?
   customer     Customer? @relation(fields: [customerId], references: [id])
-  matchScore   Float     // 0 - 100
+  matchScore   Float
   isMatch      Boolean
-  fingerIndex  String    // e.g. "RIGHT_INDEX"
+  fingerIndex  String
   qualityScore Float
   scannedAt    DateTime  @default(now())
   deviceId     String
@@ -184,12 +337,12 @@ model SystemAuditLog {
 
 model ApprovalRequest {
   id              String         @id @default(uuid())
-  requestType     String         // e.g. "CREATE_BANK_MANAGER", "DELETE_BRANCH", "CREATE_SUPER_ADMIN_ROLE"
+  requestType     String
   requestedById   String
   requestedBy     User           @relation("ApprovalRequester", fields: [requestedById], references: [id])
   requestedByName String
-  targetUserId    String?        // If request is about a user
-  targetRole      Role?          // Role being requested
+  targetUserId    String?
+  targetRole      Role?
   targetBranchId  String?
   details         String
   status          ApprovalStatus @default(PENDING)

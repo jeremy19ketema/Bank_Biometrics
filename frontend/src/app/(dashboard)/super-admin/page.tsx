@@ -50,6 +50,7 @@ export default function SuperAdminDashboard() {
   const { branches, managers, itUsers, createUser } = useSuperAdminStore();
   const { toast, toasts, dismissToast } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -130,25 +131,55 @@ export default function SuperAdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Header & Top Action Bar */}
-      <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div>
-          <div className="section-title mb-2 text-xs uppercase tracking-wider text-[color:var(--brass)]">Super Admin Control Center</div>
-          <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">
-            Overview & Actions
-          </h1>
+      <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl flex flex-col gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div>
+            <div className="section-title mb-2 text-xs uppercase tracking-wider text-[color:var(--brass)]">Super Admin Control Center</div>
+            <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">
+              {activeTab === "overview" ? "Overview & Actions" : "Global Settings"}
+            </h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <button 
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center gap-2 rounded-xl bg-[color:var(--brass)] px-4 py-2.5 text-sm font-bold text-[#16233A] shadow-lg transition hover:bg-[#d7ab5c]"
+            >
+              <UserPlus className="h-4 w-4" /> Create System User
+            </button>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <button 
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-[color:var(--brass)] px-4 py-2.5 text-sm font-bold text-[#16233A] shadow-lg transition hover:bg-[#d7ab5c]"
+
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-6 border-b border-white/10 pb-1">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={`pb-3 text-sm font-semibold transition-colors relative ${
+              activeTab === "overview" ? "text-[color:var(--brass)]" : "text-slate-400 hover:text-white"
+            }`}
           >
-            <UserPlus className="h-4 w-4" /> Create System User
+            Overview
+            {activeTab === "overview" && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[color:var(--brass)] rounded-t-full" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("settings")}
+            className={`pb-3 text-sm font-semibold transition-colors relative ${
+              activeTab === "settings" ? "text-[color:var(--brass)]" : "text-slate-400 hover:text-white"
+            }`}
+          >
+            Global Settings & Policies
+            {activeTab === "settings" && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[color:var(--brass)] rounded-t-full" />
+            )}
           </button>
         </div>
       </section>
 
-      {/* KPI Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {activeTab === "overview" ? (
+        <>
+          {/* KPI Row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-[color:var(--brass)]/10 text-[color:var(--brass)] border border-[color:var(--brass)]/30 flex items-center justify-center">
             <Building2 className="w-5 h-5" />
@@ -487,6 +518,50 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
       </div>
+        </>
+      ) : activeTab === "settings" ? (
+        <div className="space-y-6">
+          <div className="panel">
+            <h2 className="display flex items-center gap-2"><Settings className="w-5 h-5 text-[color:var(--brass)]" /> Security Policies</h2>
+            <div className="panel-sub mb-4">Configure global security requirements for all users.</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="text-sm font-semibold text-white mb-1">MFA Enforcement</div>
+                <div className="text-xs text-slate-400">Currently disabled globally</div>
+              </div>
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="text-sm font-semibold text-white mb-1">Session Timeout</div>
+                <div className="text-xs text-slate-400">30 minutes</div>
+              </div>
+            </div>
+            <button className="mt-4 px-4 py-2 text-xs font-semibold rounded-lg bg-[color:var(--brass)]/10 text-[color:var(--brass)] hover:bg-[color:var(--brass)]/20 transition-colors">Edit Security Policy</button>
+          </div>
+
+          <div className="panel">
+            <h2 className="display flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-[color:var(--moss)]" /> Biometric Policies</h2>
+            <div className="panel-sub mb-4">Manage enrollment requirements and retention data.</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="text-sm font-semibold text-white mb-1">Data Retention</div>
+                <div className="text-xs text-slate-400">365 Days</div>
+              </div>
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="text-sm font-semibold text-white mb-1">Strict Match Threshold</div>
+                <div className="text-xs text-slate-400">85.0%</div>
+              </div>
+            </div>
+            <button className="mt-4 px-4 py-2 text-xs font-semibold rounded-lg bg-[color:var(--moss)]/10 text-[color:var(--moss)] hover:bg-[color:var(--moss)]/20 transition-colors">Edit Biometric Policy</button>
+          </div>
+          
+          <div className="panel">
+            <h2 className="display flex items-center gap-2"><AlertCircle className="w-5 h-5 text-[color:var(--clay)]" /> System Integrations & Alerts</h2>
+            <div className="panel-sub mb-4">Manage API keys and view critical security alerts.</div>
+            <div className="h-20 border border-dashed border-white/10 rounded-xl flex items-center justify-center text-xs text-slate-500">
+              No active integrations configured.
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">

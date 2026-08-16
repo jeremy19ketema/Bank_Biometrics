@@ -35,7 +35,8 @@ app.get("/health", (req, res) => {
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error(`Unhandle Exception: ${err.message}`);
-  res.status(500).json({ success: false, message: "An unexpected system error occurred" });
+  console.error("FULL ERROR DETAILS:", err);
+  res.status(500).json({ success: false, message: "An unexpected system error occurred", error: err.message });
 });
 
 app.listen(PORT, () => {
@@ -46,3 +47,4 @@ app.listen(PORT, () => {
 });
 
 export default app;
+// Trigger restart for new .env variables

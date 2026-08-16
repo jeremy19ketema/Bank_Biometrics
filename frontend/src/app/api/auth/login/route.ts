@@ -5,6 +5,7 @@ export async function POST(request: Request) {
     const { username, passcode } = await request.json();
 
     // Strict RBAC mock users - each has specific credentials
+    // KEPT FOR REFERENCE AS REQUESTED
     type MockUser = {
       id: string;
       username: string;
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
       BANK_MANAGER: "/manager",
       BRANCH_IT: "/it",
       ACCOUNTANT: "/accountant",
+      HR: "/hr-dash"
     };
 
     const mockUsers: MockUser[] = [
@@ -145,26 +147,32 @@ export async function POST(request: Request) {
       },
     ];
 
-    const user = mockUsers.find((u) => u.username === username && u.passcode === passcode);
+    // Instead of using mockUsers, proxy to real backend:
+    const backendRes = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, passcode })
+    });
 
-    if (!user) {
+    const data = await backendRes.json();
+
+    if (!data.success) {
       return NextResponse.json(
-        { success: false, message: "Invalid credentials. Please verify your Admin ID and Passcode." },
+        { success: false, message: data.message || "Invalid credentials." },
         { status: 401 }
       );
     }
 
-    const { passcode: _, ...userWithoutPasscode } = user;
-    const token = Buffer.from(`${user.id}:${Date.now()}`).toString("base64");
+    const { token, user, isFirstLogin } = data;
 
-    // Determine redirect: if first login, go to change-credentials
-    const redirect = user.isFirstLogin ? "/change-credentials" : redirectMap[user.role] || "/super-admin";
+    // Determine redirect
+    const redirect = isFirstLogin ? "/change-credentials" : redirectMap[user.role] || "/super-admin";
 
     const response = NextResponse.json({
       success: true,
       token,
-      user: userWithoutPasscode,
-      isFirstLogin: user.isFirstLogin || false,
+      user,
+      isFirstLogin: isFirstLogin || false,
       redirect,
     });
 
@@ -177,7 +185,7 @@ export async function POST(request: Request) {
       path: "/",
     });
 
-    response.cookies.set("aegis_user", JSON.stringify(userWithoutPasscode), {
+    response.cookies.set("aegis_user", JSON.stringify(user), {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -193,5 +201,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
 
 

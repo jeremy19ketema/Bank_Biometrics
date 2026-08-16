@@ -5,12 +5,12 @@ import { prisma } from "../config/db.js";
 import { AuthenticatedRequest } from "../middleware/auth.js";
 import { logAuditEvent } from "../utils/audit.js";
 
-const configuredJwtSecret = process.env.JWT_SECRET as Secret | undefined;
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || "8h") as SignOptions["expiresIn"];
 
 function getJwtSecret(): Secret {
-  if (!configuredJwtSecret) throw new Error("JWT_SECRET must be configured before the API can start");
-  return configuredJwtSecret;
+  const secret = process.env.JWT_SECRET as Secret | undefined;
+  if (!secret) throw new Error("JWT_SECRET must be configured before the API can start");
+  return secret;
 }
 
 export async function login(req: AuthenticatedRequest, res: Response): Promise<void> {

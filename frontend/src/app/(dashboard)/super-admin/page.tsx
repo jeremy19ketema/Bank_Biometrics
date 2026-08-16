@@ -177,19 +177,19 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-[color:var(--clay)]/10 text-[color:var(--clay)] border border-[color:var(--clay)]/30 flex items-center justify-center">
+        <Link href="/approvals" className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4 hover:border-[color:var(--clay)] transition-colors group cursor-pointer">
+          <div className="w-10 h-10 rounded-xl bg-[color:var(--clay)]/10 text-[color:var(--clay)] border border-[color:var(--clay)]/30 flex items-center justify-center group-hover:bg-[color:var(--clay)] group-hover:text-white transition-colors">
             <AlertCircle className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
+            <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)] group-hover:text-[color:var(--clay)] transition-colors">
               Pending Approvals
             </p>
             <p className="text-xl font-bold text-[color:var(--clay)]">
               {pendingApprovals}
             </p>
           </div>
-        </div>
+        </Link>
 
         <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-[color:var(--brass-dim)]/10 text-[color:var(--brass-dim)] border border-[color:var(--brass-dim)]/30 flex items-center justify-center">

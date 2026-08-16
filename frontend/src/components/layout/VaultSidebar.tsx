@@ -73,6 +73,7 @@ const VaultSidebar: React.FC = () => {
     if (role === "SUPER_ADMIN") {
       return [
         { label: "Dashboard", href: "/super-admin", icon: LayoutDashboard },
+        { label: "Approval Queue", href: "/approvals", icon: Clock },
         { label: "Branches", href: "/branches", icon: Building2 },
         { label: "Users", href: "/users", icon: Users }, // ✅ Now points to unified Users page
         { label: "Roles & Permissions", href: "/governance/roles", icon: ShieldCheck },

@@ -7,6 +7,8 @@ import biometricRoutes from "./biometricRoutes.js";
 import transactionRoutes from "./transactionRoutes.js";
 import auditRoutes from "./auditRoutes.js";
 import approvalRoutes from "./approvalRoutes.js";
+import orgRoutes from "./orgRoutes.js";
+import roleRoutes from "./roleRoutes.js";
 
 const router = Router();
 
@@ -18,5 +20,7 @@ router.use("/biometrics", biometricRoutes);
 router.use("/transactions", transactionRoutes);
 router.use("/audit", auditRoutes);
 router.use("/approvals", approvalRoutes);
+router.use("/org", orgRoutes);
+router.use("/roles", roleRoutes);
 
 export default router;

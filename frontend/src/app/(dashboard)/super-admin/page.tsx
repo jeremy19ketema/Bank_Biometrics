@@ -240,7 +240,7 @@ export default function SuperAdminDashboard() {
       {/* Quick Action Tiles – 3×2 Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link
-          href="/branches"
+          href="/super-admin/organizations"
           className="panel hover:border-[color:var(--brass)] transition-all group"
         >
           <div className="flex justify-between items-start">
@@ -261,16 +261,16 @@ export default function SuperAdminDashboard() {
           </div>
           <div className="mt-4">
             <h3 className="font-semibold text-lg text-[color:var(--ledger-paper)] group-hover:text-[color:var(--brass)] transition-colors">
-              Manage Branches
+              Organization Hierarchy
             </h3>
             <p className="text-sm text-[color:var(--ledger-paper-dim)]">
-              Add, edit, or decommission branches across the network.
+              Manage regions, branches, departments, and cost centers.
             </p>
           </div>
         </Link>
 
         <Link
-          href="/governance/roles"
+          href="/super-admin/roles"
           className="panel hover:border-[color:var(--moss)] transition-all group"
         >
           <div className="flex justify-between items-start">
@@ -291,10 +291,10 @@ export default function SuperAdminDashboard() {
           </div>
           <div className="mt-4">
             <h3 className="font-semibold text-lg text-[color:var(--ledger-paper)] group-hover:text-[color:var(--moss)] transition-colors">
-              Manage Roles
+              Roles & Permissions
             </h3>
             <p className="text-sm text-[color:var(--ledger-paper-dim)]">
-              Define role permissions and assign users to appropriate roles.
+              Define custom roles and strictly scope them across the network.
             </p>
           </div>
         </Link>

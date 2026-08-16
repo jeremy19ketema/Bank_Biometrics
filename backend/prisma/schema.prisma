@@ -94,7 +94,8 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  regions Region[]
+  regions     Region[]
+  departments Department[]
 }
 
 model Region {
@@ -107,16 +108,23 @@ model Region {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  branches Branch[]
+  branches    Branch[]
+  departments Department[]
 }
 
 model Department {
-  id        String   @id @default(uuid())
-  name      String
-  code      String   @unique
-  status    String   @default("ACTIVE")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String        @id @default(uuid())
+  name           String
+  code           String        @unique
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  regionId       String?
+  region         Region?       @relation(fields: [regionId], references: [id])
+  branchId       String?
+  branch         Branch?       @relation(fields: [branchId], references: [id])
+  status         String        @default("ACTIVE")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   users User[]
 }
@@ -270,6 +278,7 @@ model Branch {
   // Relationships
   users        User[]
   transactions Transaction[]
+  departments  Department[]
 }
 
 model Customer {

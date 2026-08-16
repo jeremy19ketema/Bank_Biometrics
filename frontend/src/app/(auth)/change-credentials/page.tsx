@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Fingerprint, ShieldCheck, LockKeyhole, UserRound, ArrowRight, Loader2 } from "lucide-react";
 import { getStoredUser, setAuthSession, ROLE_ROUTES, AuthUser } from "@/lib/auth";
 import { UserRole } from "@/types";
+import { z } from "zod";
+
+const passwordSchema = z.string()
+  .min(8, "Passcode must be at least 8 characters")
+  .regex(/[A-Z]/, "Passcode must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Passcode must contain at least one lowercase letter")
+  .regex(/[0-9]/, "Passcode must contain at least one number")
+  .regex(/[^A-Za-z0-9]/, "Passcode must contain at least one special character");
 
 export default function ChangeCredentialsPage() {
   const router = useRouter();
@@ -34,8 +42,15 @@ export default function ChangeCredentialsPage() {
     setIsLoading(true);
     setErrorMsg("");
 
-    if (newPasscode.length < 6) {
-      setErrorMsg("New passcode must be at least 6 characters");
+    const parsedPassword = passwordSchema.safeParse(newPasscode);
+    if (!parsedPassword.success) {
+      setErrorMsg(parsedPassword.error.errors[0].message);
+      setIsLoading(false);
+      return;
+    }
+
+    if (newPasscode !== confirmPasscode) {
+      setErrorMsg("Passcodes do not match");
       setIsLoading(false);
       return;
     }

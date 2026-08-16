@@ -198,7 +198,7 @@ export default function LoginPage() {
           ACCOUNTANT: "/accountant",
           HR: "/hr-dash",
         };
-        const redirectPath = roleMap[user.role] || "/super-admin";
+        const redirectPath = user.isFirstLogin ? "/change-credentials" : (roleMap[user.role] || "/super-admin");
         router.push(redirectPath);
       }
     }, 1000);

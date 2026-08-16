@@ -19,44 +19,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the current user from cookies
-    const userCookie = request.cookies.get("aegis_user")?.value;
-    if (!userCookie) {
+    const token = request.cookies.get("aegis_auth_token")?.value;
+    if (!token) {
       return NextResponse.json(
         { success: false, message: "Not authenticated" },
         { status: 401 }
       );
     }
 
-    const currentUser = JSON.parse(userCookie);
+    const backendRes = await fetch("http://localhost:5000/api/auth/complete-first-login", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ newUsername, currentPasscode, newPasscode }),
+    });
 
-    // In a real app, this would:
-    // 1. Verify current passcode against DB hash
-    // 2. Check new username availability
-    // 3. Hash new passcode and update
-    // 4. Update isFirstLogin to false
-    // 5. Generate new token
+    const data = await backendRes.json();
 
-    // Mock implementation - update the user in cookies
-    const updatedUser = {
-      ...currentUser,
-      username: newUsername || currentUser.username,
-      isFirstLogin: false,
-      status: "ACTIVE",
-    };
-
-    const newToken = Buffer.from(`${currentUser.id}:${Date.now()}:updated`).toString("base64");
+    if (!data.success) {
+      return NextResponse.json(
+        { success: false, message: data.message || "Failed to update credentials." },
+        { status: backendRes.status }
+      );
+    }
 
     const response = NextResponse.json({
       success: true,
-      message: "Credentials updated successfully",
-      token: newToken,
-      user: updatedUser,
-      redirect: "/super-admin",
+      message: data.message || "Credentials updated successfully",
+      token: data.token,
+      user: data.user,
     });
 
     // Update cookies with new token and user data (clearing firstLogin)
-    response.cookies.set("aegis_auth_token", newToken, {
+    response.cookies.set("aegis_auth_token", data.token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -64,7 +61,7 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
-    response.cookies.set("aegis_user", JSON.stringify(updatedUser), {
+    response.cookies.set("aegis_user", JSON.stringify(data.user), {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

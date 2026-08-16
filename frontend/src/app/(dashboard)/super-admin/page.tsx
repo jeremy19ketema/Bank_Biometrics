@@ -13,7 +13,10 @@ import {
   UserCog,
   TrendingUp,
   CheckCircle2,
+  AlertTriangle,
   UserPlus,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useSuperAdminStore } from "@/store/superAdminStore";
 import { useToast } from "@/hooks/useToast";
@@ -48,6 +51,9 @@ export default function SuperAdminDashboard() {
   const { toast, toasts, dismissToast } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   
   const {
     register,
@@ -72,6 +78,8 @@ export default function SuperAdminDashboard() {
   const selectedRole = watch("role");
 
   const onValidSubmit = async (data: CreateUserFormValues) => {
+    setSuccessMsg("");
+    setErrorMsg("");
     setLoading(true);
     
     const submissionData = {
@@ -84,10 +92,11 @@ export default function SuperAdminDashboard() {
 
     if (success) {
       toast.success("Success", `User ${submissionData.fullName} created successfully.`);
-      setShowAddModal(false);
+      setSuccessMsg(`User ${submissionData.fullName} was successfully provisioned!`);
       reset();
     } else {
       toast.error("Error", message || "Failed to create staff member.");
+      setErrorMsg(message || "Failed to create staff member.");
     }
   };
 
@@ -485,38 +494,79 @@ export default function SuperAdminDashboard() {
               <h3 className="text-xl font-semibold text-white mb-2">Create System User</h3>
               <p className="text-sm text-slate-400 mb-6">Provision a new user account across any role in the institution.</p>
               
-              <form onSubmit={handleCreateSubmit} className="space-y-4 mb-6">
+              {errorMsg && (
+                <div className="mb-4 rounded-xl border border-[color:var(--clay)]/30 bg-[rgba(168,69,46,0.16)] p-4 text-sm text-[color:var(--clay)] font-medium">
+                  {errorMsg}
+                </div>
+              )}
+              {successMsg && (
+                <div className="mb-4 rounded-xl border border-[color:var(--moss)]/30 bg-[rgba(76,122,94,0.16)] p-4 text-sm text-[color:var(--moss)] font-medium">
+                  {successMsg}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit(onValidSubmit)} className="space-y-4 mb-6">
                 <div className="grid grid-cols-2 gap-4">
-                  <input required type="text" placeholder="Full Name" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                  <input required type="text" placeholder="Username" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                  <div>
+                    <input {...register("firstName")} type="text" placeholder="First Name" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                    {errors.firstName && <span className="text-xs text-red-400 mt-1 block">{errors.firstName.message}</span>}
+                  </div>
+                  <div>
+                    <input {...register("lastName")} type="text" placeholder="Last Name" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                    {errors.lastName && <span className="text-xs text-red-400 mt-1 block">{errors.lastName.message}</span>}
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <input required type="email" placeholder="Email Address" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                  <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none appearance-none">
-                    <option value="SUPER_ADMIN">Super Admin</option>
-                    <option value="SUPER_ADMIN_MANAGER">Super Admin Manager</option>
-                    <option value="SUPER_ADMIN_IT">Super Admin IT</option>
-                    <option value="SUPER_ADMIN_FOREX">Super Admin Forex</option>
-                    <option value="BANK_MANAGER">Bank Manager</option>
-                    <option value="BRANCH_IT">Branch IT</option>
-                    <option value="ACCOUNTANT">Accountant</option>
-                    <option value="HR">HR</option>
+                  <div>
+                    <input {...register("username")} type="text" placeholder="Username" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                    {errors.username && <span className="text-xs text-red-400 mt-1 block">{errors.username.message}</span>}
+                  </div>
+                  <div>
+                    <input {...register("email")} type="email" placeholder="Email Address" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                    {errors.email && <span className="text-xs text-red-400 mt-1 block">{errors.email.message}</span>}
+                  </div>
+                </div>
+                
+                <div>
+                  <select {...register("role")} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none appearance-none">
+                    <option value="SUPER_ADMIN" className="bg-slate-900 text-white">Super Admin</option>
+                    <option value="SUPER_ADMIN_MANAGER" className="bg-slate-900 text-white">Super Admin Manager</option>
+                    <option value="SUPER_ADMIN_IT" className="bg-slate-900 text-white">Super Admin IT</option>
+                    <option value="SUPER_ADMIN_FOREX" className="bg-slate-900 text-white">Super Admin Forex</option>
+                    <option value="BANK_MANAGER" className="bg-slate-900 text-white">Bank Manager</option>
+                    <option value="BRANCH_IT" className="bg-slate-900 text-white">Branch IT</option>
+                    <option value="ACCOUNTANT" className="bg-slate-900 text-white">Accountant</option>
+                    <option value="HR" className="bg-slate-900 text-white">HR</option>
                   </select>
+                  {errors.role && <span className="text-xs text-red-400 mt-1 block">{errors.role.message}</span>}
                 </div>
 
-                {["BANK_MANAGER", "BRANCH_IT", "ACCOUNTANT"].includes(formData.role) && (
-                  <input type="text" placeholder="Branch ID (Optional)" value={formData.branchId} onChange={e => setFormData({...formData, branchId: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                {["BANK_MANAGER", "BRANCH_IT", "ACCOUNTANT"].includes(selectedRole) && (
+                  <div>
+                    <input {...register("branchId")} type="text" placeholder="Branch ID (Optional)" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                  </div>
                 )}
 
-                {["SUPER_ADMIN_IT", "BRANCH_IT"].includes(formData.role) && (
-                  <input required type="text" placeholder="Department" value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                {["SUPER_ADMIN_IT", "BRANCH_IT"].includes(selectedRole) && (
+                  <div>
+                    <input {...register("department")} type="text" placeholder="Department" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                    {errors.department && <span className="text-xs text-red-400 mt-1 block">{errors.department.message}</span>}
+                  </div>
                 )}
 
-                <input required type="password" placeholder="Initial Passcode" value={formData.passcode} onChange={e => setFormData({...formData, passcode: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                <div>
+                  <div className="relative">
+                    <input {...register("passcode")} type={showPassword ? "text" : "password"} placeholder="Initial Passcode" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none pr-10" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {errors.passcode && <span className="text-xs text-red-400 mt-1 block">{errors.passcode.message}</span>}
+                </div>
 
                 <div className="flex gap-3 justify-end pt-4">
                   <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 rounded-xl border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Cancel</button>
-                  <button type="submit" disabled={loading} className="px-5 py-2.5 rounded-xl bg-[color:var(--brass)] text-[#16233A] text-sm font-bold hover:bg-[#d7ab5c] flex items-center gap-2">
+                  <button type="submit" disabled={loading} className="px-5 py-2.5 rounded-xl bg-[color:var(--brass)] text-[#16233A] text-sm font-bold hover:bg-[#d7ab5c] flex items-center gap-2 disabled:opacity-50">
                     {loading && <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" /> }
                     Create User
                   </button>

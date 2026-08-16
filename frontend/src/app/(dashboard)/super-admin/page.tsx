@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   Building2,
@@ -13,12 +13,83 @@ import {
   UserCog,
   TrendingUp,
   CheckCircle2,
-  AlertTriangle,
+  UserPlus,
 } from "lucide-react";
 import { useSuperAdminStore } from "@/store/superAdminStore";
+import { useToast } from "@/hooks/useToast";
+import { ToastContainer } from "@/components/ui/Toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const createUserSchema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  username: z.string().min(4, "Username must be at least 4 characters"),
+  email: z.string().email("Invalid email address"),
+  role: z.string().min(1, "Role is required"),
+  branchId: z.string().optional(),
+  department: z.string().optional(),
+  passcode: z.string().min(6, "Passcode must be at least 6 characters"),
+}).superRefine((data, ctx) => {
+  if (["SUPER_ADMIN_IT", "BRANCH_IT"].includes(data.role) && !data.department) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["department"],
+      message: "Department is required for IT roles",
+    });
+  }
+});
+
+type CreateUserFormValues = z.infer<typeof createUserSchema>;
 
 export default function SuperAdminDashboard() {
-  const { branches, managers, itUsers } = useSuperAdminStore();
+  const { branches, managers, itUsers, createUser } = useSuperAdminStore();
+  const { toast, toasts, dismissToast } = useToast();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<CreateUserFormValues>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      username: "",
+      email: "",
+      role: "BANK_MANAGER",
+      branchId: "",
+      department: "",
+      passcode: "",
+    },
+  });
+
+  const selectedRole = watch("role");
+
+  const onValidSubmit = async (data: CreateUserFormValues) => {
+    setLoading(true);
+    
+    const submissionData = {
+      ...data,
+      fullName: `${data.firstName} ${data.lastName}`,
+    };
+    
+    const { success, message } = await createUser(submissionData);
+    setLoading(false);
+
+    if (success) {
+      toast.success("Success", `User ${submissionData.fullName} created successfully.`);
+      setShowAddModal(false);
+      reset();
+    } else {
+      toast.error("Error", message || "Failed to create staff member.");
+    }
+  };
 
   const activeBranchesCount = branches.filter((b) => b.status === "ACTIVE").length || 142;
   const totalUsers = managers.length + itUsers.length + 2; // +2 for super admins
@@ -49,6 +120,24 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Header & Top Action Bar */}
+      <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div>
+          <div className="section-title mb-2 text-xs uppercase tracking-wider text-[color:var(--brass)]">Super Admin Control Center</div>
+          <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">
+            Overview & Actions
+          </h1>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <button 
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-[color:var(--brass)] px-4 py-2.5 text-sm font-bold text-[#16233A] shadow-lg transition hover:bg-[#d7ab5c]"
+          >
+            <UserPlus className="h-4 w-4" /> Create System User
+          </button>
+        </div>
+      </section>
+
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
@@ -389,6 +478,55 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
       </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+           <div className="relative w-full max-w-lg rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.95)] p-8 shadow-2xl">
+              <h3 className="text-xl font-semibold text-white mb-2">Create System User</h3>
+              <p className="text-sm text-slate-400 mb-6">Provision a new user account across any role in the institution.</p>
+              
+              <form onSubmit={handleCreateSubmit} className="space-y-4 mb-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <input required type="text" placeholder="Full Name" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                  <input required type="text" placeholder="Username" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <input required type="email" placeholder="Email Address" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                  <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none appearance-none">
+                    <option value="SUPER_ADMIN">Super Admin</option>
+                    <option value="SUPER_ADMIN_MANAGER">Super Admin Manager</option>
+                    <option value="SUPER_ADMIN_IT">Super Admin IT</option>
+                    <option value="SUPER_ADMIN_FOREX">Super Admin Forex</option>
+                    <option value="BANK_MANAGER">Bank Manager</option>
+                    <option value="BRANCH_IT">Branch IT</option>
+                    <option value="ACCOUNTANT">Accountant</option>
+                    <option value="HR">HR</option>
+                  </select>
+                </div>
+
+                {["BANK_MANAGER", "BRANCH_IT", "ACCOUNTANT"].includes(formData.role) && (
+                  <input type="text" placeholder="Branch ID (Optional)" value={formData.branchId} onChange={e => setFormData({...formData, branchId: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                )}
+
+                {["SUPER_ADMIN_IT", "BRANCH_IT"].includes(formData.role) && (
+                  <input required type="text" placeholder="Department" value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                )}
+
+                <input required type="password" placeholder="Initial Passcode" value={formData.passcode} onChange={e => setFormData({...formData, passcode: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+
+                <div className="flex gap-3 justify-end pt-4">
+                  <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 rounded-xl border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Cancel</button>
+                  <button type="submit" disabled={loading} className="px-5 py-2.5 rounded-xl bg-[color:var(--brass)] text-[#16233A] text-sm font-bold hover:bg-[#d7ab5c] flex items-center gap-2">
+                    {loading && <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" /> }
+                    Create User
+                  </button>
+                </div>
+              </form>
+           </div>
+        </div>
+      )}
+
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 }

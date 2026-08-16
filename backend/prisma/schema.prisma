@@ -83,6 +83,7 @@ model User {
   role         Role
   branchId     String?
   branch       Branch?     @relation(fields: [branchId], references: [id])
+  department   String?
   avatarUrl    String?
   isActive     Boolean     @default(true)
   status       StaffStatus @default(PENDING_FIRST_LOGIN)

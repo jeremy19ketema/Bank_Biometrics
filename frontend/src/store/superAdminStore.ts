@@ -73,6 +73,17 @@ interface SuperAdminState {
   updateHRUser: (id: string, user: Partial<HRUser>) => void;
   deleteHRUser: (id: string) => void;
   getHRUserById: (id: string) => HRUser | undefined;
+
+  // Generic User Creation
+  createUser: (data: {
+    username: string;
+    fullName: string;
+    email: string;
+    role: string;
+    branchId?: string;
+    passcode: string;
+    department?: string;
+  }) => Promise<{success: boolean, message?: string}>;
 }
 
 // Mock data
@@ -422,4 +433,29 @@ export const useSuperAdminStore = create<SuperAdminState>((set, get) => ({
   },
 
   getHRUserById: (id) => get().hrUsers.find((user) => user.id === id),
+
+  createUser: async (data) => {
+    try {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("aegis_auth_token="))
+        ?.split("=")[1];
+
+      const res = await fetch("http://localhost:5000/api/staff", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+      if (!result.success) throw new Error(result.message);
+      
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, message: error.message || "Failed to create user" };
+    }
+  },
 }));

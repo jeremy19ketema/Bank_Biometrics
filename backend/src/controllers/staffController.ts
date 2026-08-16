@@ -565,7 +565,7 @@ export async function createHR(req: AuthenticatedRequest, res: Response): Promis
 // ──────────────────────────────────────────────
 
 export async function createStaff(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { username, fullName, email, role, branchId, passcode } = req.body;
+  const { username, fullName, email, role, branchId, passcode, department } = req.body;
   const ipAddress = req.ip || "unknown";
 
   if (!req.user) {
@@ -618,6 +618,7 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
         passwordHash,
         role: role as any,
         branchId: branchId || null,
+        department: department || null,
         isActive: true,
         status: userStatus,
         isFirstLogin: true

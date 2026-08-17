@@ -4,7 +4,20 @@ import { AuthenticatedRequest } from "../middleware/auth.js";
 import { logAuditEvent } from "../utils/audit.js";
 
 export async function verifyScan(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { customerId, fingerIndex } = req.body;
+  const { 
+    customerId, 
+    fingerIndex, 
+    deviceId, 
+    transactionRef, 
+    amount, 
+    currency, 
+    signature, 
+    expiresAt, 
+    livenessScore, 
+    matchScore, 
+    isMatch, 
+    qualityScore 
+  } = req.body;
   const ipAddress = req.ip || "unknown";
 
   if (!req.user) {
@@ -12,97 +25,101 @@ export async function verifyScan(req: AuthenticatedRequest, res: Response): Prom
     return;
   }
 
-  if (!customerId || !fingerIndex) {
-    res.status(400).json({ success: false, message: "CustomerId and fingerIndex are required" });
+  // 1. Mandatory Fields & Security Checks
+  if (!customerId || !fingerIndex || !deviceId || !signature || !expiresAt) {
+    res.status(400).json({ success: false, message: "Missing required biometric assertion fields (including signature and expiresAt)" });
+    return;
+  }
+
+  // 2. Expiry Check
+  if (new Date(expiresAt) < new Date()) {
+    res.status(403).json({ success: false, message: "Biometric scan assertion has expired" });
+    return;
+  }
+
+  // 3. Liveness / Anti-Spoof Check
+  if (livenessScore === undefined || livenessScore < 85.0) {
+    await logAuditEvent(req.user.id, "BIOMETRIC_SPOOF_DETECTED", "SECURITY", ipAddress, `Spoof attempt detected for customer ${customerId}. Liveness score: ${livenessScore}`, "FAILURE");
+    res.status(403).json({ success: false, message: "Liveness check failed. Spoofing detected." });
+    return;
+  }
+
+  // 4. Cryptographic Signature Check (Mock)
+  // In a real system, verify HMAC or RSA signature of the payload using the device's public key.
+  const expectedSignaturePrefix = `device-sig-${deviceId}-`;
+  if (!signature.startsWith(expectedSignaturePrefix)) {
+    await logAuditEvent(req.user.id, "BIOMETRIC_SIGNATURE_INVALID", "SECURITY", ipAddress, `Invalid device signature for customer ${customerId} from device ${deviceId}`, "FAILURE");
+    res.status(403).json({ success: false, message: "Invalid biometric signature" });
     return;
   }
 
   try {
-    const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+    // 5. Device Verification
+    const device = await prisma.biometricDevice.findUnique({ where: { id: deviceId } });
+    if (!device) {
+      res.status(404).json({ success: false, message: "Biometric device not registered" });
+      return;
+    }
+
+    // 6. Customer & Consent Verification
+    const customer = await prisma.customer.findUnique({ 
+      where: { id: customerId },
+      include: { biometricConsent: true }
+    });
+
     if (!customer) {
       res.status(404).json({ success: false, message: "Customer not found" });
       return;
     }
 
-    if (!customer.isBiometricEnrolled || !customer.enrolledFingerprints.includes(fingerIndex)) {
-      // Create biometric failure log
-      const scanLog = await prisma.biometricScanResult.create({
-        data: {
-          customerId: customer.id,
-          matchScore: 12.5, // low score
-          isMatch: false,
-          fingerIndex,
-          qualityScore: 92.0,
-          deviceId: "HW-SCAN-FIPS-04",
-          operatorId: req.user.id
-        }
-      });
-
-      await logAuditEvent(
-        req.user.id,
-        "BIOMETRIC_MATCH_FAILED",
-        "BIOMETRIC",
-        ipAddress,
-        `Fingerprint match negative for customer: ${customer.fullName} on ${fingerIndex}. Match score: 12.5%`,
-        "WARNING"
-      );
-
-      res.status(200).json({
-        success: true,
-        data: {
-          scanId: scanLog.scanId,
-          customerId: customer.id,
-          customerName: customer.fullName,
-          matchScore: 12.5,
-          isMatch: false,
-          fingerIndex,
-          qualityScore: 92.0,
-          scannedAt: scanLog.scannedAt
-        }
-      });
+    if (!customer.isBiometricEnrolled || !customer.biometricConsent) {
+      res.status(403).json({ success: false, message: "Customer is not enrolled in biometrics" });
       return;
     }
 
-    // Match successful
-    const matchScore = parseFloat((95.0 + Math.random() * 4.9).toFixed(2)); // 95% - 99.9%
-    const qualityScore = parseFloat((90.0 + Math.random() * 9.9).toFixed(2)); // 90% - 99.9%
+    if (customer.biometricConsent.isRevoked) {
+      res.status(403).json({ success: false, message: "Customer biometric consent has been revoked" });
+      return;
+    }
 
+    // 7. Store the verified scan assertion (no raw templates)
     const scanLog = await prisma.biometricScanResult.create({
       data: {
         customerId: customer.id,
-        matchScore,
-        isMatch: true,
+        matchScore: matchScore || 0,
+        isMatch: isMatch || false,
         fingerIndex,
-        qualityScore,
-        deviceId: "HW-SCAN-FIPS-04",
-        operatorId: req.user.id
+        qualityScore: qualityScore || 0,
+        livenessScore,
+        deviceId: device.id,
+        operatorId: req.user.id,
+        transactionRef,
+        amount,
+        currency,
+        signature,
+        expiresAt: new Date(expiresAt)
       }
     });
 
-    await logAuditEvent(
-      req.user.id,
-      "BIOMETRIC_MATCH_SUCCESS",
-      "BIOMETRIC",
-      ipAddress,
-      `Biometric fingerprint matched successfully for ${customer.fullName}. Match score: ${matchScore}%`,
-      "SUCCESS"
-    );
+    if (!isMatch) {
+      await logAuditEvent(req.user.id, "BIOMETRIC_MATCH_FAILED", "BIOMETRIC", ipAddress, `Fingerprint match negative for customer: ${customer.fullName}`, "WARNING");
+      res.status(200).json({ success: true, data: { scanId: scanLog.scanId, isMatch: false, message: "Biometric match failed" } });
+      return;
+    }
+
+    await logAuditEvent(req.user.id, "BIOMETRIC_MATCH_SUCCESS", "BIOMETRIC", ipAddress, `Biometric matched successfully for ${customer.fullName} for transaction ${transactionRef || "N/A"}`, "SUCCESS");
 
     res.status(200).json({
       success: true,
       data: {
         scanId: scanLog.scanId,
-        customerId: customer.id,
-        customerName: customer.fullName,
-        matchScore,
         isMatch: true,
-        fingerIndex,
-        qualityScore,
-        scannedAt: scanLog.scannedAt
+        transactionRef,
+        message: "Biometric assertion validated successfully"
       }
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message || "Biometric matching failed" });
+    res.status(500).json({ success: false, message: error.message || "Biometric processing failed" });
   }
 }
 

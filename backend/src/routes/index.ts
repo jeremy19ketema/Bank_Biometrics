@@ -16,6 +16,7 @@ import enrollmentRoutes from "./enrollmentRoutes.js";
 import attendanceRoutes from "./attendanceRoutes.js";
 import leaveRoutes from "./leaveRoutes.js";
 import payrollRoutes from "./payrollRoutes.js";
+import customerConsentRoutes from "./customerConsentRoutes.js";
 
 const router = Router();
 
@@ -33,6 +34,7 @@ router.use("/enrollment", enrollmentRoutes);
 router.use("/attendance", attendanceRoutes);
 router.use("/leave", leaveRoutes);
 router.use("/payroll", payrollRoutes);
+router.use("/customer-consent", customerConsentRoutes);
 router.use("/org", orgRoutes);
 router.use("/roles", roleRoutes);
 router.use("/security", securityRoutes);

@@ -361,21 +361,31 @@ model Customer {
   updatedAt            DateTime       @updatedAt
 
   // Relationships
-  biometricScans BiometricScanResult[]
+  biometricScans   BiometricScanResult[]
+  biometricConsent CustomerBiometricConsent?
 }
 
 model BiometricScanResult {
-  scanId       String    @id @default(uuid())
-  customerId   String?
-  customer     Customer? @relation(fields: [customerId], references: [id])
-  matchScore   Float
-  isMatch      Boolean
-  fingerIndex  String
-  qualityScore Float
-  scannedAt    DateTime  @default(now())
-  deviceId     String
-  operatorId   String
-  operator     User      @relation(fields: [operatorId], references: [id])
+  scanId         String    @id @default(uuid())
+  customerId     String?
+  customer       Customer? @relation(fields: [customerId], references: [id])
+  matchScore     Float
+  isMatch        Boolean
+  fingerIndex    String
+  qualityScore   Float
+  livenessScore  Float     @default(0.0)
+  scannedAt      DateTime  @default(now())
+  expiresAt      DateTime  @default(now())
+  deviceId       String
+  device         BiometricDevice @relation("CustomerScans", fields: [deviceId], references: [id])
+  operatorId     String
+  operator       User      @relation(fields: [operatorId], references: [id])
+  transactionRef String?
+  amount         Float?
+  currency       String?
+  signature      String?
+
+  transaction    Transaction?
 }
 
 model Transaction {
@@ -385,8 +395,11 @@ model Transaction {
   customerName      String
   type              TransactionType
   amount            Float
+  currency          String            @default("ETB")
   status            TransactionStatus @default(PENDING_APPROVAL)
   biometricVerified Boolean           @default(false)
+  biometricScanId   String?           @unique
+  biometricScan     BiometricScanResult? @relation(fields: [biometricScanId], references: [scanId])
   accountantId      String
   accountant        User              @relation("AccountantRelation", fields: [accountantId], references: [id])
   branchId          String
@@ -460,6 +473,7 @@ model BiometricDevice {
   updatedAt      DateTime     @updatedAt
 
   attendanceEvents AttendanceEvent[]
+  customerScans    BiometricScanResult[] @relation("CustomerScans")
 }
 
 model StaffBiometricConsent {
@@ -535,4 +549,34 @@ model OvertimeRequest {
   approvedBy    User?          @relation("OvertimeApprover", fields: [approvedById], references: [id])
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+}
+
+// --- PHASE 7: CUSTOMER BIOMETRICS & TRANSACTIONS ---
+
+model CustomerBiometricConsent {
+  id                String   @id @default(uuid())
+  customerId        String   @unique
+  customer          Customer @relation(fields: [customerId], references: [id])
+  policyVersion     String
+  documentReference String   // External blob storage reference
+  checksum          String   // Hash of the document
+  captureMetadata   String?  // JSON string of capture details
+  isRevoked         Boolean  @default(false)
+  revokedAt         DateTime?
+  signedTimestamp   DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model TransactionPolicy {
+  id                    String          @id @default(uuid())
+  transactionType       TransactionType
+  currency              String
+  requiresBiometrics    Boolean         @default(false)
+  makerCheckerThreshold Float
+  isActive              Boolean         @default(true)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  @@unique([transactionType, currency])
 }

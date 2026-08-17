@@ -5,7 +5,7 @@ import { logAuditEvent } from "../utils/audit.js";
 import { TransactionType, TransactionStatus } from "@prisma/client";
 
 export async function createTransaction(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { accountNumber, amount, type, biometricVerified } = req.body;
+  const { accountNumber, amount, type, currency, referenceNumber, biometricScanId } = req.body;
   const ipAddress = req.ip || "unknown";
 
   if (!req.user) {
@@ -13,8 +13,8 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
     return;
   }
 
-  if (!accountNumber || amount === undefined || !type) {
-    res.status(400).json({ success: false, message: "Missing accountNumber, amount, or type" });
+  if (!accountNumber || amount === undefined || !type || !referenceNumber) {
+    res.status(400).json({ success: false, message: "Missing accountNumber, amount, type, or referenceNumber" });
     return;
   }
 
@@ -23,6 +23,8 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
     res.status(400).json({ success: false, message: "Transaction amount must be positive" });
     return;
   }
+
+  const txCurrency = currency || "ETB";
 
   try {
     const customer = await prisma.customer.findUnique({ where: { accountNumber } });
@@ -36,21 +38,70 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
       return;
     }
 
-    // Check branch limit
-    const branch = await prisma.branch.findUnique({
-      where: { id: req.user.branchId || "br-1" }
+    // Fetch Transaction Policy
+    let policy = await prisma.transactionPolicy.findUnique({
+      where: { transactionType_currency: { transactionType: type as TransactionType, currency: txCurrency } }
     });
 
-    const branchLimit = branch?.dailyTransactionLimit || 1000000;
-    const requiresApproval = numericAmount > 50000 || !biometricVerified;
-
-    let transactionStatus: TransactionStatus = "COMPLETED";
-
-    if (requiresApproval) {
-      transactionStatus = "PENDING_APPROVAL";
+    // Provisional defaults if missing
+    if (!policy) {
+      const isHighRisk = type === "CASH_WITHDRAWAL" || type === "TRANSFER";
+      policy = {
+        id: "default",
+        transactionType: type as TransactionType,
+        currency: txCurrency,
+        requiresBiometrics: isHighRisk,
+        makerCheckerThreshold: 100000, // 100,000 ETB provisional default
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
     }
 
-    // If completed withdrawal, deduct balance immediately
+    // Enforce Biometrics if required by policy
+    if (policy.requiresBiometrics) {
+      if (!biometricScanId) {
+        await logAuditEvent(req.user.id, "TRANSACTION_BLOCKED_NO_BIOMETRICS", "SECURITY", ipAddress, `Blocked ${type} without biometric proof`, "WARNING");
+        res.status(403).json({ success: false, message: "Biometric authorization is required for this transaction type" });
+        return;
+      }
+
+      const scanResult = await prisma.biometricScanResult.findUnique({ where: { scanId: biometricScanId } });
+      if (!scanResult) {
+        res.status(404).json({ success: false, message: "Biometric scan record not found" });
+        return;
+      }
+
+      if (!scanResult.isMatch) {
+        res.status(403).json({ success: false, message: "Provided biometric scan was not a match" });
+        return;
+      }
+
+      if (scanResult.customerId !== customer.id) {
+        res.status(403).json({ success: false, message: "Biometric scan belongs to a different customer" });
+        return;
+      }
+
+      if (scanResult.transactionRef !== referenceNumber) {
+        res.status(403).json({ success: false, message: "Biometric scan assertion is not bound to this specific transaction draft" });
+        return;
+      }
+      
+      // Amount and currency bindings
+      if (scanResult.amount && scanResult.amount !== numericAmount) {
+        res.status(403).json({ success: false, message: "Biometric assertion amount mismatch" });
+        return;
+      }
+      if (scanResult.currency && scanResult.currency !== txCurrency) {
+        res.status(403).json({ success: false, message: "Biometric assertion currency mismatch" });
+        return;
+      }
+    }
+
+    const requiresApproval = numericAmount > policy.makerCheckerThreshold;
+    let transactionStatus: TransactionStatus = requiresApproval ? "PENDING_APPROVAL" : "COMPLETED";
+
+    // Deduct balance immediately only if completed
     if (transactionStatus === "COMPLETED") {
       if (type === "CASH_WITHDRAWAL" || type === "TRANSFER") {
         if (customer.balance < numericAmount) {
@@ -69,8 +120,6 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
       }
     }
 
-    const referenceNumber = `TX-${Date.now().toString().substring(5)}-${Math.floor(100 + Math.random() * 900)}`;
-
     const transaction = await prisma.transaction.create({
       data: {
         referenceNumber,
@@ -78,8 +127,10 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
         customerName: customer.fullName,
         type: type as TransactionType,
         amount: numericAmount,
+        currency: txCurrency,
         status: transactionStatus,
-        biometricVerified: !!biometricVerified,
+        biometricVerified: !!biometricScanId,
+        biometricScanId: biometricScanId || null,
         accountantId: req.user.id,
         branchId: req.user.branchId || "br-1"
       }
@@ -90,7 +141,7 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
       "TRANSACTION_CREATE",
       "TRANSACTION",
       ipAddress,
-      `Initiated transaction ${referenceNumber} (${type}) for customer: ${customer.fullName}. Amount: ${numericAmount}. Status: ${transactionStatus}. Biometric Verified: ${biometricVerified}`,
+      `Initiated transaction ${referenceNumber} (${type}) for customer: ${customer.fullName}. Amount: ${numericAmount} ${txCurrency}. Status: ${transactionStatus}.`,
       transactionStatus === "COMPLETED" ? "SUCCESS" : "WARNING"
     );
 
@@ -157,6 +208,20 @@ export async function approveTransaction(req: AuthenticatedRequest, res: Respons
 
     if (tx.status !== "PENDING_APPROVAL") {
       res.status(400).json({ success: false, message: `Transaction has already been finalized: ${tx.status}` });
+      return;
+    }
+
+    // Maker-Checker constraint: The approver cannot be the one who initiated it
+    if (tx.accountantId === req.user.id) {
+      await logAuditEvent(
+        req.user.id,
+        "TRANSACTION_APPROVAL_BLOCKED",
+        "SECURITY",
+        ipAddress,
+        `Blocked self-approval attempt on transaction ${tx.referenceNumber}`,
+        "WARNING"
+      );
+      res.status(403).json({ success: false, message: "Maker-checker violation: You cannot approve a transaction you initiated" });
       return;
     }
 

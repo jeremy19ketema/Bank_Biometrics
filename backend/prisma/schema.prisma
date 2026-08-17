@@ -228,15 +228,19 @@ model MaintenanceWindow {
 }
 
 model SystemIntegration {
-  id         String    @id @default(uuid())
-  name       String    @unique
-  type       String // e.g., "SMS", "CORE_BANKING", "EMAIL"
-  endpoint   String?
-  apiKey     String?
-  status     String    @default("ACTIVE")
-  lastSyncAt DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id               String    @id @default(uuid())
+  name             String    @unique
+  type             String
+  endpoint         String?
+  encryptedKey     String?
+  iv               String?
+  authTag          String?
+  secretKeyVersion Int       @default(1)
+  status           String    @default("ACTIVE")
+  isDeleted        Boolean   @default(false)
+  lastSyncAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model SecurityAlert {

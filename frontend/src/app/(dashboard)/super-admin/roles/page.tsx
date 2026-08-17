@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Shield, ChevronRight, UserCog, Plus } from "lucide-react";
 import Link from "next/link";
-import { ToastContainer } from "../../../components/ToastContainer";
-import { useToast } from "../../../hooks/useToast";
+import { ToastContainer } from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 
 type CustomRole = {
   id: string;
@@ -54,14 +54,14 @@ export default function RolesHub() {
       });
       const result = await res.json();
       if (result.success) {
-        toast("success", "Custom role created successfully!");
+        toast.success("Success", "Custom role created successfully!");
         resetRole();
         fetchRoles();
       } else {
-        toast("error", result.message);
+        toast.error("Error", result.message);
       }
     } catch (err) {
-      toast("error", "Failed to create role.");
+      toast.error("Error", "Failed to create role.");
     }
   };
 
@@ -77,13 +77,13 @@ export default function RolesHub() {
       });
       const result = await res.json();
       if (result.success) {
-        toast("success", "Role assigned successfully!");
+        toast.success("Success", "Role assigned successfully!");
         resetAssign();
       } else {
-        toast("error", result.message);
+        toast.error("Error", result.message);
       }
     } catch (err) {
-      toast("error", "Failed to assign role.");
+      toast.error("Error", "Failed to assign role.");
     }
   };
 

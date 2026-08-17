@@ -6,6 +6,22 @@ import { logger } from "./utils/logger.js";
 
 dotenv.config();
 
+// Validate MASTER_KEY strictly on startup
+function validateMasterKey() {
+  const masterKeyBase64 = process.env.MASTER_KEY;
+  if (!masterKeyBase64) {
+    console.error("FATAL: MASTER_KEY is missing from environment. Server cannot start.");
+    process.exit(1);
+  }
+  const key = Buffer.from(masterKeyBase64, "base64");
+  if (key.length !== 32) {
+    console.error(`FATAL: Invalid MASTER_KEY length. Expected 32 bytes (after Base64 decoding), got ${key.length} bytes.`);
+    process.exit(1);
+  }
+}
+
+validateMasterKey();
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

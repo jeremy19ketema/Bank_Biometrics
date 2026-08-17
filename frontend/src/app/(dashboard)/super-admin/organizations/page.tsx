@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Building2, MapPin, Network, Users, Plus, ChevronRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { ToastContainer } from "../../../components/ToastContainer";
-import { useToast } from "../../../hooks/useToast";
+import { ToastContainer } from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 
 type OrgTree = {
   organizations: any[];
@@ -61,14 +61,14 @@ export default function OrganizationHub() {
       });
       const result = await res.json();
       if (result.success) {
-        toast("success", "Organization created successfully!");
+        toast.success("Success", "Organization created successfully!");
         resetOrg();
         fetchTree();
       } else {
-        toast("error", result.message);
+        toast.error("Error", result.message);
       }
     } catch (err) {
-      toast("error", "Failed to create organization.");
+      toast.error("Error", "Failed to create organization.");
     }
   };
 
@@ -84,14 +84,14 @@ export default function OrganizationHub() {
       });
       const result = await res.json();
       if (result.success) {
-        toast("success", "Region created successfully!");
+        toast.success("Success", "Region created successfully!");
         resetRegion();
         fetchTree();
       } else {
-        toast("error", result.message);
+        toast.error("Error", result.message);
       }
     } catch (err) {
-      toast("error", "Failed to create region.");
+      toast.error("Error", "Failed to create region.");
     }
   };
 
@@ -107,14 +107,14 @@ export default function OrganizationHub() {
       });
       const result = await res.json();
       if (result.success) {
-        toast("success", "Department created successfully!");
+        toast.success("Success", "Department created successfully!");
         resetDept();
         fetchTree();
       } else {
-        toast("error", result.message);
+        toast.error("Error", result.message);
       }
     } catch (err) {
-      toast("error", "Failed to create department.");
+      toast.error("Error", "Failed to create department.");
     }
   };
 

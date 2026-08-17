@@ -117,7 +117,7 @@ export async function assignCustomRole(req: AuthenticatedRequest, res: Response)
           const branch = await prisma.branch.findUnique({ where: { id: scopeId }, include: { region: true }});
           if (branch?.region) {
             const hasRegionScope = assigner?.customRoles.some(cr => cr.scopeType === "REGION" && cr.scopeId === branch.regionId);
-            const hasOrgScope = assigner?.customRoles.some(cr => cr.scopeType === "ORGANIZATION" && cr.scopeId === branch.region.organizationId);
+            const hasOrgScope = assigner?.customRoles.some(cr => cr.scopeType === "ORGANIZATION" && cr.scopeId === branch.region!.organizationId);
             if (hasRegionScope || hasOrgScope) isAllowed = true;
           }
         } else if (scopeType === "DEPARTMENT") {

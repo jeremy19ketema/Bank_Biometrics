@@ -20,7 +20,7 @@ export async function getAlerts(req: AuthenticatedRequest, res: Response): Promi
 }
 
 export async function acknowledgeAlert(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const ipAddress = req.ip || "unknown";
 
   try {
@@ -38,7 +38,7 @@ export async function acknowledgeAlert(req: AuthenticatedRequest, res: Response)
 }
 
 export async function escalateAlert(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const { level } = req.body;
   const ipAddress = req.ip || "unknown";
 
@@ -57,7 +57,7 @@ export async function escalateAlert(req: AuthenticatedRequest, res: Response): P
 }
 
 export async function resolveAlert(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const ipAddress = req.ip || "unknown";
 
   try {
@@ -117,7 +117,7 @@ export async function proposePolicyChange(req: AuthenticatedRequest, res: Respon
 }
 
 export async function approvePolicyChange(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const { isApproved, reason } = req.body;
   const ipAddress = req.ip || "unknown";
 

@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ShieldAlert, Download, Activity, FileText, ChevronRight, CheckCircle, Database } from "lucide-react";
 import Link from "next/link";
-import { ToastContainer } from "../../../components/ToastContainer";
-import { useToast } from "../../../hooks/useToast";
+import { ToastContainer } from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 
 export default function SecurityCenter() {
   const [activeTab, setActiveTab] = useState<"AUDIT" | "ALERTS" | "POLICIES" | "HEALTH">("AUDIT");
@@ -54,12 +54,12 @@ export default function SecurityCenter() {
       });
       const result = await res.json();
       if (result.success) {
-        toast("success", result.message);
+        toast.success("Success", result.message);
       } else {
-        toast("error", result.message);
+        toast.error("Error", result.message);
       }
     } catch (err) {
-      toast("error", "Export failed");
+      toast.error("Error", "Export failed");
     }
   };
 
@@ -71,13 +71,13 @@ export default function SecurityCenter() {
       });
       const result = await res.json();
       if (result.success) {
-        toast("success", `Alert ${action}ed!`);
+        toast.success("Success", `Alert ${action}ed!`);
         fetchData();
       } else {
-        toast("error", result.message);
+        toast.error("Error", result.message);
       }
     } catch (err) {
-      toast("error", "Action failed");
+      toast.error("Error", "Action failed");
     }
   };
 
@@ -97,12 +97,12 @@ export default function SecurityCenter() {
       });
       const result = await res.json();
       if (result.success) {
-        toast("success", "Approval Request submitted!");
+        toast.success("Success", "Approval Request submitted!");
       } else {
-        toast("error", result.message);
+        toast.error("Error", result.message);
       }
     } catch (err) {
-      toast("error", "Failed to submit proposal");
+      toast.error("Error", "Failed to submit proposal");
     }
   };
 

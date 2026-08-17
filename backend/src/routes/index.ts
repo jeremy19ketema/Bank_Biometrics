@@ -10,6 +10,7 @@ import approvalRoutes from "./approvalRoutes.js";
 import orgRoutes from "./orgRoutes.js";
 import roleRoutes from "./roleRoutes.js";
 import securityRoutes from "./securityRoutes.js";
+import integrationRoutes from "./integrationRoutes.js";
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use("/approvals", approvalRoutes);
 router.use("/org", orgRoutes);
 router.use("/roles", roleRoutes);
 router.use("/security", securityRoutes);
+router.use("/integrations", integrationRoutes);
 
 export default router;

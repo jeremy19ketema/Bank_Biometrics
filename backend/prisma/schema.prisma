@@ -84,6 +84,27 @@ enum AlertSeverity {
   CRITICAL
 }
 
+enum DeviceStatus {
+  ONLINE
+  OFFLINE
+  UNASSIGNED
+  REPAIR
+  RETIRED
+}
+
+enum AttendanceType {
+  IN
+  OUT
+}
+
+enum LeaveType {
+  SICK
+  ANNUAL
+  MATERNITY
+  PATERNITY
+  UNPAID
+}
+
 // --- ORGANIZATIONAL HIERARCHY ---
 
 model Organization {
@@ -292,6 +313,14 @@ model User {
   securityAlerts        SecurityAlert[]
   maintenanceWindows    MaintenanceWindow[]
   passwordResetTokens   PasswordResetToken[]
+  biometricConsent      StaffBiometricConsent?
+  attendanceEvents      AttendanceEvent[]
+  attendanceAdjustmentsRequested AttendanceAdjustment[] @relation("AdjustmentRequester")
+  attendanceAdjustmentsApproved  AttendanceAdjustment[] @relation("AdjustmentApprover")
+  leaveRequestsRequested         LeaveRequest[]         @relation("LeaveRequester")
+  leaveRequestsApproved          LeaveRequest[]         @relation("LeaveApprover")
+  overtimeRequestsRequested      OvertimeRequest[]      @relation("OvertimeRequester")
+  overtimeRequestsApproved       OvertimeRequest[]      @relation("OvertimeApprover")
 }
 
 model Branch {
@@ -313,6 +342,7 @@ model Branch {
   users        User[]
   transactions Transaction[]
   departments  Department[]
+  biometricDevices BiometricDevice[]
 }
 
 model Customer {
@@ -411,4 +441,98 @@ model PasswordResetToken {
   expiresAt DateTime
   isUsed    Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+// --- PHASE 6: DEVICE & HR OPERATIONS ---
+
+model BiometricDevice {
+  id             String       @id @default(uuid())
+  macAddress     String       @unique
+  ipAddress      String?
+  name           String
+  secretKeyHash  String       // For HMAC/Token based auth
+  status         DeviceStatus @default(UNASSIGNED)
+  branchId       String?
+  branch         Branch?      @relation(fields: [branchId], references: [id])
+  lastSyncAt     DateTime?
+  firmwareVersion String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  attendanceEvents AttendanceEvent[]
+}
+
+model StaffBiometricConsent {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  consentVersion    String
+  captureMethod     String   // e.g. "DIGITAL_SIGNATURE", "SCANNED_PAPER"
+  documentReference String?
+  isRevoked         Boolean  @default(false)
+  revokedAt         DateTime?
+  signedTimestamp   DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model AttendanceEvent {
+  id                String         @id @default(uuid())
+  deviceEventId     String         @unique // Idempotency key
+  userId            String
+  user              User           @relation(fields: [userId], references: [id])
+  deviceId          String
+  device            BiometricDevice @relation(fields: [deviceId], references: [id])
+  type              AttendanceType
+  deviceTimestamp   DateTime
+  receivedTimestamp DateTime       @default(now())
+  timezone          String         @default("UTC")
+  source            String         @default("DEVICE") // DEVICE, MANUAL_ADJUSTMENT
+
+  adjustments       AttendanceAdjustment[]
+}
+
+model AttendanceAdjustment {
+  id                String         @id @default(uuid())
+  attendanceEventId String
+  attendanceEvent   AttendanceEvent @relation(fields: [attendanceEventId], references: [id])
+  adjustedTimestamp DateTime
+  adjustedType      AttendanceType
+  reason            String
+  requestedById     String
+  requestedBy       User           @relation("AdjustmentRequester", fields: [requestedById], references: [id])
+  approvedById      String?
+  approvedBy        User?          @relation("AdjustmentApprover", fields: [approvedById], references: [id])
+  status            ApprovalStatus @default(PENDING)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+model LeaveRequest {
+  id            String         @id @default(uuid())
+  userId        String
+  user          User           @relation("LeaveRequester", fields: [userId], references: [id])
+  startDate     DateTime
+  endDate       DateTime
+  type          LeaveType
+  reason        String
+  status        ApprovalStatus @default(PENDING)
+  approvedById  String?
+  approvedBy    User?          @relation("LeaveApprover", fields: [approvedById], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model OvertimeRequest {
+  id            String         @id @default(uuid())
+  userId        String
+  user          User           @relation("OvertimeRequester", fields: [userId], references: [id])
+  date          DateTime
+  hours         Float
+  reason        String
+  status        ApprovalStatus @default(PENDING)
+  approvedById  String?
+  approvedBy    User?          @relation("OvertimeApprover", fields: [approvedById], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }

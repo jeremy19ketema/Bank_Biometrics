@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../middleware/auth.js";
+import { authenticateJWT as authenticate, requireRole as authorize } from "../middleware/auth.js";
 import { registerDevice, pingDevice, getDevices, updateDeviceStatus } from "../controllers/deviceController.js";
 
 const router = Router();

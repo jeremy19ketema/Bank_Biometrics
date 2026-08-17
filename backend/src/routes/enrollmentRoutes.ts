@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate, authorize } from "../middleware/auth.js";
+import { authenticateJWT as authenticate, requireRole as authorize } from "../middleware/auth.js";
 import { submitConsent, revokeConsent } from "../controllers/enrollmentController.js";
 
 const router = Router();

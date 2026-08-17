@@ -14,6 +14,11 @@ export async function getUsers(req: AuthenticatedRequest, res: Response): Promis
     if (role) whereClause.role = role;
     if (branchId) whereClause.branchId = branchId;
 
+    // Enforce role scope
+    if (req.user && !req.user.role.startsWith("SUPER_ADMIN")) {
+      whereClause.branchId = req.user.branchId;
+    }
+
     const users = await prisma.user.findMany({
       where: whereClause,
       include: {

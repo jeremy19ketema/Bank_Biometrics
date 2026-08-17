@@ -1,7 +1,6 @@
 import { Router } from "express";
 import authRoutes from "./authRoutes.js";
 import branchRoutes from "./branchRoutes.js";
-import staffRoutes from "./staffRoutes.js";
 import customerRoutes from "./customerRoutes.js";
 import biometricRoutes from "./biometricRoutes.js";
 import transactionRoutes from "./transactionRoutes.js";
@@ -11,12 +10,13 @@ import orgRoutes from "./orgRoutes.js";
 import roleRoutes from "./roleRoutes.js";
 import securityRoutes from "./securityRoutes.js";
 import integrationRoutes from "./integrationRoutes.js";
+import userRoutes from "./userRoutes.js";
 
 const router = Router();
 
 router.use("/auth", authRoutes);
 router.use("/branches", branchRoutes);
-router.use("/staff", staffRoutes);
+router.use("/users", userRoutes);
 router.use("/customers", customerRoutes);
 router.use("/biometrics", biometricRoutes);
 router.use("/transactions", transactionRoutes);

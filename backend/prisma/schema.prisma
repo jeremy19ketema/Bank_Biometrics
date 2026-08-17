@@ -291,6 +291,7 @@ model User {
   approvalActions       ApprovalRequest[]     @relation("ApprovalActor")
   securityAlerts        SecurityAlert[]
   maintenanceWindows    MaintenanceWindow[]
+  passwordResetTokens   PasswordResetToken[]
 }
 
 model Branch {
@@ -400,4 +401,14 @@ model ApprovalRequest {
   rejectionReason String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tokenHash String   @unique
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

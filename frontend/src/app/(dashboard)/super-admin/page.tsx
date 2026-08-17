@@ -22,85 +22,11 @@ import {
 import { useSuperAdminStore } from "@/store/superAdminStore";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-
-const createUserSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  username: z.string().min(4, "Username must be at least 4 characters"),
-  email: z.string().email("Invalid email address"),
-  role: z.string().min(1, "Role is required"),
-  branchId: z.string().optional(),
-  department: z.string().optional(),
-  passcode: z.string().min(6, "Passcode must be at least 6 characters"),
-}).superRefine((data, ctx) => {
-  if (["SUPER_ADMIN_IT", "BRANCH_IT"].includes(data.role) && !data.department) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["department"],
-      message: "Department is required for IT roles",
-    });
-  }
-});
-
-type CreateUserFormValues = z.infer<typeof createUserSchema>;
 
 export default function SuperAdminDashboard() {
-  const { branches, managers, itUsers, createUser } = useSuperAdminStore();
-  const { toast, toasts, dismissToast } = useToast();
-  const [showAddModal, setShowAddModal] = useState(false);
+  const { branches, managers, itUsers } = useSuperAdminStore();
+  const { toasts, dismissToast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
-  
-  const {
-    register,
-    handleSubmit,
-    watch,
-    reset,
-    formState: { errors },
-  } = useForm<CreateUserFormValues>({
-    resolver: zodResolver(createUserSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      username: "",
-      email: "",
-      role: "BANK_MANAGER",
-      branchId: "",
-      department: "",
-      passcode: "",
-    },
-  });
-
-  const selectedRole = watch("role");
-
-  const onValidSubmit = async (data: CreateUserFormValues) => {
-    setSuccessMsg("");
-    setErrorMsg("");
-    setLoading(true);
-    
-    const submissionData = {
-      ...data,
-      fullName: `${data.firstName} ${data.lastName}`,
-    };
-    
-    const { success, message } = await createUser(submissionData);
-    setLoading(false);
-
-    if (success) {
-      toast.success("Success", `User ${submissionData.fullName} created successfully.`);
-      setSuccessMsg(`User ${submissionData.fullName} was successfully provisioned!`);
-      reset();
-    } else {
-      toast.error("Error", message || "Failed to create staff member.");
-      setErrorMsg(message || "Failed to create staff member.");
-    }
-  };
 
   const activeBranchesCount = branches.filter((b) => b.status === "ACTIVE").length || 142;
   const totalUsers = managers.length + itUsers.length + 2; // +2 for super admins
@@ -141,12 +67,12 @@ export default function SuperAdminDashboard() {
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <button 
-              onClick={() => setShowAddModal(true)}
+            <Link 
+              href="/super-admin/users/create"
               className="inline-flex items-center gap-2 rounded-xl bg-[color:var(--brass)] px-4 py-2.5 text-sm font-bold text-[#16233A] shadow-lg transition hover:bg-[#d7ab5c]"
             >
               <UserPlus className="h-4 w-4" /> Create System User
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -594,93 +520,7 @@ export default function SuperAdminDashboard() {
         </div>
       ) : null}
 
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-           <div className="relative w-full max-w-lg rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.95)] p-8 shadow-2xl">
-              <h3 className="text-xl font-semibold text-white mb-2">Create System User</h3>
-              <p className="text-sm text-slate-400 mb-6">Provision a new user account across any role in the institution.</p>
-              
-              {errorMsg && (
-                <div className="mb-4 rounded-xl border border-[color:var(--clay)]/30 bg-[rgba(168,69,46,0.16)] p-4 text-sm text-[color:var(--clay)] font-medium">
-                  {errorMsg}
-                </div>
-              )}
-              {successMsg && (
-                <div className="mb-4 rounded-xl border border-[color:var(--moss)]/30 bg-[rgba(76,122,94,0.16)] p-4 text-sm text-[color:var(--moss)] font-medium">
-                  {successMsg}
-                </div>
-              )}
 
-              <form onSubmit={handleSubmit(onValidSubmit)} className="space-y-4 mb-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <input {...register("firstName")} type="text" placeholder="First Name" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                    {errors.firstName && <span className="text-xs text-red-400 mt-1 block">{errors.firstName.message}</span>}
-                  </div>
-                  <div>
-                    <input {...register("lastName")} type="text" placeholder="Last Name" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                    {errors.lastName && <span className="text-xs text-red-400 mt-1 block">{errors.lastName.message}</span>}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <input {...register("username")} type="text" placeholder="Username" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                    {errors.username && <span className="text-xs text-red-400 mt-1 block">{errors.username.message}</span>}
-                  </div>
-                  <div>
-                    <input {...register("email")} type="email" placeholder="Email Address" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                    {errors.email && <span className="text-xs text-red-400 mt-1 block">{errors.email.message}</span>}
-                  </div>
-                </div>
-                
-                <div>
-                  <select {...register("role")} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none appearance-none">
-                    <option value="SUPER_ADMIN" className="bg-slate-900 text-white">Super Admin</option>
-                    <option value="SUPER_ADMIN_MANAGER" className="bg-slate-900 text-white">Super Admin Manager</option>
-                    <option value="SUPER_ADMIN_IT" className="bg-slate-900 text-white">Super Admin IT</option>
-                    <option value="SUPER_ADMIN_FOREX" className="bg-slate-900 text-white">Super Admin Forex</option>
-                    <option value="BANK_MANAGER" className="bg-slate-900 text-white">Bank Manager</option>
-                    <option value="BRANCH_IT" className="bg-slate-900 text-white">Branch IT</option>
-                    <option value="ACCOUNTANT" className="bg-slate-900 text-white">Accountant</option>
-                    <option value="HR" className="bg-slate-900 text-white">HR</option>
-                  </select>
-                  {errors.role && <span className="text-xs text-red-400 mt-1 block">{errors.role.message}</span>}
-                </div>
-
-                {["BANK_MANAGER", "BRANCH_IT", "ACCOUNTANT"].includes(selectedRole) && (
-                  <div>
-                    <input {...register("branchId")} type="text" placeholder="Branch ID (Optional)" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                  </div>
-                )}
-
-                {["SUPER_ADMIN_IT", "BRANCH_IT"].includes(selectedRole) && (
-                  <div>
-                    <input {...register("department")} type="text" placeholder="Department" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                    {errors.department && <span className="text-xs text-red-400 mt-1 block">{errors.department.message}</span>}
-                  </div>
-                )}
-
-                <div>
-                  <div className="relative">
-                    <input {...register("passcode")} type={showPassword ? "text" : "password"} placeholder="Initial Passcode" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none pr-10" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  {errors.passcode && <span className="text-xs text-red-400 mt-1 block">{errors.passcode.message}</span>}
-                </div>
-
-                <div className="flex gap-3 justify-end pt-4">
-                  <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 rounded-xl border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Cancel</button>
-                  <button type="submit" disabled={loading} className="px-5 py-2.5 rounded-xl bg-[color:var(--brass)] text-[#16233A] text-sm font-bold hover:bg-[#d7ab5c] flex items-center gap-2 disabled:opacity-50">
-                    {loading && <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" /> }
-                    Create User
-                  </button>
-                </div>
-              </form>
-           </div>
-        </div>
-      )}
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>

@@ -56,7 +56,7 @@ export const useHRStore = create<HRStoreState>((set) => ({
         .find((row) => row.startsWith("aegis_auth_token="))
         ?.split("=")[1];
 
-      const res = await fetch("http://localhost:5000/api/staff/hr", {
+      const res = await fetch("http://localhost:5000/api/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

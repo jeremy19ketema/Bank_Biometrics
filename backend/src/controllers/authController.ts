@@ -39,6 +39,11 @@ export async function login(req: AuthenticatedRequest, res: Response): Promise<v
       return;
     }
 
+    if (user.status === "PENDING_APPROVAL") {
+      res.status(401).json({ success: false, message: "Account is pending approval. You cannot log in yet." });
+      return;
+    }
+
     const isMatch = await bcrypt.compare(passcode, user.passwordHash);
     if (!isMatch) {
       await logAuditEvent(user.id, "USER_LOGIN_FAILED", "SECURITY", ipAddress, `Failed login attempt for username: ${username}`, "FAILURE");

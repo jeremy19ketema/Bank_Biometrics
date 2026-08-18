@@ -2,6 +2,7 @@ import { Response } from "express";
 import { prisma } from "../config/db.js";
 import { AuthenticatedRequest } from "../middleware/auth.js";
 import { logAuditEvent } from "../utils/audit.js";
+import { ProviderFactory } from "../services/biometric/ProviderFactory.js";
 
 export async function verifyScan(req: AuthenticatedRequest, res: Response): Promise<void> {
   const { 
@@ -31,25 +32,13 @@ export async function verifyScan(req: AuthenticatedRequest, res: Response): Prom
     return;
   }
 
-  // 2. Expiry Check
-  if (new Date(expiresAt) < new Date()) {
-    res.status(403).json({ success: false, message: "Biometric scan assertion has expired" });
-    return;
-  }
+  // 3. Delegate Verification to Provider
+  const provider = await ProviderFactory.getBiometricProvider();
+  const verificationResult = await provider.verifyScanAssertion(req.body);
 
-  // 3. Liveness / Anti-Spoof Check
-  if (livenessScore === undefined || livenessScore < 85.0) {
-    await logAuditEvent(req.user.id, "BIOMETRIC_SPOOF_DETECTED", "SECURITY", ipAddress, `Spoof attempt detected for customer ${customerId}. Liveness score: ${livenessScore}`, "FAILURE");
-    res.status(403).json({ success: false, message: "Liveness check failed. Spoofing detected." });
-    return;
-  }
-
-  // 4. Cryptographic Signature Check (Mock)
-  // In a real system, verify HMAC or RSA signature of the payload using the device's public key.
-  const expectedSignaturePrefix = `device-sig-${deviceId}-`;
-  if (!signature.startsWith(expectedSignaturePrefix)) {
-    await logAuditEvent(req.user.id, "BIOMETRIC_SIGNATURE_INVALID", "SECURITY", ipAddress, `Invalid device signature for customer ${customerId} from device ${deviceId}`, "FAILURE");
-    res.status(403).json({ success: false, message: "Invalid biometric signature" });
+  if (!verificationResult.isValid) {
+    await logAuditEvent(req.user.id, "BIOMETRIC_VERIFICATION_FAILED", "SECURITY", ipAddress, `Biometric verification failed for ${customerId}: ${verificationResult.error}`, "FAILURE");
+    res.status(403).json({ success: false, message: verificationResult.error || "Biometric verification failed" });
     return;
   }
 
@@ -97,6 +86,7 @@ export async function verifyScan(req: AuthenticatedRequest, res: Response): Prom
         amount,
         currency,
         signature,
+        providerType: provider.providerType,
         expiresAt: new Date(expiresAt)
       }
     });
@@ -177,5 +167,22 @@ export async function getScanStats(req: AuthenticatedRequest, res: Response): Pr
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || "Failed to compile biometric metrics" });
+  }
+}
+
+export async function getProviderStatus(req: AuthenticatedRequest, res: Response): Promise<void> {
+  try {
+    const provider = await ProviderFactory.getBiometricProvider();
+    const health = await provider.healthCheck();
+    
+    res.status(200).json({
+      success: true,
+      data: {
+        providerType: provider.providerType,
+        health
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || "Failed to retrieve provider status" });
   }
 }

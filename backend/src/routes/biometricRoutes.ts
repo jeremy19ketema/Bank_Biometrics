@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { verifyScan, getScanHistory, getScanStats } from "../controllers/biometricController.js";
+import { verifyScan, getScanHistory, getScanStats, getProviderStatus } from "../controllers/biometricController.js";
 import { authenticateJWT } from "../middleware/auth.js";
 
 const router = Router();
 
+router.get("/status", authenticateJWT, getProviderStatus);
 router.post("/verify", authenticateJWT, verifyScan);
 router.get("/history", authenticateJWT, getScanHistory);
 router.get("/stats", authenticateJWT, getScanStats);

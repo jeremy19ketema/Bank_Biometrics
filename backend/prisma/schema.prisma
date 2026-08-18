@@ -71,6 +71,11 @@ enum AuditCategory {
   POLICY_CHANGE
 }
 
+enum BiometricProviderType {
+  MOCK
+  HARDWARE
+}
+
 enum AuditStatus {
   SUCCESS
   WARNING
@@ -375,7 +380,7 @@ model BiometricScanResult {
   qualityScore   Float
   livenessScore  Float     @default(0.0)
   scannedAt      DateTime  @default(now())
-  expiresAt      DateTime  @default(now())
+  expiresAt      DateTime?
   deviceId       String
   device         BiometricDevice @relation("CustomerScans", fields: [deviceId], references: [id])
   operatorId     String
@@ -384,6 +389,7 @@ model BiometricScanResult {
   amount         Float?
   currency       String?
   signature      String?
+  providerType   BiometricProviderType @default(MOCK)
 
   transaction    Transaction?
 }

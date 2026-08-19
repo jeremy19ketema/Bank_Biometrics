@@ -40,12 +40,25 @@ exec(`pg_dump -U ${dbUser} -h ${dbHost} -p ${dbPort} -d ${dbName} -Fc -f "${file
     process.exit(1);
   }
   
-  // Encrypt the backup
-  const cipher = crypto.createCipheriv("aes-256-cbc", Buffer.from(encryptionKey), Buffer.alloc(16, 0));
+  // Encrypt the backup using AES-256-GCM
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", Buffer.from(encryptionKey), iv);
+  
   const input = fs.createReadStream(filePath);
   const output = fs.createWriteStream(encryptedFilePath);
   
-  input.pipe(cipher).pipe(output).on("finish", () => {
+  // Write the 12-byte IV at the beginning of the file
+  output.write(iv);
+  
+  input.pipe(cipher).on("data", (chunk) => {
+    output.write(chunk);
+  }).on("end", () => {
+    cipher.end();
+    // GCM Auth Tag is only available after cipher ends
+    const tag = cipher.getAuthTag();
+    output.write(tag); // Append the 16-byte Auth Tag at the end
+    output.end();
+    
     fs.unlinkSync(filePath); // Delete unencrypted file
     console.log(`Backup completed & encrypted successfully: ${encryptedFilePath}`);
 

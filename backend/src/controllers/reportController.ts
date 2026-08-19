@@ -250,10 +250,24 @@ export async function downloadExport(req: AuthenticatedRequest, res: Response): 
       return;
     }
 
+    // Strictly check if branch scope has changed
     const filters = JSON.parse(job.filters || "{}");
-    if (filters.scopeBranchId && user.branchId && filters.scopeBranchId !== user.branchId) {
-      res.status(403).json({ success: false, message: "Forbidden: Branch scope has changed." });
-      return;
+    
+    if (filters.scopeBranchId) {
+      // The report was for a specific branch. 
+      // If the user is now restricted to a DIFFERENT branch, deny.
+      // (If the user is now global i.e. user.branchId is null, they still have access to that branch's data)
+      if (user.branchId && user.branchId !== filters.scopeBranchId) {
+        res.status(403).json({ success: false, message: "Forbidden: Branch scope has changed. You can no longer view this branch's data." });
+        return;
+      }
+    } else {
+      // The report was enterprise-wide (no branch filter).
+      // The user MUST STILL be enterprise-wide (user.branchId is null).
+      if (user.branchId) {
+        res.status(403).json({ success: false, message: "Forbidden: You are no longer authorized to view enterprise-wide reports." });
+        return;
+      }
     }
 
     const exportPath = path.join(process.cwd(), "exports", `${job.id}.csv`);

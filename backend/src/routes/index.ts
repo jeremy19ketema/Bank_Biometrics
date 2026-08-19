@@ -17,6 +17,7 @@ import attendanceRoutes from "./attendanceRoutes.js";
 import leaveRoutes from "./leaveRoutes.js";
 import payrollRoutes from "./payrollRoutes.js";
 import customerConsentRoutes from "./customerConsentRoutes.js";
+import reportRoutes from "./reportRoutes.js";
 
 const router = Router();
 
@@ -39,5 +40,6 @@ router.use("/org", orgRoutes);
 router.use("/roles", roleRoutes);
 router.use("/security", securityRoutes);
 router.use("/integrations", integrationRoutes);
+router.use("/reports", reportRoutes);
 
 export default router;

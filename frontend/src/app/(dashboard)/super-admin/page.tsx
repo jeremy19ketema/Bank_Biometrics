@@ -22,15 +22,23 @@ import {
 import { useSuperAdminStore } from "@/store/superAdminStore";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
+import { reportApi, DashboardMetrics } from "@/services/reportApi";
 
 export default function SuperAdminDashboard() {
   const { branches, managers, itUsers } = useSuperAdminStore();
   const { toasts, dismissToast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
+  const [metrics, setMetrics] = useState<DashboardMetrics>({});
+
+  React.useEffect(() => {
+    reportApi.getDashboardMetrics().then(res => {
+      if (res.success && res.data) setMetrics(res.data);
+    });
+  }, []);
 
   const activeBranchesCount = branches.filter((b) => b.status === "ACTIVE").length || 142;
-  const totalUsers = managers.length + itUsers.length + 2; // +2 for super admins
-  const pendingApprovals = 4; // mock, replace with real data
+  const totalUsers = metrics.totalStaff || managers.length + itUsers.length + 2; 
+  const pendingApprovals = metrics.pendingApprovals || 0; 
   const systemUptime = "99.97%";
 
   // Mock system activity

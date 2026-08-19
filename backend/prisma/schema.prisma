@@ -16,6 +16,7 @@ enum Role {
   BRANCH_IT
   ACCOUNTANT
   HR
+  AUDITOR
   // We keep the enum for bootstrap/essential platform identities
 }
 
@@ -326,6 +327,7 @@ model User {
   leaveRequestsApproved          LeaveRequest[]         @relation("LeaveApprover")
   overtimeRequestsRequested      OvertimeRequest[]      @relation("OvertimeRequester")
   overtimeRequestsApproved       OvertimeRequest[]      @relation("OvertimeApprover")
+  reportExportJobs               ReportExportJob[]      @relation("UserReportJobs")
 }
 
 model Branch {
@@ -585,4 +587,18 @@ model TransactionPolicy {
   updatedAt             DateTime        @updatedAt
 
   @@unique([transactionType, currency])
+}
+
+model ReportExportJob {
+  id           String      @id @default(uuid())
+  requestedBy  String
+  user         User        @relation("UserReportJobs", fields: [requestedBy], references: [id])
+  type         String      // e.g., "TRANSACTIONS", "ATTENDANCE", "AUDIT_LOGS"
+  filters      String      // Store filter criteria as JSON string
+  status       String      @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  downloadUrl  String?     // Path or URL to the generated CSV
+  rowCount     Int         @default(0)
+  errorMessage String?
+  requestedAt  DateTime    @default(now())
+  completedAt  DateTime?
 }

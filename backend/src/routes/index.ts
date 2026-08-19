@@ -19,6 +19,8 @@ import payrollRoutes from "./payrollRoutes.js";
 import customerConsentRoutes from "./customerConsentRoutes.js";
 import reportRoutes from "./reportRoutes.js";
 import systemRoutes from "./systemRoutes.js";
+import hrRoutes from "./hrRoutes.js";
+import complianceRoutes from "./complianceRoutes.js";
 
 const router = Router();
 
@@ -42,6 +44,8 @@ router.use("/reports", reportRoutes);
 router.use("/system", systemRoutes);
 router.use("/enrollment", enrollmentRoutes);
 router.use("/payroll", payrollRoutes);
+router.use("/hr", hrRoutes);
+router.use("/compliance", complianceRoutes);
 
 
 export default router;

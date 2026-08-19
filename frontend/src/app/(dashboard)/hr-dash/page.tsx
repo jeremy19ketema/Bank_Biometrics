@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users, UserPlus, FileDown, CheckCircle2,
   Clock, ShieldCheck, AlertCircle, Calendar,
@@ -23,6 +23,40 @@ export default function HRDashboardPage() {
     branchId: "",
     passcode: "",
   });
+
+  const [liveData, setLiveData] = useState({
+    approvals: [],
+    leave: [],
+    compliance: [],
+  });
+
+  useEffect(() => {
+    const fetchLiveData = async () => {
+      try {
+        const token = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("aegis_auth_token="))
+          ?.split("=")[1];
+
+        const [appRes, leaveRes, compRes] = await Promise.all([
+          fetch("http://localhost:5000/api/hr/approvals", { headers: { Authorization: `Bearer ${token}` } }),
+          fetch("http://localhost:5000/api/leave", { headers: { Authorization: `Bearer ${token}` } }),
+          fetch("http://localhost:5000/api/compliance/staff", { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+
+        const [appData, leaveData, compData] = await Promise.all([appRes.json(), leaveRes.json(), compRes.json()]);
+
+        setLiveData({
+          approvals: appData.success ? appData.data : [],
+          leave: leaveData.success ? leaveData.data : [],
+          compliance: compData.success ? compData.data : [],
+        });
+      } catch (err) {
+        console.error("Failed to fetch live HR data", err);
+      }
+    };
+    fetchLiveData();
+  }, []);
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,16 +82,22 @@ export default function HRDashboardPage() {
     }
   };
 
-  // Mock Data for KPI Cards
+  // Dynamically calculate KPIs
+  const pendingApprovalsCount = liveData.approvals.length;
+  const pendingLeaveCount = liveData.leave.filter((l: any) => l.status === "PENDING").length;
+  const expiredComplianceCount = liveData.compliance.filter((c: any) => c.status === "EXPIRED" || c.status === "FAILED").length;
+  
+  const offboardingRequests = liveData.approvals.filter((a: any) => a.requestType === "OFFBOARDING").length;
+
   const kpis = [
     { label: "Total Active Employees", value: "842", delta: "+12 this month", icon: Users },
     { label: "New Hires This Month", value: "18", delta: "On track", icon: UserPlus },
-    { label: "Pending Approvals", value: "24", delta: "5 high priority", icon: Clock },
-    { label: "On Leave Today", value: "32", delta: "4% of workforce", icon: Calendar },
-    { label: "Attendance Exceptions", value: "15", delta: "Today", icon: AlertCircle },
-    { label: "Compliance Completion", value: "94%", delta: "+2% from last week", icon: ShieldCheck },
-    { label: "Offboarding Overdue", value: "3", delta: "Needs action", icon: Activity },
-    { label: "Access Reviews Due", value: "45", delta: "Quarterly review", icon: Briefcase },
+    { label: "Pending Approvals", value: pendingApprovalsCount, delta: `${offboardingRequests} Offboarding`, icon: Clock },
+    { label: "Pending Leave Req", value: pendingLeaveCount, delta: "Requires Action", icon: Calendar },
+    { label: "Attendance Exceptions", value: "0", delta: "Today", icon: AlertCircle },
+    { label: "Compliance Expired", value: expiredComplianceCount, delta: "Needs action", icon: ShieldCheck },
+    { label: "Offboarding Overdue", value: offboardingRequests, delta: "Requires Action", icon: Activity },
+    { label: "Access Reviews Due", value: "0", delta: "Quarterly review", icon: Briefcase },
   ];
 
   return (
@@ -78,7 +118,7 @@ export default function HRDashboardPage() {
             <UserPlus className="h-4 w-4" /> Add Employee
           </button>
           <button className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)]">
-             Start Onboarding
+             Start Offboarding
           </button>
           <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
             Approve Leave
@@ -122,19 +162,16 @@ export default function HRDashboardPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                 <Activity className="w-5 h-5 text-amber-500" />
-                Priority Work Queue
+                Priority Work Queue (Live Data)
               </h2>
             </div>
             
             <div className="space-y-3">
               {/* Queue Items */}
               {[
-                { title: "New staff waiting for approval", count: 8, urgent: true },
-                { title: "Biometric enrollment incomplete", count: 12, urgent: false },
-                { title: "Leave requests awaiting decision", count: 24, urgent: false },
-                { title: "Missing clock-in/out or unusual attendance", count: 15, urgent: true },
-                { title: "Expiring contracts, IDs, or trainings", count: 34, urgent: false },
-                { title: "Employees whose access must be removed/reviewed", count: 7, urgent: true },
+                { title: "Offboarding or generic approvals waiting", count: pendingApprovalsCount, urgent: pendingApprovalsCount > 0 },
+                { title: "Leave requests awaiting decision", count: pendingLeaveCount, urgent: pendingLeaveCount > 5 },
+                { title: "Expiring or failed compliance courses", count: expiredComplianceCount, urgent: expiredComplianceCount > 0 },
               ].map((item, idx) => (
                 <div key={idx} className="group cursor-pointer flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
                   <div className="flex items-center gap-4">
@@ -175,7 +212,7 @@ export default function HRDashboardPage() {
               <div className="flex items-center justify-center py-4">
                 <div className="relative w-24 h-24 flex items-center justify-center rounded-full border-4 border-white/10">
                   <div className="absolute inset-0 rounded-full border-4 border-[color:var(--moss)] border-l-transparent border-b-transparent transform rotate-45"></div>
-                  <span className="text-xl font-bold text-white">94%</span>
+                  <span className="text-xl font-bold text-white">{liveData.compliance.length > 0 ? Math.round((liveData.compliance.filter((c:any)=>c.status==="COMPLETED").length / liveData.compliance.length) * 100) : 100}%</span>
                 </div>
               </div>
               <p className="text-center text-xs text-slate-400 mt-2">Overall Completion</p>
@@ -214,20 +251,15 @@ export default function HRDashboardPage() {
               Recent HR Activity
             </h3>
             <div className="space-y-4 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/10 before:to-transparent hidden-timeline-line">
-              <div className="relative flex items-center justify-between gap-4">
-                <div className="w-2 h-2 rounded-full bg-[color:var(--moss)] shrink-0" />
-                <div className="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">
-                  <p className="text-xs font-medium text-white">Leave Approved</p>
-                  <p className="text-[10px] text-slate-400">Branch Manager (North)</p>
+              {liveData.leave.slice(0,2).map((l:any, idx) => (
+                <div key={idx} className="relative flex items-center justify-between gap-4">
+                  <div className="w-2 h-2 rounded-full bg-[color:var(--moss)] shrink-0" />
+                  <div className="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">
+                    <p className="text-xs font-medium text-white">Leave: {l.status}</p>
+                    <p className="text-[10px] text-slate-400">{l.user?.fullName}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="relative flex items-center justify-between gap-4">
-                <div className="w-2 h-2 rounded-full bg-[color:var(--brass)] shrink-0" />
-                <div className="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">
-                  <p className="text-xs font-medium text-white">New Hire Provisioned</p>
-                  <p className="text-[10px] text-slate-400">IT Department</p>
-                </div>
-              </div>
+              ))}
               <div className="relative flex items-center justify-between gap-4">
                 <div className="w-2 h-2 rounded-full bg-slate-500 shrink-0" />
                 <div className="flex-1 bg-white/5 rounded-xl p-3 border border-white/5">

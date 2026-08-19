@@ -145,3 +145,40 @@ export async function approveOvertime(req: AuthenticatedRequest, res: Response):
     res.status(500).json({ success: false, message: error.message || "Failed to process overtime" });
   }
 }
+
+// --- FETCHERS ---
+export async function getLeaveRequests(req: AuthenticatedRequest, res: Response): Promise<void> {
+  if (!req.user) return;
+  try {
+    const whereClause: any = {};
+    if (req.user.role === "HR" || req.user.role === "BANK_MANAGER") {
+      whereClause.user = { branchId: req.user.branchId };
+    }
+    const requests = await prisma.leaveRequest.findMany({
+      where: whereClause,
+      include: { user: { select: { id: true, fullName: true, branchId: true } } },
+      orderBy: { createdAt: "desc" }
+    });
+    res.json({ success: true, data: requests });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+export async function getOvertimeRequests(req: AuthenticatedRequest, res: Response): Promise<void> {
+  if (!req.user) return;
+  try {
+    const whereClause: any = {};
+    if (req.user.role === "HR" || req.user.role === "BANK_MANAGER") {
+      whereClause.user = { branchId: req.user.branchId };
+    }
+    const requests = await prisma.overtimeRequest.findMany({
+      where: whereClause,
+      include: { user: { select: { id: true, fullName: true, branchId: true } } },
+      orderBy: { createdAt: "desc" }
+    });
+    res.json({ success: true, data: requests });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+}

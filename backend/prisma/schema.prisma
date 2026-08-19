@@ -244,14 +244,14 @@ model SystemBackup {
 }
 
 model MaintenanceWindow {
-  id              String   @id @default(uuid())
-  title           String
-  description     String
-  startTime       DateTime
-  endTime         DateTime
-  status          String   @default("SCHEDULED")
-  createdById     String
-  createdBy       User     @relation(fields: [createdById], references: [id])
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  startTime   DateTime
+  endTime     DateTime
+  status      String   @default("SCHEDULED")
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
 }
 
 model SystemIntegration {
@@ -299,7 +299,7 @@ model User {
   branch        Branch?     @relation(fields: [branchId], references: [id])
   departmentId  String?
   departmentRef Department? @relation(fields: [departmentId], references: [id])
-  department    String?     // Kept for backward compatibility with existing code where department is a string
+  department    String? // Kept for backward compatibility with existing code where department is a string
   avatarUrl     String?
   isActive      Boolean     @default(true)
   status        StaffStatus @default(PENDING_FIRST_LOGIN)
@@ -309,25 +309,27 @@ model User {
   updatedAt     DateTime    @updatedAt
 
   // Relationships
-  customRoles           UserCustomRole[]
-  processedTransactions Transaction[]         @relation("AccountantRelation")
-  approvedTransactions  Transaction[]         @relation("ApproverRelation")
-  auditLogs             SystemAuditLog[]
-  biometricScans        BiometricScanResult[]
-  approvalRequests      ApprovalRequest[]     @relation("ApprovalRequester")
-  approvalActions       ApprovalRequest[]     @relation("ApprovalActor")
-  securityAlerts        SecurityAlert[]
-  maintenanceWindows    MaintenanceWindow[]
-  passwordResetTokens   PasswordResetToken[]
-  biometricConsent      StaffBiometricConsent?
-  attendanceEvents      AttendanceEvent[]
-  attendanceAdjustmentsRequested AttendanceAdjustment[] @relation("AdjustmentRequester")
-  attendanceAdjustmentsApproved  AttendanceAdjustment[] @relation("AdjustmentApprover")
-  leaveRequestsRequested         LeaveRequest[]         @relation("LeaveRequester")
-  leaveRequestsApproved          LeaveRequest[]         @relation("LeaveApprover")
-  overtimeRequestsRequested      OvertimeRequest[]      @relation("OvertimeRequester")
-  overtimeRequestsApproved       OvertimeRequest[]      @relation("OvertimeApprover")
-  reportExportJobs               ReportExportJob[]      @relation("UserReportJobs")
+  customRoles                    UserCustomRole[]
+  processedTransactions          Transaction[]           @relation("AccountantRelation")
+  approvedTransactions           Transaction[]           @relation("ApproverRelation")
+  auditLogs                      SystemAuditLog[]
+  biometricScans                 BiometricScanResult[]
+  approvalRequests               ApprovalRequest[]       @relation("ApprovalRequester")
+  approvalActions                ApprovalRequest[]       @relation("ApprovalActor")
+  securityAlerts                 SecurityAlert[]
+  maintenanceWindows             MaintenanceWindow[]
+  passwordResetTokens            PasswordResetToken[]
+  biometricConsent               StaffBiometricConsent?
+  attendanceEvents               AttendanceEvent[]
+  attendanceAdjustmentsRequested AttendanceAdjustment[]  @relation("AdjustmentRequester")
+  attendanceAdjustmentsApproved  AttendanceAdjustment[]  @relation("AdjustmentApprover")
+  leaveRequestsRequested         LeaveRequest[]          @relation("LeaveRequester")
+  leaveRequestsApproved          LeaveRequest[]          @relation("LeaveApprover")
+  overtimeRequestsRequested      OvertimeRequest[]       @relation("OvertimeRequester")
+  overtimeRequestsApproved       OvertimeRequest[]       @relation("OvertimeApprover")
+  reportExportJobs               ReportExportJob[]       @relation("UserReportJobs")
+  complianceRecords              StaffComplianceRecord[]
+  verifiedCompliances            StaffComplianceRecord[] @relation("ComplianceVerifier")
 }
 
 model Branch {
@@ -346,9 +348,9 @@ model Branch {
   updatedAt             DateTime     @updatedAt
 
   // Relationships
-  users        User[]
-  transactions Transaction[]
-  departments  Department[]
+  users            User[]
+  transactions     Transaction[]
+  departments      Department[]
   biometricDevices BiometricDevice[]
 }
 
@@ -373,48 +375,48 @@ model Customer {
 }
 
 model BiometricScanResult {
-  scanId         String    @id @default(uuid())
+  scanId         String                @id @default(uuid())
   customerId     String?
-  customer       Customer? @relation(fields: [customerId], references: [id])
+  customer       Customer?             @relation(fields: [customerId], references: [id])
   matchScore     Float
   isMatch        Boolean
   fingerIndex    String
   qualityScore   Float
-  livenessScore  Float     @default(0.0)
-  scannedAt      DateTime  @default(now())
+  livenessScore  Float                 @default(0.0)
+  scannedAt      DateTime              @default(now())
   expiresAt      DateTime?
   deviceId       String
-  device         BiometricDevice @relation("CustomerScans", fields: [deviceId], references: [id])
+  device         BiometricDevice       @relation("CustomerScans", fields: [deviceId], references: [id])
   operatorId     String
-  operator       User      @relation(fields: [operatorId], references: [id])
+  operator       User                  @relation(fields: [operatorId], references: [id])
   transactionRef String?
   amount         Float?
   currency       String?
   signature      String?
   providerType   BiometricProviderType @default(MOCK)
 
-  transaction    Transaction?
+  transaction Transaction?
 }
 
 model Transaction {
-  id                String            @id @default(uuid())
-  referenceNumber   String            @unique
+  id                String               @id @default(uuid())
+  referenceNumber   String               @unique
   accountNumber     String
   customerName      String
   type              TransactionType
   amount            Float
-  currency          String            @default("ETB")
-  status            TransactionStatus @default(PENDING_APPROVAL)
-  biometricVerified Boolean           @default(false)
-  biometricScanId   String?           @unique
+  currency          String               @default("ETB")
+  status            TransactionStatus    @default(PENDING_APPROVAL)
+  biometricVerified Boolean              @default(false)
+  biometricScanId   String?              @unique
   biometricScan     BiometricScanResult? @relation(fields: [biometricScanId], references: [scanId])
   accountantId      String
-  accountant        User              @relation("AccountantRelation", fields: [accountantId], references: [id])
+  accountant        User                 @relation("AccountantRelation", fields: [accountantId], references: [id])
   branchId          String
-  branch            Branch            @relation(fields: [branchId], references: [id])
+  branch            Branch               @relation(fields: [branchId], references: [id])
   approvedById      String?
-  approvedBy        User?             @relation("ApproverRelation", fields: [approvedById], references: [id])
-  timestamp         DateTime          @default(now())
+  approvedBy        User?                @relation("ApproverRelation", fields: [approvedById], references: [id])
+  timestamp         DateTime             @default(now())
 }
 
 model SystemAuditLog {
@@ -467,113 +469,113 @@ model PasswordResetToken {
 // --- PHASE 6: DEVICE & HR OPERATIONS ---
 
 model BiometricDevice {
-  id             String       @id @default(uuid())
-  macAddress     String       @unique
-  ipAddress      String?
-  name           String
-  secretKeyHash  String       // For HMAC/Token based auth
-  status         DeviceStatus @default(UNASSIGNED)
-  branchId       String?
-  branch         Branch?      @relation(fields: [branchId], references: [id])
-  lastSyncAt     DateTime?
+  id              String       @id @default(uuid())
+  macAddress      String       @unique
+  ipAddress       String?
+  name            String
+  secretKeyHash   String // For HMAC/Token based auth
+  status          DeviceStatus @default(UNASSIGNED)
+  branchId        String?
+  branch          Branch?      @relation(fields: [branchId], references: [id])
+  lastSyncAt      DateTime?
   firmwareVersion String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   attendanceEvents AttendanceEvent[]
   customerScans    BiometricScanResult[] @relation("CustomerScans")
 }
 
 model StaffBiometricConsent {
-  id                String   @id @default(uuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id])
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id])
   consentVersion    String
-  captureMethod     String   // e.g. "DIGITAL_SIGNATURE", "SCANNED_PAPER"
+  captureMethod     String // e.g. "DIGITAL_SIGNATURE", "SCANNED_PAPER"
   documentReference String?
-  isRevoked         Boolean  @default(false)
+  isRevoked         Boolean   @default(false)
   revokedAt         DateTime?
-  signedTimestamp   DateTime @default(now())
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  signedTimestamp   DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
 model AttendanceEvent {
-  id                String         @id @default(uuid())
-  deviceEventId     String         @unique // Idempotency key
+  id                String          @id @default(uuid())
+  deviceEventId     String          @unique // Idempotency key
   userId            String
-  user              User           @relation(fields: [userId], references: [id])
+  user              User            @relation(fields: [userId], references: [id])
   deviceId          String
   device            BiometricDevice @relation(fields: [deviceId], references: [id])
   type              AttendanceType
   deviceTimestamp   DateTime
-  receivedTimestamp DateTime       @default(now())
-  timezone          String         @default("UTC")
-  source            String         @default("DEVICE") // DEVICE, MANUAL_ADJUSTMENT
+  receivedTimestamp DateTime        @default(now())
+  timezone          String          @default("UTC")
+  source            String          @default("DEVICE") // DEVICE, MANUAL_ADJUSTMENT
 
-  adjustments       AttendanceAdjustment[]
+  adjustments AttendanceAdjustment[]
 }
 
 model AttendanceAdjustment {
-  id                String         @id @default(uuid())
+  id                String          @id @default(uuid())
   attendanceEventId String
   attendanceEvent   AttendanceEvent @relation(fields: [attendanceEventId], references: [id])
   adjustedTimestamp DateTime
   adjustedType      AttendanceType
   reason            String
   requestedById     String
-  requestedBy       User           @relation("AdjustmentRequester", fields: [requestedById], references: [id])
+  requestedBy       User            @relation("AdjustmentRequester", fields: [requestedById], references: [id])
   approvedById      String?
-  approvedBy        User?          @relation("AdjustmentApprover", fields: [approvedById], references: [id])
-  status            ApprovalStatus @default(PENDING)
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  approvedBy        User?           @relation("AdjustmentApprover", fields: [approvedById], references: [id])
+  status            ApprovalStatus  @default(PENDING)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 }
 
 model LeaveRequest {
-  id            String         @id @default(uuid())
-  userId        String
-  user          User           @relation("LeaveRequester", fields: [userId], references: [id])
-  startDate     DateTime
-  endDate       DateTime
-  type          LeaveType
-  reason        String
-  status        ApprovalStatus @default(PENDING)
-  approvedById  String?
-  approvedBy    User?          @relation("LeaveApprover", fields: [approvedById], references: [id])
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id           String         @id @default(uuid())
+  userId       String
+  user         User           @relation("LeaveRequester", fields: [userId], references: [id])
+  startDate    DateTime
+  endDate      DateTime
+  type         LeaveType
+  reason       String
+  status       ApprovalStatus @default(PENDING)
+  approvedById String?
+  approvedBy   User?          @relation("LeaveApprover", fields: [approvedById], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 model OvertimeRequest {
-  id            String         @id @default(uuid())
-  userId        String
-  user          User           @relation("OvertimeRequester", fields: [userId], references: [id])
-  date          DateTime
-  hours         Float
-  reason        String
-  status        ApprovalStatus @default(PENDING)
-  approvedById  String?
-  approvedBy    User?          @relation("OvertimeApprover", fields: [approvedById], references: [id])
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id           String         @id @default(uuid())
+  userId       String
+  user         User           @relation("OvertimeRequester", fields: [userId], references: [id])
+  date         DateTime
+  hours        Float
+  reason       String
+  status       ApprovalStatus @default(PENDING)
+  approvedById String?
+  approvedBy   User?          @relation("OvertimeApprover", fields: [approvedById], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }
 
 // --- PHASE 7: CUSTOMER BIOMETRICS & TRANSACTIONS ---
 
 model CustomerBiometricConsent {
-  id                String   @id @default(uuid())
-  customerId        String   @unique
-  customer          Customer @relation(fields: [customerId], references: [id])
+  id                String    @id @default(uuid())
+  customerId        String    @unique
+  customer          Customer  @relation(fields: [customerId], references: [id])
   policyVersion     String
-  documentReference String   // External blob storage reference
-  checksum          String   // Hash of the document
-  captureMetadata   String?  // JSON string of capture details
-  isRevoked         Boolean  @default(false)
+  documentReference String // External blob storage reference
+  checksum          String // Hash of the document
+  captureMetadata   String? // JSON string of capture details
+  isRevoked         Boolean   @default(false)
   revokedAt         DateTime?
-  signedTimestamp   DateTime @default(now())
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  signedTimestamp   DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
 model TransactionPolicy {
@@ -590,15 +592,58 @@ model TransactionPolicy {
 }
 
 model ReportExportJob {
-  id           String      @id @default(uuid())
+  id           String    @id @default(uuid())
   requestedBy  String
-  user         User        @relation("UserReportJobs", fields: [requestedBy], references: [id])
-  type         String      // e.g., "TRANSACTIONS", "ATTENDANCE", "AUDIT_LOGS"
-  filters      String      // Store filter criteria as JSON string
-  status       String      @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
-  downloadUrl  String?     // Path or URL to the generated CSV
-  rowCount     Int         @default(0)
+  user         User      @relation("UserReportJobs", fields: [requestedBy], references: [id])
+  type         String // e.g., "TRANSACTIONS", "ATTENDANCE", "AUDIT_LOGS"
+  filters      String // Store filter criteria as JSON string
+  status       String    @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  downloadUrl  String? // Path or URL to the generated CSV
+  rowCount     Int       @default(0)
   errorMessage String?
-  requestedAt  DateTime    @default(now())
+  requestedAt  DateTime  @default(now())
   completedAt  DateTime?
+}
+
+// --- PHASE 11: HR COMPLIANCE ---
+
+enum ComplianceStatus {
+  PENDING
+  COMPLETED
+  EXPIRED
+  FAILED
+}
+
+model ComplianceCourse {
+  id                   String   @id @default(uuid())
+  title                String
+  code                 String   @unique
+  category             String
+  description          String?
+  mandatoryRoles       Role[]
+  mandatoryDepartments String[]
+  validityMonths       Int      @default(12)
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  records StaffComplianceRecord[]
+}
+
+model StaffComplianceRecord {
+  id                String           @id @default(uuid())
+  userId            String
+  user              User             @relation(fields: [userId], references: [id])
+  courseId          String
+  course            ComplianceCourse @relation(fields: [courseId], references: [id])
+  status            ComplianceStatus @default(PENDING)
+  assignedDate      DateTime         @default(now())
+  dueDate           DateTime
+  completionDate    DateTime?
+  expiryDate        DateTime?
+  documentReference String? // S3 or local blob path
+  verifierId        String?
+  verifier          User?            @relation("ComplianceVerifier", fields: [verifierId], references: [id])
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 }

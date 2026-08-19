@@ -27,7 +27,7 @@ export default function OrganizationHub() {
 
   const fetchTree = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/org/tree", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/org/tree`, {
         headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
       });
       const data = await res.json();
@@ -51,7 +51,7 @@ export default function OrganizationHub() {
 
   const onSubmitOrg = async (data: any) => {
     try {
-      const res = await fetch("http://localhost:5000/api/org/organizations", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/org/organizations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export default function OrganizationHub() {
 
   const onSubmitRegion = async (data: any) => {
     try {
-      const res = await fetch("http://localhost:5000/api/org/regions", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/org/regions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +97,7 @@ export default function OrganizationHub() {
 
   const onSubmitDept = async (data: any) => {
     try {
-      const res = await fetch("http://localhost:5000/api/org/departments", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/org/departments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -9,8 +9,10 @@ import {
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useHRStore } from "@/store/hrStore";
+import { useRouter } from "next/navigation";
 
 export default function HRDashboardPage() {
+  const router = useRouter();
   const { toast, toasts, dismissToast } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
   
@@ -33,18 +35,17 @@ export default function HRDashboardPage() {
   useEffect(() => {
     const fetchLiveData = async () => {
       try {
-        const token = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("aegis_auth_token="))
-          ?.split("=")[1];
+        const { apiClient } = await import('@/services/apiClient');
 
         const [appRes, leaveRes, compRes] = await Promise.all([
-          fetch("http://localhost:5000/api/hr/approvals", { headers: { Authorization: `Bearer ${token}` } }),
-          fetch("http://localhost:5000/api/leave", { headers: { Authorization: `Bearer ${token}` } }),
-          fetch("http://localhost:5000/api/compliance/staff", { headers: { Authorization: `Bearer ${token}` } })
+          apiClient.get<any>("/api/hr/approvals"),
+          apiClient.get<any>("/api/leave"),
+          apiClient.get<any>("/api/compliance/staff")
         ]);
 
-        const [appData, leaveData, compData] = await Promise.all([appRes.json(), leaveRes.json(), compRes.json()]);
+        const appData = appRes.data;
+        const leaveData = leaveRes.data;
+        const compData = compRes.data;
 
         setLiveData({
           approvals: appData.success ? appData.data : [],
@@ -112,21 +113,21 @@ export default function HRDashboardPage() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button 
-            onClick={() => setShowAddModal(true)}
+            onClick={() => router.push("/hr-dash/onboarding")}
             className="inline-flex items-center gap-2 rounded-xl bg-[color:var(--brass)] px-4 py-2.5 text-sm font-bold text-[#16233A] shadow-lg transition hover:bg-[#d7ab5c]"
           >
             <UserPlus className="h-4 w-4" /> Add Employee
           </button>
-          <button className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)]">
+          <button onClick={() => router.push("/hr-dash/offboarding")} className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)]">
              Start Offboarding
           </button>
-          <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+          <button onClick={() => router.push("/hr-dash/leave")} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
             Approve Leave
           </button>
-          <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+          <button onClick={() => router.push("/hr-dash/attendance")} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
             Attendance Exception
           </button>
-          <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+          <button onClick={() => router.push("/reports/system")} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
             <FileDown className="h-4 w-4" /> Export Report
           </button>
         </div>

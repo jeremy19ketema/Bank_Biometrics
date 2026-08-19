@@ -127,6 +127,20 @@ export async function requestReportExport(req: AuthenticatedRequest, res: Respon
 import fs from "fs";
 import path from "path";
 
+/**
+ * ============================================================================
+ * ⚠️ DEMO DEPLOYMENT CHOICE ⚠️
+ * ============================================================================
+ * For the classroom demo, this implementation uses an in-process background 
+ * worker and stores export files directly on the local server disk.
+ * 
+ * PRODUCTION REQUIREMENT:
+ * In a true production deployment, this must be replaced with:
+ * 1. A durable job queue (e.g., Redis/RabbitMQ/AWS SQS) to survive server restarts.
+ * 2. Encrypted Object Storage (e.g., AWS S3 with KMS encryption) for the CSVs,
+ *    instead of local disk storage.
+ * ============================================================================
+ */
 async function processExportJob(jobId: string, userId: string) {
   try {
     await prisma.reportExportJob.update({ where: { id: jobId }, data: { status: "PROCESSING" } });

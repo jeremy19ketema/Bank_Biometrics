@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const backendRes = await fetch("http://localhost:5000/api/auth/complete-first-login", {
+    const backendRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/complete-first-login`, {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",

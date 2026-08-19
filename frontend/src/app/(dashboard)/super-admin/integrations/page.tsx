@@ -24,7 +24,7 @@ export default function IntegrationsHub() {
   const fetchIntegrations = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/integrations", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/integrations`, {
         headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
       });
       const data = await res.json();
@@ -40,7 +40,7 @@ export default function IntegrationsHub() {
 
   const onSubmitRegister = async (data: any) => {
     try {
-      const res = await fetch("http://localhost:5000/api/integrations", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/integrations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

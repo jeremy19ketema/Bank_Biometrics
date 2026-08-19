@@ -61,6 +61,18 @@ class ApiClient {
     }
   }
 
+  async patch<T>(endpoint: string, payload: unknown): Promise<ApiResponse<T>> {
+    try {
+      return await this.request<T>(endpoint, {
+        method: "PATCH",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(payload)
+      });
+    } catch {
+      return { success: false, message: "Network request failed" };
+    }
+  }
+
   async put<T>(endpoint: string, payload: unknown): Promise<ApiResponse<T>> {
     try {
       return await this.request<T>(endpoint, {

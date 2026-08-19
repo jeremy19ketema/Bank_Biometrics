@@ -24,7 +24,7 @@ export default function RolesHub() {
 
   const fetchRoles = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/roles/custom", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/roles/custom`, {
         headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
       });
       const data = await res.json();
@@ -44,7 +44,7 @@ export default function RolesHub() {
 
   const onSubmitRole = async (data: any) => {
     try {
-      const res = await fetch("http://localhost:5000/api/roles/custom", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/roles/custom`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +67,7 @@ export default function RolesHub() {
 
   const onSubmitAssign = async (data: any) => {
     try {
-      const res = await fetch("http://localhost:5000/api/roles/assign", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/roles/assign`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

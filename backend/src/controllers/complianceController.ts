@@ -30,6 +30,14 @@ export async function assignCompliance(req: AuthenticatedRequest, res: Response)
       return;
     }
 
+    // Branch scoping
+    if (req.user.role !== "SUPER_ADMIN" && req.user.role !== "SUPER_ADMIN_HR") {
+      if (req.user.branchId && targetUser.branchId !== req.user.branchId) {
+        res.status(403).json({ success: false, message: "Cannot assign compliance outside your branch" });
+        return;
+      }
+    }
+
     // Assigning compliance
     const record = await prisma.staffComplianceRecord.create({
       data: {
@@ -58,12 +66,20 @@ export async function verifyCompliance(req: AuthenticatedRequest, res: Response)
   try {
     const record = await prisma.staffComplianceRecord.findUnique({ 
       where: { id },
-      include: { course: true }
+      include: { course: true, user: true }
     });
 
     if (!record) {
       res.status(404).json({ success: false, message: "Compliance record not found" });
       return;
+    }
+
+    // Branch scoping
+    if (req.user.role !== "SUPER_ADMIN" && req.user.role !== "SUPER_ADMIN_HR") {
+      if (req.user.branchId && record.user.branchId !== req.user.branchId) {
+        res.status(403).json({ success: false, message: "Cannot verify compliance outside your branch" });
+        return;
+      }
     }
 
     const completionDate = status === "COMPLETED" ? new Date() : null;
@@ -95,8 +111,13 @@ export async function verifyCompliance(req: AuthenticatedRequest, res: Response)
 
 export async function getStaffCompliance(req: AuthenticatedRequest, res: Response): Promise<void> {
   try {
-    // Basic filter logic (would add branch scoping in a full implementation)
+    let whereClause: any = {};
+    if (req.user && !req.user.role.startsWith("SUPER_ADMIN")) {
+      whereClause = { user: { branchId: req.user.branchId } };
+    }
+
     const records = await prisma.staffComplianceRecord.findMany({
+      where: whereClause,
       include: {
         user: { select: { id: true, username: true, fullName: true, branchId: true } },
         course: { select: { id: true, title: true, category: true } },

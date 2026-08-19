@@ -85,6 +85,11 @@ export async function approveOffboarding(req: AuthenticatedRequest, res: Respons
 
   if (!req.user) return;
 
+  if (status !== "APPROVED" && status !== "REJECTED") {
+    res.status(400).json({ success: false, message: "Invalid status. Must be APPROVED or REJECTED." });
+    return;
+  }
+
   try {
     const request = await prisma.approvalRequest.findUnique({ where: { id } });
     if (!request || request.requestType !== "OFFBOARDING") {
@@ -175,6 +180,8 @@ export async function getPendingApprovals(req: AuthenticatedRequest, res: Respon
     // Scoping for HR / Branch Managers
     if (req.user.role === "HR" || req.user.role === "BANK_MANAGER") {
       whereClause.targetBranchId = req.user.branchId;
+      // Restrict generic approvals to only HR-authorized workflows
+      whereClause.requestType = { in: ["USER_CREATION", "OFFBOARDING"] };
     }
 
     const approvals = await prisma.approvalRequest.findMany({

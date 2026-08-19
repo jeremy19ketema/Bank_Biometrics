@@ -20,7 +20,7 @@ export default function EnrollmentConsentPage() {
         .find((row) => row.startsWith("aegis_auth_token="))
         ?.split("=")[1];
 
-      const res = await fetch("http://localhost:5000/api/enrollment/consent", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/enrollment/consent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

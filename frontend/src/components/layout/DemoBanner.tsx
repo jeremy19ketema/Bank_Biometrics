@@ -9,8 +9,8 @@ export default function DemoBanner() {
   useEffect(() => {
     async function checkProviderStatus() {
       try {
-        const response = await apiClient.get("/api/biometrics/status");
-        if (response.data && response.data.providerType === "MOCK") {
+        const response = await apiClient.get<{ providerType?: string; data?: { providerType?: string } }>("/api/biometrics/status");
+        if (response.data?.providerType === "MOCK" || response.data?.data?.providerType === "MOCK") {
           setIsDemo(true);
         }
       } catch (err) {

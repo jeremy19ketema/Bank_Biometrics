@@ -441,7 +441,7 @@ export const useSuperAdminStore = create<SuperAdminState>((set, get) => ({
         .find((row) => row.startsWith("aegis_auth_token="))
         ?.split("=")[1];
 
-      const res = await fetch("http://localhost:5000/api/users", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -69,6 +69,13 @@ export async function getUserById(req: AuthenticatedRequest, res: Response): Pro
       return;
     }
 
+    if (req.user && !req.user.role.startsWith("SUPER_ADMIN")) {
+      if (req.user.branchId && user.branchId !== req.user.branchId) {
+        res.status(403).json({ success: false, message: "Forbidden: Cannot view user outside your branch" });
+        return;
+      }
+    }
+
     res.status(200).json({ success: true, data: user });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || "Failed to fetch user" });
@@ -244,10 +251,8 @@ export async function generatePasswordReset(req: AuthenticatedRequest, res: Resp
     await logAuditEvent(req.user.id, "PASSWORD_RESET_GENERATED", "SECURITY", ipAddress, `Generated password reset token for user ${targetUser.username}`, "SUCCESS");
 
     // In a real app, send this token via email/SMS. We just return it for testing purposes here, though the prompt says "never return or log a temporary password". 
-    // Wait, the prompt says "never return or log a temporary password". 
-    // I should return success without the token, and simulate email dispatch.
-    
-    console.log(`[EMAIL SIMULATION] Send password reset token to ${targetUser.email}: ${token}`);
+    // Return success without the token, and simulate email dispatch securely.
+    console.log(`[EMAIL SIMULATION] Dispatched secure reset link to ${targetUser.email}`);
 
     res.status(200).json({ success: true, message: "Password reset link has been dispatched securely." });
   } catch (error: any) {

@@ -27,15 +27,15 @@ export default function SecurityCenter() {
       const headers = { "Authorization": `Bearer ${localStorage.getItem("token")}` };
       
       if (activeTab === "AUDIT") {
-        const res = await fetch("http://localhost:5000/api/audit/logs", { headers });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/audit/logs`, { headers });
         const data = await res.json();
         if (data.success) setLogs(data.data.logs);
       } else if (activeTab === "ALERTS") {
-        const res = await fetch("http://localhost:5000/api/security/alerts", { headers });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/security/alerts`, { headers });
         const data = await res.json();
         if (data.success) setAlerts(data.data);
       } else if (activeTab === "HEALTH") {
-        const res = await fetch("http://localhost:5000/api/security/health", { headers });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/security/health`, { headers });
         const data = await res.json();
         if (data.success) setHealth(data.data);
       }
@@ -48,7 +48,7 @@ export default function SecurityCenter() {
 
   const handleExport = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/audit/export", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/audit/export`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
       });
@@ -83,7 +83,7 @@ export default function SecurityCenter() {
 
   const onSubmitPolicy = async (data: any) => {
     try {
-      const res = await fetch("http://localhost:5000/api/security/policies/propose", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/security/policies/propose`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

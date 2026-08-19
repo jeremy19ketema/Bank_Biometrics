@@ -51,22 +51,16 @@ export const useHRStore = create<HRStoreState>((set) => ({
   createStaffRequest: async (data) => {
     set({ loading: true, error: null });
     try {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("aegis_auth_token="))
-        ?.split("=")[1];
+      // Need to dynamically import to avoid circular dep issues in Zustand if any, or just use fetch with env var
+      // But we can just use the standard apiClient
+      const { apiClient } = await import('@/services/apiClient');
+      
+      const payload = { ...data, password: data.passcode };
+      delete (payload as any).passcode;
 
-      const res = await fetch("http://localhost:5000/api/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await apiClient.post<any>("/api/users", payload);
 
-      const result = await res.json();
-      if (!result.success) throw new Error(result.message);
+      if (!res.data?.success) throw new Error(res.data?.message);
       
       set({ loading: false });
       return true;

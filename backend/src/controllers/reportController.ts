@@ -114,8 +114,8 @@ export async function requestReportExport(req: AuthenticatedRequest, res: Respon
 
     await logAuditEvent(req.user.id, "REPORT_EXPORT_REQUESTED", "ADMINISTRATION", req.ip || "unknown", `Requested async export job ${job.id} for type ${type}`, "SUCCESS");
 
-    // In a real app, this would push to a message queue. We'll simulate async processing here.
-    processExportJob(job.id, req.user);
+    // Pass only the userId, we will freshly fetch the user in the background job
+    processExportJob(job.id, req.user.id);
 
     res.status(202).json({ success: true, message: "Export job started", data: { jobId: job.id } });
   } catch (error: any) {
@@ -124,14 +124,27 @@ export async function requestReportExport(req: AuthenticatedRequest, res: Respon
 }
 
 // Background processor simulation
-async function processExportJob(jobId: string, user: any) {
+import fs from "fs";
+import path from "path";
+
+async function processExportJob(jobId: string, userId: string) {
   try {
     await prisma.reportExportJob.update({ where: { id: jobId }, data: { status: "PROCESSING" } });
     
+    // Dynamically re-verify user
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || user.status !== "ACTIVE") {
+      throw new Error("Requester is invalid or inactive.");
+    }
+    
+    // We enforce scope using the fresh user.branchId instead of the request snapshot
+    const scopeBranchId = user.branchId;
+
     const job = await prisma.reportExportJob.findUnique({ where: { id: jobId } });
     if (!job) return;
 
-    const filters = JSON.parse(job.filters);
+    // We can still use other filters, but override scopeBranchId
+    const filters = { ...JSON.parse(job.filters), scopeBranchId };
     let data: any[] = [];
     let csvString = "";
 
@@ -163,9 +176,11 @@ async function processExportJob(jobId: string, user: any) {
       throw new Error(`Unsupported report type: ${job.type}`);
     }
 
-    // In a real app, write csvString to AWS S3 / Blob Storage and get a secure URL
-    // For this demonstration, we'll store a mock URL since we don't have an S3 bucket configured
-    const mockDownloadUrl = `/api/reports/download/${jobId}`;
+    // Secure local storage for demonstration (outside static folders)
+    const exportPath = path.join(process.cwd(), "exports", `${jobId}.csv`);
+    fs.writeFileSync(exportPath, csvString, "utf8");
+
+    const mockDownloadUrl = `/api/reports/export/download/${jobId}`;
 
     await prisma.reportExportJob.update({
       where: { id: jobId },
@@ -177,14 +192,79 @@ async function processExportJob(jobId: string, user: any) {
       }
     });
 
-    await logAuditEvent(user.id, "REPORT_EXPORT_COMPLETED", "ADMINISTRATION", "system", `Export job ${jobId} completed with ${data.length} rows`, "SUCCESS");
+    await logAuditEvent(userId, "REPORT_EXPORT_COMPLETED", "ADMINISTRATION", "system", `Export job ${jobId} completed with ${data.length} rows`, "SUCCESS");
+
+    // Clean up file after 24h
+    setTimeout(() => {
+      if (fs.existsSync(exportPath)) {
+        fs.unlinkSync(exportPath);
+      }
+    }, 24 * 60 * 60 * 1000);
 
   } catch (error: any) {
     await prisma.reportExportJob.update({
       where: { id: jobId },
       data: { status: "FAILED", errorMessage: error.message, completedAt: new Date() }
     });
-    await logAuditEvent(user.id, "REPORT_EXPORT_FAILED", "ADMINISTRATION", "system", `Export job ${jobId} failed: ${error.message}`, "FAILURE");
+    await logAuditEvent(userId, "REPORT_EXPORT_FAILED", "ADMINISTRATION", "system", `Export job ${jobId} failed: ${error.message}`, "FAILURE");
+  }
+}
+
+export async function downloadExport(req: AuthenticatedRequest, res: Response): Promise<void> {
+  try {
+    if (!req.user) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+
+    // Dual authorization check
+    const job = await prisma.reportExportJob.findUnique({ where: { id: req.params.id } });
+    if (!job) {
+      res.status(404).json({ success: false, message: "Job not found" });
+      return;
+    }
+
+    if (job.requestedBy !== req.user.id) {
+      res.status(403).json({ success: false, message: "Forbidden: You did not request this job." });
+      return;
+    }
+
+    // Dynamically re-verify account status and scope to ensure they still have access
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user || user.status !== "ACTIVE") {
+      res.status(403).json({ success: false, message: "Forbidden: Inactive account." });
+      return;
+    }
+
+    // Re-check permissions based on job type
+    const role = user.role;
+    let hasPermission = false;
+    if (job.type === "TRANSACTIONS" && ["SUPER_ADMIN", "SUPER_ADMIN_MANAGER", "AUDITOR", "BANK_MANAGER", "ACCOUNTANT"].includes(role)) {
+      hasPermission = true;
+    } else if (job.type === "ATTENDANCE" && ["SUPER_ADMIN", "SUPER_ADMIN_HR", "AUDITOR", "HR", "ACCOUNTANT"].includes(role)) {
+      hasPermission = true;
+    }
+
+    if (!hasPermission) {
+      res.status(403).json({ success: false, message: "Forbidden: You no longer have permissions for this report." });
+      return;
+    }
+
+    const filters = JSON.parse(job.filters || "{}");
+    if (filters.scopeBranchId && user.branchId && filters.scopeBranchId !== user.branchId) {
+      res.status(403).json({ success: false, message: "Forbidden: Branch scope has changed." });
+      return;
+    }
+
+    const exportPath = path.join(process.cwd(), "exports", `${job.id}.csv`);
+    if (!fs.existsSync(exportPath)) {
+      res.status(404).json({ success: false, message: "File expired or not found" });
+      return;
+    }
+
+    res.download(exportPath, `export-${job.type}-${job.id}.csv`);
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
   }
 }
 

@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { getDashboardMetrics, requestReportExport, getExportJobs } from "../controllers/reportController.js";
+import { getDashboardMetrics, requestReportExport, getExportJobs, downloadExport } from "../controllers/reportController.js";
 import { authenticateJWT, requireRoles } from "../middleware/auth.js";
+import { exportLimiter } from "../middleware/rateLimits.js";
 
 const router = Router();
 
@@ -8,7 +9,8 @@ const router = Router();
 router.get("/dashboard", authenticateJWT, getDashboardMetrics);
 
 // Export jobs
-router.post("/export", authenticateJWT, requestReportExport);
+router.post("/export", exportLimiter, authenticateJWT, requestReportExport);
 router.get("/export/jobs", authenticateJWT, getExportJobs);
+router.get("/export/download/:id", authenticateJWT, downloadExport);
 
 export default router;

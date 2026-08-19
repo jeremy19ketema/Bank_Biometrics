@@ -18,28 +18,30 @@ import leaveRoutes from "./leaveRoutes.js";
 import payrollRoutes from "./payrollRoutes.js";
 import customerConsentRoutes from "./customerConsentRoutes.js";
 import reportRoutes from "./reportRoutes.js";
+import systemRoutes from "./systemRoutes.js";
 
 const router = Router();
 
 router.use("/auth", authRoutes);
-router.use("/branches", branchRoutes);
 router.use("/users", userRoutes);
-router.use("/customers", customerRoutes);
-router.use("/biometrics", biometricRoutes);
-router.use("/transactions", transactionRoutes);
-router.use("/audit", auditRoutes);
-router.use("/approvals", approvalRoutes);
-router.use("/approval-requests", approvalRoutes); // Retain original alias if needed
+router.use("/roles", roleRoutes);
+router.use("/branches", branchRoutes);
+router.use("/organizations", orgRoutes);
 router.use("/devices", deviceRoutes);
-router.use("/enrollment", enrollmentRoutes);
+router.use("/integrations", integrationRoutes);
+router.use("/customers", customerRoutes);
+router.use("/consents", customerConsentRoutes);
 router.use("/attendance", attendanceRoutes);
 router.use("/leave", leaveRoutes);
-router.use("/payroll", payrollRoutes);
-router.use("/customer-consent", customerConsentRoutes);
-router.use("/org", orgRoutes);
-router.use("/roles", roleRoutes);
+router.use("/transactions", transactionRoutes);
+router.use("/approvals", approvalRoutes);
 router.use("/security", securityRoutes);
-router.use("/integrations", integrationRoutes);
+router.use("/audit", auditRoutes);
+router.use("/biometrics", biometricRoutes);
 router.use("/reports", reportRoutes);
+router.use("/system", systemRoutes);
+router.use("/enrollment", enrollmentRoutes);
+router.use("/payroll", payrollRoutes);
+
 
 export default router;

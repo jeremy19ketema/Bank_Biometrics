@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import helmet from "helmet";
 import apiRoutes from "./routes/index.js";
 import { logger } from "./utils/logger.js";
+import { generalLimiter } from "./middleware/rateLimits.js";
 
 dotenv.config();
 
@@ -25,10 +27,27 @@ validateMasterKey();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS with support for local dev and proxied paths
-const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
+// Apply Helmet (enabling HSTS only in production)
+app.use(helmet({
+  hsts: process.env.NODE_ENV === "production" ? { maxAge: 31536000, includeSubDomains: true } : false
+}));
+
+// Apply general rate limit to all routes
+app.use(generalLimiter);
+
+// Enable CORS securely
+const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS 
+  ? process.env.CORS_ALLOWED_ORIGINS.split(",") 
+  : (process.env.NODE_ENV === "production" ? ["https://yourproductiondomain.com"] : ["http://localhost:3000"]);
+
 app.use(cors({
-  origin: corsOrigin,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
@@ -44,8 +63,16 @@ app.use((req, res, next) => {
 app.use("/api", apiRoutes);
 
 // Health check endpoint
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "UP", timestamp: new Date() });
+import { prisma } from "./config/db.js";
+
+app.get("/api/health", async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({ status: "UP", database: "CONNECTED", timestamp: new Date() });
+  } catch (error) {
+    logger.error("Health check failed: DB Connection Error");
+    res.status(503).json({ status: "DOWN", database: "DISCONNECTED", timestamp: new Date() });
+  }
 });
 
 // Global Error Handler

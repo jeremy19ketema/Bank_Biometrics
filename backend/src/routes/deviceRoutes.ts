@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { authenticateJWT as authenticate, requireRole as authorize } from "../middleware/auth.js";
 import { registerDevice, pingDevice, getDevices, updateDeviceStatus } from "../controllers/deviceController.js";
+import { deviceHeartbeatLimiter } from "../middleware/rateLimits.js";
 
 const router = Router();
 
 // Device calls this endpoint (Custom Auth inside controller)
-router.post("/ping", pingDevice);
+router.post("/ping", deviceHeartbeatLimiter, pingDevice);
 
 // IT Admin Endpoints
 router.use(authenticate);

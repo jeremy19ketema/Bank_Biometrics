@@ -21,9 +21,9 @@ export default function HRDashboardPage() {
     username: "",
     fullName: "",
     email: "",
-    role: "BANK_MANAGER",
-    branchId: "",
-    passcode: "",
+    role: "TELLER",
+    branchId: "c39d8ca5-200d-4e5a-865b-8de1a6b3b29c",
+    password: ""
   });
 
   const [liveData, setLiveData] = useState({
@@ -61,7 +61,7 @@ export default function HRDashboardPage() {
 
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.username || !formData.fullName || !formData.email || !formData.passcode) {
+    if (!formData.username || !formData.fullName || !formData.email || !formData.password) {
       toast.error("Missing Fields", "Please fill in all required fields.");
       return;
     }
@@ -76,7 +76,7 @@ export default function HRDashboardPage() {
         email: "",
         role: "BANK_MANAGER",
         branchId: "",
-        passcode: "",
+        password: "",
       });
     } else {
       toast.error("Error", "Failed to create staff member. Check console or try again.");
@@ -311,7 +311,7 @@ export default function HRDashboardPage() {
                   <input type="text" placeholder="Branch ID (Optional)" value={formData.branchId} onChange={e => setFormData({...formData, branchId: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
                 )}
 
-                <input required type="password" placeholder="Initial Passcode" value={formData.passcode} onChange={e => setFormData({...formData, passcode: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
+                <input required type="password" placeholder="Initial Password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
 
                 <div className="flex gap-3 justify-end pt-4">
                   <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 rounded-xl border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Cancel</button>

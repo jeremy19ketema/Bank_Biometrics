@@ -3,7 +3,11 @@ import { PrismaClient, Role } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Seeding Compliance Courses...");
+  if (process.env.NODE_ENV === "production") {
+    console.error("Seeding is disabled in production.");
+    process.exit(1);
+  }
+  console.log("Seeding Compliance data...");
 
   const courses = [
     {

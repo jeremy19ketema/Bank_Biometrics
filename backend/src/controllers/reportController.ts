@@ -85,6 +85,10 @@ export async function getDashboardMetrics(req: AuthenticatedRequest, res: Respon
 }
 
 export async function requestReportExport(req: AuthenticatedRequest, res: Response): Promise<void> {
+  if (process.env.NODE_ENV === "production") {
+    res.status(403).json({ success: false, message: "Local file exports are disabled in production. Please use cloud-bucket delivery." });
+    return;
+  }
   try {
     if (!req.user) {
       res.status(401).json({ success: false, message: "Unauthorized" });

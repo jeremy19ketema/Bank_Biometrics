@@ -15,7 +15,7 @@ interface HRStoreState {
     email: string;
     role: string;
     branchId?: string;
-    passcode: string;
+    password: string;
   }) => Promise<boolean>;
 }
 
@@ -51,14 +51,9 @@ export const useHRStore = create<HRStoreState>((set) => ({
   createStaffRequest: async (data) => {
     set({ loading: true, error: null });
     try {
-      // Need to dynamically import to avoid circular dep issues in Zustand if any, or just use fetch with env var
-      // But we can just use the standard apiClient
       const { apiClient } = await import('@/services/apiClient');
       
-      const payload = { ...data, password: data.passcode };
-      delete (payload as any).passcode;
-
-      const res = await apiClient.post<any>("/api/users", payload);
+      const res = await apiClient.post<any>("/api/users", data);
 
       if (!res.data?.success) throw new Error(res.data?.message);
       

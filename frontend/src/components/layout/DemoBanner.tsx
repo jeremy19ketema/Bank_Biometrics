@@ -8,6 +8,10 @@ export default function DemoBanner() {
 
   useEffect(() => {
     async function checkProviderStatus() {
+      if (process.env.NODE_ENV !== "production") {
+        setIsDemo(true);
+        return;
+      }
       try {
         const response = await apiClient.get<{ providerType?: string; data?: { providerType?: string } }>("/api/biometrics/status");
         if (response.data?.providerType === "MOCK" || response.data?.data?.providerType === "MOCK") {

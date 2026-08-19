@@ -4,6 +4,11 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.NODE_ENV === "production") {
+    console.error("Seeding is disabled in production.");
+    process.exit(1);
+  }
+  console.log("Seeding HR demo data...");
   const passwordHash = await bcrypt.hash("password123", 10);
 
   // 1. Create a dummy Branch

@@ -84,6 +84,12 @@ interface SuperAdminState {
     passcode: string;
     department?: string;
   }) => Promise<{success: boolean, message?: string}>;
+
+  // Global Users State
+  users?: any[];
+  loading?: boolean;
+  error?: string | null;
+  fetchUsers?: () => Promise<void>;
 }
 
 // Mock data
@@ -434,23 +440,26 @@ export const useSuperAdminStore = create<SuperAdminState>((set, get) => ({
 
   getHRUserById: (id) => get().hrUsers.find((user) => user.id === id),
 
+  fetchUsers: async () => {
+    set({ loading: true, error: null });
+    try {
+      const { apiClient } = await import('@/services/apiClient');
+      const res = await apiClient.get<any>("/api/users");
+      if (res.success) {
+        set({ users: res.data || [], loading: false });
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (err: any) {
+      set({ error: err.message, loading: false });
+    }
+  },
+
   createUser: async (data) => {
     try {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("aegis_auth_token="))
-        ?.split("=")[1];
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/users`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await res.json();
+      const { apiClient } = await import('@/services/apiClient');
+      const result = await apiClient.post("/api/users", data);
+      
       if (!result.success) throw new Error(result.message);
       
       return { success: true };

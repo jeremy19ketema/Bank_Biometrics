@@ -49,7 +49,7 @@ export async function assignCompliance(req: AuthenticatedRequest, res: Response)
 }
 
 export async function verifyCompliance(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const { status, documentReference } = req.body; // status: "COMPLETED", "FAILED"
   const ipAddress = req.ip || "unknown";
 

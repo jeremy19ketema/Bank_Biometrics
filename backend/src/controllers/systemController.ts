@@ -5,7 +5,7 @@ import { logAuditEvent } from "../utils/audit.js";
 
 export async function escalateAlert(req: AuthenticatedRequest, res: Response): Promise<void> {
   try {
-    const { alertId } = req.params;
+    const alertId = req.params.alertId as string;
     const { reason } = req.body;
 
     const alert = await prisma.systemAuditLog.findUnique({ where: { id: alertId } });

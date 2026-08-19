@@ -218,7 +218,8 @@ export async function downloadExport(req: AuthenticatedRequest, res: Response): 
     }
 
     // Dual authorization check
-    const job = await prisma.reportExportJob.findUnique({ where: { id: req.params.id } });
+    const id = req.params.id as string;
+    const job = await prisma.reportExportJob.findUnique({ where: { id } });
     if (!job) {
       res.status(404).json({ success: false, message: "Job not found" });
       return;

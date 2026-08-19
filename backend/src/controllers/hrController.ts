@@ -79,7 +79,7 @@ export async function requestOffboarding(req: AuthenticatedRequest, res: Respons
 
 // --- OFFBOARDING (CHECKER) ---
 export async function approveOffboarding(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const { status, rejectionReason } = req.body;
   const ipAddress = req.ip || "unknown";
 

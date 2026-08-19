@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getDashboardMetrics, requestReportExport, getExportJobs, downloadExport } from "../controllers/reportController.js";
-import { authenticateJWT, requireRoles } from "../middleware/auth.js";
+import { authenticateJWT, requireRole } from "../middleware/auth.js";
 import { exportLimiter } from "../middleware/rateLimits.js";
 
 const router = Router();

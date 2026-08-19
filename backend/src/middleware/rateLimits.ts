@@ -1,4 +1,5 @@
 import rateLimit from "express-rate-limit";
+import { AuthenticatedRequest } from "./auth.js";
 
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -29,7 +30,8 @@ export const exportLimiter = rateLimit({
   max: 10,
   keyGenerator: (req) => {
     // Rate limit by user ID if authenticated, else IP
-    return req.user ? req.user.id : req.ip || "unknown";
+    const authReq = req as AuthenticatedRequest;
+    return authReq.user ? authReq.user.id : authReq.ip || "unknown";
   },
   message: { success: false, message: "Export limit reached. Please try again after 1 hour." },
   standardHeaders: true,

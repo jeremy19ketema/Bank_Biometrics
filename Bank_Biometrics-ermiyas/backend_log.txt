@@ -1,0 +1,12 @@
+
+> aegis-biometric-banking-backend@1.0.0 dev
+> tsx watch src/server.ts
+
+[2026-08-21 02:06:11:611] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 02:06:11:611] [[32minfo[39m]: [32mAegis Biometric Banking Backend initialized on port 5000[39m
+[2026-08-21 02:06:11:611] [[32minfo[39m]: [32mEnvironment: development[39m
+[2026-08-21 02:06:11:611] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 02:06:23:623] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:06:37:637] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:06:38:638] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:06:38:638] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m

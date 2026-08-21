@@ -8,7 +8,7 @@ const PUBLIC_PATHS = ["/login", "/forgot-password", "/api/auth/login", "/change-
 const routePermissions: Record<string, string[]> = {
   "/super-admin": ["SUPER_ADMIN"],
   "/internal-manager": ["SUPER_ADMIN_MANAGER", "SUPER_ADMIN"],
-  "/it": ["SUPER_ADMIN_IT", "BRANCH_IT", "SUPER_ADMIN"],
+  "/it": ["SUPER_ADMIN_IT", "BRANCH_IT", "IT_SUPPORT", "SUPER_ADMIN"],
   "/forex": ["SUPER_ADMIN_FOREX", "SUPER_ADMIN_MANAGER", "SUPER_ADMIN"],
   "/forex/users": ["SUPER_ADMIN_MANAGER", "SUPER_ADMIN"], 
   "/manager": ["BANK_MANAGER", "SUPER_ADMIN"],
@@ -28,6 +28,7 @@ const roleDashboard: Record<string, string> = {
   BANK_MANAGER: "/manager",
   HR: "/hr",
   BRANCH_IT: "/it",
+  IT_SUPPORT: "/it",
   ACCOUNTANT: "/accountant",
 };
 

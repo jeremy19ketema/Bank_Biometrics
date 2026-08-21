@@ -27,3 +27,6 @@ prisma/*.db-journal
 Thumbs.db
 *.log
 docker/volumes/
+
+# TypeScript build info
+*.tsbuildinfo

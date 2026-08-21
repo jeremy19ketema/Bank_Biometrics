@@ -143,6 +143,7 @@ const getRoleLabel = (role?: string) => {
     BANK_MANAGER: "Bank Manager",
     HR: "Human Resources",
     BRANCH_IT: "Branch IT",
+    IT_SUPPORT: "IT Support",
     ACCOUNTANT: "Accountant",
   };
 

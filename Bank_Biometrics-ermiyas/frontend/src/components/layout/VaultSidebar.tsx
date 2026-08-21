@@ -26,6 +26,7 @@ type UserRole =
   | "SUPER_ADMIN_FOREX"
   | "BANK_MANAGER"
   | "BRANCH_IT"
+  | "IT_SUPPORT"
   | "ACCOUNTANT"
   | "HR";
 
@@ -43,6 +44,7 @@ const roleDashboard: Record<UserRole, string> = {
   SUPER_ADMIN_FOREX: "/forex",
   BANK_MANAGER: "/manager",
   BRANCH_IT: "/it",
+  IT_SUPPORT: "/it",
   ACCOUNTANT: "/accountant",
   HR: "/hr",
 };
@@ -139,12 +141,19 @@ const VaultSidebar: React.FC = () => {
         { label: "Biometrics", href: "/biometrics", icon: Fingerprint },
       ];
     }
+    if (role === "IT_SUPPORT") {
+      return [
+        { label: "Dashboard", href: "/it", icon: LayoutDashboard },
+        { label: "Branches", href: "/branches", icon: Building2 },
+        { label: "Reports", href: "/reports/system", icon: Receipt },
+      ];
+    }
+
     if (role === "HR") {
   return [
-    { label: "Dashboard", href: "/hr-test", icon: LayoutDashboard },
+    { label: "Dashboard", href: "/hr", icon: LayoutDashboard },
     { label: "Employees", href: "/users", icon: Users },
     { label: "Approval Queue", href: "/approvals", icon: Clock },
-    { label: "Branches", href: "/branches", icon: Building2 },
     { label: "Reports", href: "/reports/system", icon: Receipt },
   ];
 }

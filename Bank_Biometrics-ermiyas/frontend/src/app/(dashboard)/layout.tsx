@@ -13,7 +13,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   
   // HR dashboard has its own custom layout, so skip VaultSidebar and VaultTopbar
-  const isHRPage = pathname?.includes("/hr-test") || pathname?.includes("/hr");
+  const isHRPage = pathname?.includes("/hr") || pathname?.includes("/hr");
   
   if (isHRPage) {
     return children;

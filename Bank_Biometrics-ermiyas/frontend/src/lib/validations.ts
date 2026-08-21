@@ -84,32 +84,3 @@ export const managerSchema = z.object({
 });
 
 export type ManagerFormValues = z.infer<typeof managerSchema>;
-
-// ──────────────────────────────────────────────
-// FOREX User
-// ──────────────────────────────────────────────
-export const forexUserSchema = z.object({
-  fullName: z
-    .string()
-    .min(3, "Full name must be at least 3 characters")
-    .max(80, "Full name too long"),
-  email: z
-    .string()
-    .email("Invalid email address"),
-  phone: z
-    .string()
-    .min(7, "Phone number is required")
-    .max(20, "Phone number too long")
-    .regex(/^[+\d\s\-()]+$/, "Invalid phone number format"),
-  specialization: z
-    .string()
-    .min(2, "Specialization is required")
-    .max(80, "Specialization name too long"),
-  certificationLevel: z
-    .string()
-    .min(2, "Certification level is required")
-    .max(60, "Certification level too long"),
-  status: z.enum(["ACTIVE", "INACTIVE", "SUSPENDED"]),
-});
-
-export type FOREXUserFormValues = z.infer<typeof forexUserSchema>;

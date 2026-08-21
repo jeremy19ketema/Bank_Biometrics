@@ -22,6 +22,7 @@ export default function AccessDenied() {
           SUPER_ADMIN_FOREX: "/forex",
           BANK_MANAGER: "/manager",
           BRANCH_IT: "/it",
+          IT_SUPPORT: "/it",
           ACCOUNTANT: "/accountant",
         };
         setDashboardPath(roleMap[user.role] || "/super-admin");

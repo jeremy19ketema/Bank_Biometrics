@@ -128,11 +128,11 @@ router.post(
 // BRANCH IT ROUTES
 // ──────────────────────────────────────────────
 
-// Super Admin / Bank Manager creates Branch IT
+// Super Admin / Bank Manager / HR creates Branch IT
 router.post(
   "/branch-it",
   authenticateJWT,
-  requireRole(["SUPER_ADMIN", "BANK_MANAGER"]),
+  requireRole(["SUPER_ADMIN", "BANK_MANAGER", "HR"]),
   requireBranchAccess,
   createBranchIT
 );

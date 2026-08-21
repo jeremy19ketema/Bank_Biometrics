@@ -909,6 +909,7 @@ export default function SystemSettingsPage() {
             className="input-field cursor-pointer"
           >
             <option value="BRANCH_IT">BRANCH_IT</option>
+            <option value="IT_SUPPORT">IT_SUPPORT</option>
             <option value="SUPER_ADMIN_IT">SUPER_ADMIN_IT</option>
           </select>
         </div>

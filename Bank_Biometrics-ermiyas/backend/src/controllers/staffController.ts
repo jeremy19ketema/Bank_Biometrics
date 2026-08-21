@@ -425,9 +425,9 @@ export async function createAccountant(req: AuthenticatedRequest, res: Response)
   }
 }
 
-// Bank Manager creates Branch IT (branch-level)
+// Super Admin / Bank Manager / HR creates Branch IT (branch-level)
 export async function createBranchIT(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { username, fullName, email, passcode } = req.body;
+  const { username, fullName, email, passcode, branchId } = req.body;
   const ipAddress = req.ip || "unknown";
 
   if (!req.user) {
@@ -440,7 +440,41 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
     return;
   }
 
+  // Determine which branch the Branch IT belongs to
+  let targetBranchId: string | null = req.user.branchId || null;
+
+  // Bank Manager creates Branch IT for their own branch
+  if (req.user.role === "BANK_MANAGER") {
+    targetBranchId = req.user.branchId || null;
+    if (!targetBranchId) {
+      res.status(400).json({ success: false, message: "Bank Manager is not assigned to a branch" });
+      return;
+    }
+  }
+
+  // HR is not tied to a branch and must select the target branch
+  if (req.user.role === "HR") {
+    if (!branchId) {
+      res.status(400).json({ success: false, message: "HR must select a branch for the Branch IT user" });
+      return;
+    }
+    targetBranchId = branchId;
+  }
+
   try {
+    if (targetBranchId) {
+      const branch = await prisma.branch.findUnique({
+        where: { id: targetBranchId }
+      });
+      if (!branch) {
+        res.status(404).json({
+          success: false,
+          message: "Selected branch does not exist"
+        });
+        return;
+      }
+    }
+
     const existingUser = await prisma.user.findFirst({
       where: { OR: [{ username }, { email }] }
     });
@@ -458,7 +492,7 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
         email,
         passwordHash,
         role: "BRANCH_IT",
-        branchId: req.user.branchId || null,
+        branchId: targetBranchId,
         isActive: true,
         status: "PENDING_FIRST_LOGIN",
         isFirstLogin: true
@@ -466,7 +500,7 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
     });
 
     if (req.user) {
-      await logAuditEvent(req.user.id, "BRANCH_IT_CREATE", "ADMINISTRATION", ipAddress, `Created Branch IT: ${fullName} for branch: ${req.user.branchId}`, "SUCCESS");
+      await logAuditEvent(req.user.id, "BRANCH_IT_CREATE", "ADMINISTRATION", ipAddress, `Created Branch IT: ${fullName} for branch: ${targetBranchId}`, "SUCCESS");
     }
 
     res.status(201).json({

@@ -51,10 +51,7 @@ interface SuperAdminState {
 
   // FOREX Users
   forexUsers: FOREXUser[];
-  addFOREXUser: (user: Omit<FOREXUser, "id" | "createdAt">) => void;
-  updateFOREXUser: (id: string, user: Partial<FOREXUser>) => void;
   deleteFOREXUser: (id: string) => void;
-  getFOREXUserById: (id: string) => FOREXUser | undefined;
 }
 
 // Mock data
@@ -329,30 +326,9 @@ export const useSuperAdminStore = create<SuperAdminState>((set, get) => ({
   // FOREX Users State
   forexUsers: initialFOREXUsers,
 
-  addFOREXUser: (user) => {
-    const newUser: FOREXUser = {
-      ...user,
-      id: `fx-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-    };
-    set((state) => ({ forexUsers: [...state.forexUsers, newUser] }));
-  },
-
-  updateFOREXUser: (id, updatedFields) => {
-    set((state) => ({
-      forexUsers: state.forexUsers.map((user) =>
-        user.id === id ? { ...user, ...updatedFields } : user
-      ),
-    }));
-  },
-
   deleteFOREXUser: (id) => {
     set((state) => ({
       forexUsers: state.forexUsers.filter((user) => user.id !== id),
     }));
-  },
-
-  getFOREXUserById: (id) => {
-    return get().forexUsers.find((user) => user.id === id);
   },
 }));

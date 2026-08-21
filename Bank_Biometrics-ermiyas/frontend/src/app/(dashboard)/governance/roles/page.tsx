@@ -28,6 +28,7 @@ export default function RoleManagementPage() {
     { code: "SUPER_ADMIN_FOREX", name: "Super Admin FOREX", description: "Currency exchange oversight, transaction approval, dealer management.", count: 2, permissions: 14 },
     { code: "BANK_MANAGER", name: "Bank Manager", description: "Branch supervisor, high-value transaction override, teller roster management.", count: 48, permissions: 12 },
     { code: "BRANCH_IT", name: "Branch IT", description: "Local infrastructure support, device maintenance, biometric terminal health.", count: 8, permissions: 8 },
+    { code: "IT_SUPPORT", name: "IT Support", description: "Technical IT operations, branch provisioning and system setup.", count: 0, permissions: 6 },
     { code: "ACCOUNTANT", name: "Accountant / Teller", description: "Counter cashier, cash withdrawal execution, customer biometric scanning.", count: 312, permissions: 6 },
     { code: "AUDITOR", name: "System Compliance Auditor", description: "Read-only security log access, audit trail inspection, report export.", count: 12, permissions: 4 },
   ];

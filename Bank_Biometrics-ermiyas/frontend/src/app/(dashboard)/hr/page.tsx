@@ -35,7 +35,6 @@ const SECTION_COLORS = {
   dashboard: { primary: "#2563eb", light: "#dbeafe", border: "#93c5fd" },
   employees: { primary: "#10b981", light: "#d1fae5", border: "#6ee7b7" },
   approvals: { primary: "#f59e0b", light: "rgba(198,154,76,0.15)", border: "#fcd34d" },
-  branches: { primary: "#8b5cf6", light: "#ede9fe", border: "#ddd6fe" },
   reports: { primary: "#ec4899", light: "#fce7f3", border: "#fbcfe8" },
   attendance: { primary: "#0ea5e9", light: "#e0f2fe", border: "#7dd3fc" },
 };
@@ -59,6 +58,15 @@ export default function HRPage() {
   const [branchId, setBranchId] = useState("");
   const [passcode, setPasscode] = useState("");
 
+  const [itUsername, setItUsername] = useState("");
+  const [itFullName, setItFullName] = useState("");
+  const [itEmail, setItEmail] = useState("");
+  const [itBranchId, setItBranchId] = useState("");
+  const [itPasscode, setItPasscode] = useState("");
+  const [itSaving, setItSaving] = useState(false);
+  const [itMessage, setItMessage] = useState("");
+  const [itError, setItError] = useState("");
+
   const [requests, setRequests] = useState<AccountantRequest[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [branches, setBranches] = useState<BranchOption[]>([]);
@@ -73,20 +81,6 @@ export default function HRPage() {
   const [attendanceRecords, setAttendanceRecords] = useState<any[]>([]);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
   const [markingId, setMarkingId] = useState<string | null>(null);
-
-  const [showBranchForm, setShowBranchForm] = useState(false);
-  const [newBranch, setNewBranch] = useState({
-    code: "",
-    name: "",
-    city: "",
-    address: "",
-    phone: "",
-    email: "",
-    dailyTransactionLimit: "1000000",
-  });
-  const [branchSaving, setBranchSaving] = useState(false);
-  const [branchMessage, setBranchMessage] = useState("");
-  const [branchError, setBranchError] = useState("");
 
   const API_URL = "http://localhost:5000/api";
 
@@ -185,67 +179,6 @@ export default function HRPage() {
       setError("Cannot reach the attendance service.");
     } finally {
       setMarkingId(null);
-    }
-  }
-
-  async function createBranch() {
-    setBranchMessage("");
-    setBranchError("");
-
-    if (
-      !newBranch.code.trim() ||
-      !newBranch.name.trim() ||
-      !newBranch.city.trim() ||
-      !newBranch.address.trim() ||
-      !newBranch.phone.trim() ||
-      !newBranch.email.trim()
-    ) {
-      setBranchError("All fields except daily limit are required.");
-      return;
-    }
-
-    setBranchSaving(true);
-
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`${API_URL}/branches`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ...newBranch,
-          dailyTransactionLimit: parseFloat(newBranch.dailyTransactionLimit) || 1000000,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        setBranchError(result.message || "Failed to create branch.");
-        return;
-      }
-
-      setBranchMessage(`✅ Branch "${result.data.name}" created successfully.`);
-      setNewBranch({
-        code: "",
-        name: "",
-        city: "",
-        address: "",
-        phone: "",
-        email: "",
-        dailyTransactionLimit: "1000000",
-      });
-      setShowBranchForm(false);
-
-      await loadBranches();
-    } catch (err) {
-      console.error("Error creating branch:", err);
-      setBranchError("Cannot reach the backend. Make sure it is running on port 5000.");
-    } finally {
-      setBranchSaving(false);
     }
   }
 
@@ -437,6 +370,110 @@ export default function HRPage() {
       );
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleCreateBranchIT(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    setItMessage("");
+    setItError("");
+
+    if (!itUsername?.trim()) {
+      setItError("Username is required.");
+      return;
+    }
+
+    if (!itFullName?.trim()) {
+      setItError("Full Name is required.");
+      return;
+    }
+
+    if (!itEmail?.trim()) {
+      setItError("Email is required.");
+      return;
+    }
+
+    if (!itBranchId?.trim()) {
+      setItError("Branch is required.");
+      return;
+    }
+
+    if (!itPasscode?.trim()) {
+      setItError("Temporary Passcode is required.");
+      return;
+    }
+
+    if (itPasscode.length < 6) {
+      setItError("Passcode must be at least 6 characters.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(itEmail)) {
+      setItError("Please enter a valid email address.");
+      return;
+    }
+
+    setItSaving(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setItError("Authentication token missing. Please log in again.");
+        setItSaving(false);
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/staff/branch-it`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          username: itUsername.trim(),
+          fullName: itFullName.trim(),
+          email: itEmail.trim(),
+          branchId: itBranchId.trim(),
+          passcode: itPasscode.trim(),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.status === 403 && result.message?.includes("Invalid or expired token")) {
+        setItError("Your session has expired. Please log in again.");
+        localStorage.removeItem("token");
+        return;
+      }
+
+      if (!response.ok) {
+        setItError(result.message || "Failed to create Branch IT user. Please try again.");
+        return;
+      }
+
+      setItMessage(
+        result.message || "✅ Branch IT user created successfully."
+      );
+
+      setItUsername("");
+      setItFullName("");
+      setItEmail("");
+      setItBranchId("");
+      setItPasscode("");
+
+      await loadEmployees();
+    } catch (err) {
+      console.error("Error creating Branch IT user:", err);
+      setItError(
+        "Cannot connect to the backend. Make sure the backend is running on port 5000."
+      );
+    } finally {
+      setItSaving(false);
     }
   }
 
@@ -647,6 +684,34 @@ export default function HRPage() {
               </button>
 
               <button
+                onClick={() => setEmployeeSubsection("create-branch-it")}
+                style={{
+                  width: "100%",
+                  padding: "12px 16px 12px 32px",
+                  textAlign: "left",
+                  border: "none",
+                  backgroundColor:
+                    employeeSubsection === "create-branch-it"
+                      ? SECTION_COLORS.employees.light.replace("d1fae5", "a8e6c1").substring(0, 7) + "40"
+                      : "transparent",
+                  color:
+                    employeeSubsection === "create-branch-it"
+                      ? SECTION_COLORS.employees.primary
+                      : "#C9C2AE",
+                  fontSize: "14px",
+                  fontWeight: employeeSubsection === "create-branch-it" ? "600" : "500",
+                  cursor: "pointer",
+                  borderLeft:
+                    employeeSubsection === "create-branch-it"
+                      ? `3px solid ${SECTION_COLORS.employees.primary}`
+                      : "none",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                ➕ Create Branch IT
+              </button>
+
+              <button
                 onClick={() => setEmployeeSubsection("accountant-requests")}
                 style={{
                   width: "100%",
@@ -732,34 +797,6 @@ export default function HRPage() {
             ⏳ Approval Queue
           </button>
 
-          {/* Branches Button */}
-          <button
-            onClick={() => setActiveSection("branches")}
-            style={{
-              width: "100%",
-              padding: "14px 16px",
-              marginBottom: "10px",
-              textAlign: "left",
-              border: "none",
-              borderRadius: "10px",
-              cursor: "pointer",
-              backgroundColor:
-                activeSection === "branches"
-                  ? SECTION_COLORS.branches.primary
-                  : "transparent",
-              color: "white",
-              fontSize: "15px",
-              fontWeight: activeSection === "branches" ? "600" : "500",
-              transition: "all 0.3s ease",
-              borderLeft:
-                activeSection === "branches"
-                  ? `4px solid ${SECTION_COLORS.branches.border}`
-                  : "4px solid transparent",
-            }}
-          >
-            🏢 Branches
-          </button>
-
           {/* Reports Button */}
           <button
             onClick={() => setActiveSection("reports")}
@@ -819,9 +856,9 @@ export default function HRPage() {
                 {activeSection === "dashboard" && "📊 Dashboard"}
                 {activeSection === "employees" && employeeSubsection === "employee-info" && "👤 Employee Information"}
                 {activeSection === "employees" && employeeSubsection === "create-accountant" && "➕ Create Accountant"}
+                {activeSection === "employees" && employeeSubsection === "create-branch-it" && "➕ Create Branch IT"}
                 {activeSection === "employees" && employeeSubsection === "accountant-requests" && "📋 Accountant Requests"}
                 {activeSection === "approvals" && "⏳ Approval Queue"}
-                {activeSection === "branches" && "🏢 Branch Management"}
                 {activeSection === "reports" && "📈 Reports"}
               </h1>
 
@@ -835,10 +872,10 @@ export default function HRPage() {
                 {activeSection === "dashboard" && "Overview of HR metrics and statistics"}
                 {activeSection === "employees" && employeeSubsection === "employee-info" && "View all registered accountants and their details"}
                 {activeSection === "employees" && employeeSubsection === "create-accountant" && "Create new Accountant account requests"}
+                {activeSection === "employees" && employeeSubsection === "create-branch-it" && "Provision a new Branch IT user for a selected branch"}
                 {activeSection === "employees" && employeeSubsection === "accountant-requests" && "Track pending and approved Accountant requests"}
                 {activeSection === "approvals" && "Review and manage pending approvals"}
                 {activeSection === "attendance" && "Mark and review daily employee attendance"}
-                {activeSection === "branches" && "View the branch directory and provision new branches"}
                 {activeSection === "reports" && "View and generate HR reports"}
               </p>
             </div>
@@ -1584,6 +1621,254 @@ export default function HRPage() {
                 </div>
               )}
 
+              {/* Create Branch IT View */}
+              {employeeSubsection === "create-branch-it" && (
+                <div
+                  style={{
+                    backgroundColor: "white",
+                    borderRadius: "14px",
+                    padding: "32px",
+                    maxWidth: "900px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                  }}
+                >
+                  <h3
+                    style={{
+                      marginTop: 0,
+                      color: "#0f172a",
+                      fontSize: "18px",
+                    }}
+                  >
+                    Create New Branch IT User
+                  </h3>
+
+                  <p
+                    style={{
+                      color: "#C9C2AE",
+                      marginTop: "8px",
+                    }}
+                  >
+                    Fill in the form below to provision a Branch IT user for a
+                    branch. The account will be created immediately.
+                  </p>
+
+                  {itMessage && (
+                    <div
+                      style={{
+                        backgroundColor:
+                          SECTION_COLORS.employees.light,
+                        color: SECTION_COLORS.employees.primary,
+                        padding: "16px",
+                        borderRadius: "10px",
+                        marginBottom: "20px",
+                        borderLeft: `4px solid ${SECTION_COLORS.employees.primary}`,
+                      }}
+                    >
+                      ✅ {itMessage}
+                    </div>
+                  )}
+
+                  {itError && (
+                    <div
+                      style={{
+                        backgroundColor: "rgba(168,69,46,0.15)",
+                        color: "#A8452E",
+                        padding: "16px",
+                        borderRadius: "10px",
+                        marginBottom: "20px",
+                        borderLeft: "4px solid #dc2626",
+                      }}
+                    >
+                      ❌ {itError}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleCreateBranchIT}>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "repeat(auto-fit, minmax(280px, 1fr))",
+                        gap: "20px",
+                      }}
+                    >
+                      <div>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "8px",
+                            fontWeight: "600",
+                            color: "#0f172a",
+                          }}
+                        >
+                          Username *
+                        </label>
+
+                        <input
+                          type="text"
+                          value={itUsername}
+                          onChange={(e) => setItUsername(e.target.value)}
+                          placeholder="Enter username"
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            border: "1.5px solid #e2e8f0",
+                            borderRadius: "8px",
+                            boxSizing: "border-box",
+                            fontSize: "14px",
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "8px",
+                            fontWeight: "600",
+                            color: "#0f172a",
+                          }}
+                        >
+                          Full Name *
+                        </label>
+
+                        <input
+                          type="text"
+                          value={itFullName}
+                          onChange={(e) => setItFullName(e.target.value)}
+                          placeholder="Employee full name"
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            border: "1.5px solid #e2e8f0",
+                            borderRadius: "8px",
+                            boxSizing: "border-box",
+                            fontSize: "14px",
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "8px",
+                            fontWeight: "600",
+                            color: "#0f172a",
+                          }}
+                        >
+                          Email *
+                        </label>
+
+                        <input
+                          type="email"
+                          value={itEmail}
+                          onChange={(e) => setItEmail(e.target.value)}
+                          placeholder="employee@email.com"
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            border: "1.5px solid #e2e8f0",
+                            borderRadius: "8px",
+                            boxSizing: "border-box",
+                            fontSize: "14px",
+                          }}
+                        />
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "8px",
+                            fontWeight: "600",
+                            color: "#0f172a",
+                          }}
+                        >
+                          Branch *
+                        </label>
+
+                        <select
+                          value={itBranchId}
+                          onChange={(e) => setItBranchId(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            border: "1.5px solid #e2e8f0",
+                            borderRadius: "8px",
+                            boxSizing: "border-box",
+                            fontSize: "14px",
+                            backgroundColor: "#ffffff",
+                          }}
+                        >
+                          <option value="">Select a branch</option>
+
+                          {branches.length === 0 && (
+                            <option value="" disabled>
+                              No branches loaded — refresh the page
+                            </option>
+                          )}
+
+                          {branches.map((b) => (
+                            <option key={b.id} value={b.id}>
+                              {b.code} — {b.name} ({b.city})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "8px",
+                            fontWeight: "600",
+                            color: "#0f172a",
+                          }}
+                        >
+                          Temporary Passcode *
+                        </label>
+
+                        <input
+                          type="password"
+                          value={itPasscode}
+                          onChange={(e) => setItPasscode(e.target.value)}
+                          placeholder="Minimum 6 characters"
+                          style={{
+                            width: "100%",
+                            padding: "12px",
+                            border: "1.5px solid #e2e8f0",
+                            borderRadius: "8px",
+                            boxSizing: "border-box",
+                            fontSize: "14px",
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={itSaving}
+                      style={{
+                        marginTop: "28px",
+                        padding: "14px 32px",
+                        border: "none",
+                        borderRadius: "8px",
+                        backgroundColor: itSaving
+                          ? "#C9C2AE"
+                          : SECTION_COLORS.employees.primary,
+                        color: "white",
+                        cursor: itSaving ? "not-allowed" : "pointer",
+                        fontSize: "15px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {itSaving ? "Creating..." : "✓ Create Branch IT User"}
+                    </button>
+                  </form>
+                </div>
+              )}
+
               {/* Accountant Requests View */}
               {employeeSubsection === "accountant-requests" && (
                 <div
@@ -1942,241 +2227,6 @@ export default function HRPage() {
             </div>
           )}
 
-          {/* BRANCHES SECTION */}
-          {activeSection === "branches" && (
-            <div
-              style={{
-                backgroundColor: "white",
-                borderRadius: "14px",
-                padding: "32px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "24px",
-                }}
-              >
-                <h3 style={{ margin: 0, color: "#0f172a", fontSize: "20px" }}>
-                  🏢 Branch Directory ({branches.length})
-                </h3>
-
-                <button
-                  onClick={() => setShowBranchForm(!showBranchForm)}
-                  style={{
-                    padding: "10px 18px",
-                    backgroundColor: SECTION_COLORS.branches.primary,
-                    color: "white",
-                    border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "600",
-                  }}
-                >
-                  {showBranchForm ? "✕ Close Form" : "➕ Create Branch"}
-                </button>
-              </div>
-
-              {branchMessage && (
-                <div
-                  style={{
-                    padding: "12px 16px",
-                    marginBottom: "16px",
-                    backgroundColor: "#d1fae5",
-                    color: "#065f46",
-                    borderRadius: "8px",
-                    fontSize: "14px",
-                  }}
-                >
-                  {branchMessage}
-                </div>
-              )}
-
-              {branchError && (
-                <div
-                  style={{
-                    padding: "12px 16px",
-                    marginBottom: "16px",
-                    backgroundColor: "#fee2e2",
-                    color: "#991b1b",
-                    borderRadius: "8px",
-                    fontSize: "14px",
-                  }}
-                >
-                  {branchError}
-                </div>
-              )}
-
-              {showBranchForm && (
-                <div
-                  style={{
-                    border: `2px solid ${SECTION_COLORS.branches.light}`,
-                    borderRadius: "12px",
-                    padding: "24px",
-                    marginBottom: "24px",
-                    backgroundColor: "#fafafa",
-                  }}
-                >
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                    <div>
-                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
-                        Branch Code *
-                      </label>
-                      <input
-                        type="text"
-                        value={newBranch.code}
-                        onChange={(e) => setNewBranch({ ...newBranch, code: e.target.value })}
-                        placeholder="e.g. BR-006"
-                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
-                        Branch Name *
-                      </label>
-                      <input
-                        type="text"
-                        value={newBranch.name}
-                        onChange={(e) => setNewBranch({ ...newBranch, name: e.target.value })}
-                        placeholder="e.g. Addis Ababa Bole Branch"
-                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
-                        City *
-                      </label>
-                      <input
-                        type="text"
-                        value={newBranch.city}
-                        onChange={(e) => setNewBranch({ ...newBranch, city: e.target.value })}
-                        placeholder="e.g. Addis Ababa"
-                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
-                        Phone *
-                      </label>
-                      <input
-                        type="text"
-                        value={newBranch.phone}
-                        onChange={(e) => setNewBranch({ ...newBranch, phone: e.target.value })}
-                        placeholder="+251..."
-                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        value={newBranch.email}
-                        onChange={(e) => setNewBranch({ ...newBranch, email: e.target.value })}
-                        placeholder="branch@bank.com"
-                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
-                        Daily Transaction Limit (ETB)
-                      </label>
-                      <input
-                        type="number"
-                        value={newBranch.dailyTransactionLimit}
-                        onChange={(e) => setNewBranch({ ...newBranch, dailyTransactionLimit: e.target.value })}
-                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
-                      />
-                    </div>
-
-                    <div style={{ gridColumn: "1 / -1" }}>
-                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
-                        Address *
-                      </label>
-                      <input
-                        type="text"
-                        value={newBranch.address}
-                        onChange={(e) => setNewBranch({ ...newBranch, address: e.target.value })}
-                        placeholder="Street, landmark"
-                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={createBranch}
-                    disabled={branchSaving}
-                    style={{
-                      marginTop: "20px",
-                      padding: "12px 28px",
-                      backgroundColor: SECTION_COLORS.branches.primary,
-                      color: "white",
-                      border: "none",
-                      borderRadius: "8px",
-                      cursor: branchSaving ? "not-allowed" : "pointer",
-                      fontSize: "14px",
-                      fontWeight: "600",
-                      opacity: branchSaving ? 0.6 : 1,
-                    }}
-                  >
-                    {branchSaving ? "Saving…" : "Save Branch"}
-                  </button>
-                </div>
-              )}
-
-              {branches.length === 0 ? (
-                <p style={{ textAlign: "center", color: "#C9C2AE", padding: "32px 0" }}>
-                  No branches loaded yet.
-                </p>
-              ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "2px solid #e2e8f0", textAlign: "left" }}>
-                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Code</th>
-                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Name</th>
-                      <th style={{ padding: "12px 8px", color: "#64748b" }}>City</th>
-                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Phone</th>
-                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {branches.map((b) => (
-                      <tr key={b.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <td style={{ padding: "12px 8px", fontWeight: "600", color: SECTION_COLORS.branches.primary }}>{b.code}</td>
-                        <td style={{ padding: "12px 8px", color: "#0f172a" }}>{b.name}</td>
-                        <td style={{ padding: "12px 8px", color: "#475569" }}>{b.city}</td>
-                        <td style={{ padding: "12px 8px", color: "#475569" }}>{(b as any).phone || "-"}</td>
-                        <td style={{ padding: "12px 8px" }}>
-                          <span
-                            style={{
-                              padding: "4px 10px",
-                              borderRadius: "999px",
-                              backgroundColor: "#d1fae5",
-                              color: "#065f46",
-                              fontSize: "12px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            ACTIVE
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
 
           {/* ATTENDANCE SECTION */}
           {activeSection === "attendance" && (

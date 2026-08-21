@@ -6,6 +6,7 @@ export type UserRole =
   | "BANK_MANAGER"
   | "HR"
   | "BRANCH_IT"
+  | "IT_SUPPORT"
   | "ACCOUNTANT";
 
 export type StaffStatus =

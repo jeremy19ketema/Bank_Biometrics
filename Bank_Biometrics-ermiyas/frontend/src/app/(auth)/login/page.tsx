@@ -352,8 +352,9 @@ export default function LoginPage() {
           SUPER_ADMIN_FOREX: "/forex",
           BANK_MANAGER: "/manager",
           BRANCH_IT: "/it",
+          IT_SUPPORT: "/it",
           ACCOUNTANT: "/accountant",
-          HR: "/hr-test",
+          HR: "/hr",
         };
 
         const redirectPath =

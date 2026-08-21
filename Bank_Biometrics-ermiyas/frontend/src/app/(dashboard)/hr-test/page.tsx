@@ -24,12 +24,29 @@ type Employee = {
   status: string;
 };
 
+type BranchOption = {
+  id: string;
+  code: string;
+  name: string;
+  city: string;
+};
+
 const SECTION_COLORS = {
   dashboard: { primary: "#2563eb", light: "#dbeafe", border: "#93c5fd" },
   employees: { primary: "#10b981", light: "#d1fae5", border: "#6ee7b7" },
   approvals: { primary: "#f59e0b", light: "rgba(198,154,76,0.15)", border: "#fcd34d" },
   branches: { primary: "#8b5cf6", light: "#ede9fe", border: "#ddd6fe" },
   reports: { primary: "#ec4899", light: "#fce7f3", border: "#fbcfe8" },
+  attendance: { primary: "#0ea5e9", light: "#e0f2fe", border: "#7dd3fc" },
+};
+
+const ATTENDANCE_STATUSES = ["PRESENT", "LATE", "ON_LEAVE", "ABSENT"] as const;
+
+const STATUS_BUTTON_STYLES: Record<string, { bg: string; hover: string }> = {
+  PRESENT: { bg: "#10b981", hover: "#059669" },
+  LATE: { bg: "#f59e0b", hover: "#d97706" },
+  ON_LEAVE: { bg: "#8b5cf6", hover: "#7c3aed" },
+  ABSENT: { bg: "#ef4444", hover: "#dc2626" },
 };
 
 export default function HRPage() {
@@ -44,17 +61,193 @@ export default function HRPage() {
 
   const [requests, setRequests] = useState<AccountantRequest[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [branches, setBranches] = useState<BranchOption[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const [attendanceDate, setAttendanceDate] = useState(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [attendanceRecords, setAttendanceRecords] = useState<any[]>([]);
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
+  const [markingId, setMarkingId] = useState<string | null>(null);
+
+  const [showBranchForm, setShowBranchForm] = useState(false);
+  const [newBranch, setNewBranch] = useState({
+    code: "",
+    name: "",
+    city: "",
+    address: "",
+    phone: "",
+    email: "",
+    dailyTransactionLimit: "1000000",
+  });
+  const [branchSaving, setBranchSaving] = useState(false);
+  const [branchMessage, setBranchMessage] = useState("");
+  const [branchError, setBranchError] = useState("");
 
   const API_URL = "http://localhost:5000/api";
 
   useEffect(() => {
     loadApprovalRequests();
     loadEmployees();
+    loadBranches();
   }, []);
+
+  useEffect(() => {
+    if (activeSection === "attendance") {
+      loadAttendance();
+    }
+  }, [activeSection, attendanceDate]);
+
+  async function loadBranches() {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch("/api/branches", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (result.success && Array.isArray(result.data)) {
+        setBranches(result.data);
+      } else {
+        console.error(
+          "Failed to load branches:",
+          result.message || response.status
+        );
+      }
+    } catch (err) {
+      console.error("Failed to load branches:", err);
+    }
+  }
+
+  async function loadAttendance() {
+    setAttendanceLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `${API_URL}/attendance?date=${attendanceDate}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success && Array.isArray(result.data)) {
+        setAttendanceRecords(result.data);
+      }
+    } catch (err) {
+      console.error("Failed to load attendance:", err);
+    } finally {
+      setAttendanceLoading(false);
+    }
+  }
+
+  async function markAttendance(employeeId: string, status: string) {
+    setMarkingId(employeeId);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${API_URL}/attendance/mark`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          employeeId,
+          date: attendanceDate,
+          status,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        setError(result.message || "Failed to mark attendance.");
+      }
+
+      await loadAttendance();
+    } catch (err) {
+      console.error("Error marking attendance:", err);
+      setError("Cannot reach the attendance service.");
+    } finally {
+      setMarkingId(null);
+    }
+  }
+
+  async function createBranch() {
+    setBranchMessage("");
+    setBranchError("");
+
+    if (
+      !newBranch.code.trim() ||
+      !newBranch.name.trim() ||
+      !newBranch.city.trim() ||
+      !newBranch.address.trim() ||
+      !newBranch.phone.trim() ||
+      !newBranch.email.trim()
+    ) {
+      setBranchError("All fields except daily limit are required.");
+      return;
+    }
+
+    setBranchSaving(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${API_URL}/branches`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...newBranch,
+          dailyTransactionLimit: parseFloat(newBranch.dailyTransactionLimit) || 1000000,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        setBranchError(result.message || "Failed to create branch.");
+        return;
+      }
+
+      setBranchMessage(`✅ Branch "${result.data.name}" created successfully.`);
+      setNewBranch({
+        code: "",
+        name: "",
+        city: "",
+        address: "",
+        phone: "",
+        email: "",
+        dailyTransactionLimit: "1000000",
+      });
+      setShowBranchForm(false);
+
+      await loadBranches();
+    } catch (err) {
+      console.error("Error creating branch:", err);
+      setBranchError("Cannot reach the backend. Make sure it is running on port 5000.");
+    } finally {
+      setBranchSaving(false);
+    }
+  }
 
   async function loadApprovalRequests() {
     try {
@@ -483,6 +676,34 @@ export default function HRPage() {
             </div>
           )}
 
+          {/* Attendance Button */}
+          <button
+            onClick={() => setActiveSection("attendance")}
+            style={{
+              width: "100%",
+              padding: "14px 16px",
+              marginBottom: "10px",
+              textAlign: "left",
+              border: "none",
+              borderRadius: "10px",
+              cursor: "pointer",
+              backgroundColor:
+                activeSection === "attendance"
+                  ? SECTION_COLORS.attendance.primary
+                  : "transparent",
+              color: "white",
+              fontSize: "15px",
+              fontWeight: activeSection === "attendance" ? "600" : "500",
+              transition: "all 0.3s ease",
+              borderLeft:
+                activeSection === "attendance"
+                  ? `4px solid ${SECTION_COLORS.attendance.border}`
+                  : "4px solid transparent",
+            }}
+          >
+            🕒 Attendance
+          </button>
+
           {/* Approval Queue Button */}
           <button
             onClick={() => setActiveSection("approvals")}
@@ -616,7 +837,8 @@ export default function HRPage() {
                 {activeSection === "employees" && employeeSubsection === "create-accountant" && "Create new Accountant account requests"}
                 {activeSection === "employees" && employeeSubsection === "accountant-requests" && "Track pending and approved Accountant requests"}
                 {activeSection === "approvals" && "Review and manage pending approvals"}
-                {activeSection === "branches" && "Manage branch information"}
+                {activeSection === "attendance" && "Mark and review daily employee attendance"}
+                {activeSection === "branches" && "View the branch directory and provision new branches"}
                 {activeSection === "reports" && "View and generate HR reports"}
               </p>
             </div>
@@ -1231,18 +1453,16 @@ export default function HRPage() {
                             color: "#0f172a",
                           }}
                         >
-                          Branch ID *
+                          Branch *
                         </label>
 
-                        <input
-                          type="text"
+                        <select
                           value={branchId}
                           onChange={(e) =>
                             setBranchId(
                               e.target.value
                             )
                           }
-                          placeholder="Enter branch ID"
                           style={{
                             width: "100%",
                             padding: "12px",
@@ -1253,6 +1473,7 @@ export default function HRPage() {
                             fontSize: "14px",
                             transition:
                               "border-color 0.3s",
+                            backgroundColor: "#ffffff",
                           }}
                           onFocus={(e) => {
                             e.currentTarget.style.borderColor =
@@ -1264,7 +1485,26 @@ export default function HRPage() {
                             e.currentTarget.style.borderColor =
                               "#e2e8f0";
                           }}
-                        />
+                        >
+                          <option value="">
+                            Select a branch
+                          </option>
+
+                          {branches.length === 0 && (
+                            <option value="" disabled>
+                              No branches loaded — refresh the page
+                            </option>
+                          )}
+
+                          {branches.map((b) => (
+                            <option
+                              key={b.id}
+                              value={b.id}
+                            >
+                              {b.code} — {b.name} ({b.city})
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div>
@@ -1714,21 +1954,385 @@ export default function HRPage() {
             >
               <div
                 style={{
-                  textAlign: "center",
-                  padding: "60px 20px",
-                  color: "#C9C2AE",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "24px",
                 }}
               >
-                <p style={{ fontSize: "48px", margin: "0 0 16px 0" }}>
-                  🏢
-                </p>
-                <p style={{ fontSize: "16px" }}>
-                  Branch management features coming soon.
-                </p>
-                <p style={{ fontSize: "14px", color: "#C9C2AE" }}>
-                  You'll be able to view, create, and manage branches here.
-                </p>
+                <h3 style={{ margin: 0, color: "#0f172a", fontSize: "20px" }}>
+                  🏢 Branch Directory ({branches.length})
+                </h3>
+
+                <button
+                  onClick={() => setShowBranchForm(!showBranchForm)}
+                  style={{
+                    padding: "10px 18px",
+                    backgroundColor: SECTION_COLORS.branches.primary,
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                  }}
+                >
+                  {showBranchForm ? "✕ Close Form" : "➕ Create Branch"}
+                </button>
               </div>
+
+              {branchMessage && (
+                <div
+                  style={{
+                    padding: "12px 16px",
+                    marginBottom: "16px",
+                    backgroundColor: "#d1fae5",
+                    color: "#065f46",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                  }}
+                >
+                  {branchMessage}
+                </div>
+              )}
+
+              {branchError && (
+                <div
+                  style={{
+                    padding: "12px 16px",
+                    marginBottom: "16px",
+                    backgroundColor: "#fee2e2",
+                    color: "#991b1b",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                  }}
+                >
+                  {branchError}
+                </div>
+              )}
+
+              {showBranchForm && (
+                <div
+                  style={{
+                    border: `2px solid ${SECTION_COLORS.branches.light}`,
+                    borderRadius: "12px",
+                    padding: "24px",
+                    marginBottom: "24px",
+                    backgroundColor: "#fafafa",
+                  }}
+                >
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                    <div>
+                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
+                        Branch Code *
+                      </label>
+                      <input
+                        type="text"
+                        value={newBranch.code}
+                        onChange={(e) => setNewBranch({ ...newBranch, code: e.target.value })}
+                        placeholder="e.g. BR-006"
+                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
+                        Branch Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={newBranch.name}
+                        onChange={(e) => setNewBranch({ ...newBranch, name: e.target.value })}
+                        placeholder="e.g. Addis Ababa Bole Branch"
+                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
+                        City *
+                      </label>
+                      <input
+                        type="text"
+                        value={newBranch.city}
+                        onChange={(e) => setNewBranch({ ...newBranch, city: e.target.value })}
+                        placeholder="e.g. Addis Ababa"
+                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
+                        Phone *
+                      </label>
+                      <input
+                        type="text"
+                        value={newBranch.phone}
+                        onChange={(e) => setNewBranch({ ...newBranch, phone: e.target.value })}
+                        placeholder="+251..."
+                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        value={newBranch.email}
+                        onChange={(e) => setNewBranch({ ...newBranch, email: e.target.value })}
+                        placeholder="branch@bank.com"
+                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
+                        Daily Transaction Limit (ETB)
+                      </label>
+                      <input
+                        type="number"
+                        value={newBranch.dailyTransactionLimit}
+                        onChange={(e) => setNewBranch({ ...newBranch, dailyTransactionLimit: e.target.value })}
+                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
+                      />
+                    </div>
+
+                    <div style={{ gridColumn: "1 / -1" }}>
+                      <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", color: "#0f172a", fontSize: "13px" }}>
+                        Address *
+                      </label>
+                      <input
+                        type="text"
+                        value={newBranch.address}
+                        onChange={(e) => setNewBranch({ ...newBranch, address: e.target.value })}
+                        placeholder="Street, landmark"
+                        style={{ width: "100%", padding: "10px", border: "1.5px solid #e2e8f0", borderRadius: "8px", boxSizing: "border-box", fontSize: "14px" }}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={createBranch}
+                    disabled={branchSaving}
+                    style={{
+                      marginTop: "20px",
+                      padding: "12px 28px",
+                      backgroundColor: SECTION_COLORS.branches.primary,
+                      color: "white",
+                      border: "none",
+                      borderRadius: "8px",
+                      cursor: branchSaving ? "not-allowed" : "pointer",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      opacity: branchSaving ? 0.6 : 1,
+                    }}
+                  >
+                    {branchSaving ? "Saving…" : "Save Branch"}
+                  </button>
+                </div>
+              )}
+
+              {branches.length === 0 ? (
+                <p style={{ textAlign: "center", color: "#C9C2AE", padding: "32px 0" }}>
+                  No branches loaded yet.
+                </p>
+              ) : (
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid #e2e8f0", textAlign: "left" }}>
+                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Code</th>
+                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Name</th>
+                      <th style={{ padding: "12px 8px", color: "#64748b" }}>City</th>
+                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Phone</th>
+                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {branches.map((b) => (
+                      <tr key={b.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "12px 8px", fontWeight: "600", color: SECTION_COLORS.branches.primary }}>{b.code}</td>
+                        <td style={{ padding: "12px 8px", color: "#0f172a" }}>{b.name}</td>
+                        <td style={{ padding: "12px 8px", color: "#475569" }}>{b.city}</td>
+                        <td style={{ padding: "12px 8px", color: "#475569" }}>{(b as any).phone || "-"}</td>
+                        <td style={{ padding: "12px 8px" }}>
+                          <span
+                            style={{
+                              padding: "4px 10px",
+                              borderRadius: "999px",
+                              backgroundColor: "#d1fae5",
+                              color: "#065f46",
+                              fontSize: "12px",
+                              fontWeight: "600",
+                            }}
+                          >
+                            ACTIVE
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+
+          {/* ATTENDANCE SECTION */}
+          {activeSection === "attendance" && (
+            <div
+              style={{
+                backgroundColor: "white",
+                borderRadius: "14px",
+                padding: "32px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "16px",
+                  marginBottom: "24px",
+                }}
+              >
+                <h3 style={{ margin: 0, color: "#0f172a", fontSize: "20px" }}>
+                  🕒 Daily Attendance
+                </h3>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <label style={{ fontWeight: "600", color: "#0f172a", fontSize: "14px" }}>
+                    Date:
+                  </label>
+
+                  <input
+                    type="date"
+                    value={attendanceDate}
+                    onChange={(e) => setAttendanceDate(e.target.value)}
+                    style={{
+                      padding: "10px 12px",
+                      border: "1.5px solid #e2e8f0",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <div
+                  style={{
+                    padding: "12px 16px",
+                    marginBottom: "16px",
+                    backgroundColor: "#fee2e2",
+                    color: "#991b1b",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                  }}
+                >
+                  {error}
+                </div>
+              )}
+
+              {attendanceLoading ? (
+                <p style={{ textAlign: "center", color: "#C9C2AE", padding: "32px 0" }}>
+                  Loading attendance…
+                </p>
+              ) : employees.length === 0 ? (
+                <p style={{ textAlign: "center", color: "#C9C2AE", padding: "32px 0" }}>
+                  No employees found to track.
+                </p>
+              ) : (
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid #e2e8f0", textAlign: "left" }}>
+                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Employee</th>
+                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Role</th>
+                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Marked Status</th>
+                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Mark Attendance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {employees.map((emp) => {
+                      const record = attendanceRecords.find(
+                        (r) => r.employee?.id === emp.id || r.employeeId === emp.id
+                      );
+
+                      return (
+                        <tr key={emp.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                          <td style={{ padding: "12px 8px" }}>
+                            <div style={{ fontWeight: "600", color: "#0f172a" }}>{emp.fullName}</div>
+                            <div style={{ fontSize: "12px", color: "#94a3b8" }}>@{emp.username}</div>
+                          </td>
+
+                          <td style={{ padding: "12px 8px", color: "#475569" }}>{emp.role}</td>
+
+                          <td style={{ padding: "12px 8px" }}>
+                            {record ? (
+                              <span
+                                style={{
+                                  padding: "4px 10px",
+                                  borderRadius: "999px",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  backgroundColor:
+                                    record.status === "PRESENT"
+                                      ? "#d1fae5"
+                                      : record.status === "LATE"
+                                      ? "#fef3c7"
+                                      : record.status === "ON_LEAVE"
+                                      ? "#ede9fe"
+                                      : "#fee2e2",
+                                  color:
+                                    record.status === "PRESENT"
+                                      ? "#065f46"
+                                      : record.status === "LATE"
+                                      ? "#92400e"
+                                      : record.status === "ON_LEAVE"
+                                      ? "#5b21b6"
+                                      : "#991b1b",
+                                }}
+                              >
+                                {record.status.replace("_", " ")}
+                              </span>
+                            ) : (
+                              <span style={{ color: "#C9C2AE", fontSize: "13px" }}>Not marked</span>
+                            )}
+                          </td>
+
+                          <td style={{ padding: "12px 8px" }}>
+                            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                              {ATTENDANCE_STATUSES.map((st) => (
+                                <button
+                                  key={st}
+                                  onClick={() => markAttendance(emp.id, st)}
+                                  disabled={markingId === emp.id}
+                                  style={{
+                                    padding: "6px 12px",
+                                    border: "none",
+                                    borderRadius: "6px",
+                                    cursor: markingId === emp.id ? "wait" : "pointer",
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    color: "white",
+                                    backgroundColor: STATUS_BUTTON_STYLES[st].bg,
+                                    opacity: markingId === emp.id ? 0.5 : record?.status === st ? 1 : 0.55,
+                                    outline: record?.status === st ? `2px solid ${STATUS_BUTTON_STYLES[st].hover}` : "none",
+                                  }}
+                                >
+                                  {st.replace("_", " ")}
+                                </button>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
 

@@ -74,6 +74,13 @@ enum AuditStatus {
   FAILURE
 }
 
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  ON_LEAVE
+}
+
 model User {
   id           String      @id @default(uuid())
   username     String      @unique
@@ -98,6 +105,8 @@ model User {
   biometricScans        BiometricScanResult[]
   approvalRequests      ApprovalRequest[] @relation("ApprovalRequester")
   approvalActions       ApprovalRequest[] @relation("ApprovalActor")
+  attendanceRecords     Attendance[]
+  markedAttendance      Attendance[]      @relation("AttendanceMarker")
 }
 
 model Branch {
@@ -197,4 +206,21 @@ model ApprovalRequest {
   rejectionReason String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
+}
+
+model Attendance {
+  id         String           @id @default(uuid())
+  employeeId String
+  employee   User             @relation(fields: [employeeId], references: [id])
+  date       DateTime         @db.Date
+  status     AttendanceStatus @default(PRESENT)
+  checkInAt  DateTime?
+  checkOutAt DateTime?
+  notes      String?
+  markedById String?
+  markedBy   User?            @relation("AttendanceMarker", fields: [markedById], references: [id])
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([employeeId, date])
 }

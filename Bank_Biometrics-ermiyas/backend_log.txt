@@ -10,3 +10,141 @@
 [2026-08-21 02:06:37:637] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
 [2026-08-21 02:06:38:638] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
 [2026-08-21 02:06:38:638] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:27:10:2710] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:30:21:3021] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:31:13:3113] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:33:45:3345] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:36:20:3620] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:36:49:3649] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 02:36:49:3649] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 02:36:50:3650] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 02:36:50:3650] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 02:37:42:3742] [[32minfo[39m]: [32mPOST /api/staff/hr-accountant - IP: ::1[39m
+[2026-08-21 02:41:17:4117] [[32minfo[39m]: [32mPOST /api/staff/hr-accountant - IP: ::1[39m
+[2026-08-21 02:51:59:5159] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 02:51:59:5159] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 02:53:17:5317] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:53:19:5319] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 02:53:19:5319] [[32minfo[39m]: [32mPOST /api/staff/hr-accountant - IP: ::1[39m
+[2026-08-21 02:57:20:5720] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:57:22:5722] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 02:59:43:5943] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 02:59:50:5950] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:03:10:310] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:04:17:417] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:04:19:419] [[32minfo[39m]: [32mPOST /api/branches - IP: ::1[39m
+[2026-08-21 03:05:08:58] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:05:16:516] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:05:16:516] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:05:16:516] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:05:16:516] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:05:16:516] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:05:17:517] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:05:49:549] [[32minfo[39m]: [32mPOST /api/staff/hr-accountant - IP: ::1[39m
+[2026-08-21 03:05:49:549] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:05:49:549] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:09:17:917] [[32minfo[39m]: [32mPOST /api/staff/hr-accountant - IP: ::1[39m
+[2026-08-21 03:09:17:917] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:09:17:917] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:10:54:1054] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:12:58:1258] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:13:05:135] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:13:06:136] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:13:06:136] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:13:06:136] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:13:06:136] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:13:06:136] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+3:22:27 AM [tsx] change in ./src\routes\branchRoutes.ts Restarting...
+[2026-08-21 03:22:33:2233] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:22:33:2233] [[32minfo[39m]: [32mAegis Biometric Banking Backend initialized on port 5000[39m
+[2026-08-21 03:22:33:2233] [[32minfo[39m]: [32mEnvironment: development[39m
+[2026-08-21 03:22:33:2233] [[32minfo[39m]: [32m===================================================[39m
+3:22:40 AM [tsx] change in ./src\routes\index.ts Restarting...
+[2026-08-21 03:22:44:2244] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:22:44:2244] [[32minfo[39m]: [32mAegis Biometric Banking Backend initialized on port 5000[39m
+[2026-08-21 03:22:44:2244] [[32minfo[39m]: [32mEnvironment: development[39m
+[2026-08-21 03:22:44:2244] [[32minfo[39m]: [32m===================================================[39m
+3:23:50 AM [tsx] unlink in ./..\node_modules\.prisma\client\index.js Restarting...
+[2026-08-21 03:23:54:2354] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:23:54:2354] [[32minfo[39m]: [32mAegis Biometric Banking Backend initialized on port 5000[39m
+[2026-08-21 03:23:54:2354] [[32minfo[39m]: [32mEnvironment: development[39m
+[2026-08-21 03:23:54:2354] [[32minfo[39m]: [32m===================================================[39m
+3:24:22 AM [tsx] unlink in ./..\node_modules\.prisma\client\index.js Rerunning...
+[2026-08-21 03:24:25:2425] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:24:25:2425] [[32minfo[39m]: [32mAegis Biometric Banking Backend initialized on port 5000[39m
+[2026-08-21 03:24:25:2425] [[32minfo[39m]: [32mEnvironment: development[39m
+[2026-08-21 03:24:25:2425] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:25:03:253] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:25:04:254] [[32minfo[39m]: [32mGET /api/staff - IP: ::1[39m
+[2026-08-21 03:25:04:254] [[32minfo[39m]: [32mPOST /api/attendance/mark - IP: ::1[39m
+[2026-08-21 03:25:05:255] [[32minfo[39m]: [32mGET /api/attendance?date=2026-08-21 - IP: ::1[39m
+[2026-08-21 03:25:05:255] [[32minfo[39m]: [32mGET /api/attendance/summary - IP: ::1[39m
+3:26:08 AM [tsx] unlink in ./..\node_modules\.prisma\client\default.js Rerunning...
+[2026-08-21 03:26:13:2613] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:26:13:2613] [[32minfo[39m]: [32mAegis Biometric Banking Backend initialized on port 5000[39m
+[2026-08-21 03:26:13:2613] [[32minfo[39m]: [32mEnvironment: development[39m
+[2026-08-21 03:26:13:2613] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:26:46:2646] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:26:47:2647] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:26:48:2648] [[32minfo[39m]: [32mPOST /api/attendance/mark - IP: ::1[39m
+[2026-08-21 03:26:48:2648] [[32minfo[39m]: [32mGET /api/attendance?date=2026-08-21 - IP: ::1[39m
+[2026-08-21 03:28:22:2822] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:28:22:2822] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:28:30:2830] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:28:43:2843] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:28:43:2843] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:28:52:2852] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:31:53:3153] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:31:56:3156] [[32minfo[39m]: [32mPOST /api/branches - IP: ::1[39m
+[2026-08-21 03:31:56:3156] [[32minfo[39m]: [32mDELETE /api/branches/1cd9f07b-f257-4f59-af5e-af57577fd7cc - IP: ::1[39m
+[2026-08-21 03:31:57:3157] [[32minfo[39m]: [32mGET /api/attendance/summary - IP: ::1[39m
+[2026-08-21 03:36:22:3622] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:36:30:3630] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:36:30:3630] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:36:31:3631] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:36:31:3631] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:36:33:3633] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:36:33:3633] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:37:00:370] [[32minfo[39m]: [32mGET /api/attendance?date=2026-08-21 - IP: ::1[39m
+[2026-08-21 03:37:23:3723] [[32minfo[39m]: [32mGET /api/attendance?date=2026-08-21 - IP: ::1[39m
+3:42:51 AM [tsx] change in ./src\routes\branchRoutes.ts Restarting...
+[2026-08-21 03:43:48:4348] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:43:48:4348] [[32minfo[39m]: [32mAegis Biometric Banking Backend initialized on port 5000[39m
+[2026-08-21 03:43:48:4348] [[32minfo[39m]: [32mEnvironment: development[39m
+[2026-08-21 03:43:48:4348] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:44:51:4451] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:44:54:4454] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:44:54:4454] [[32minfo[39m]: [32mPOST /api/branches - IP: ::1[39m
+[2026-08-21 03:44:54:4454] [[32minfo[39m]: [32mPOST /api/branches - IP: ::1[39m
+[2026-08-21 03:54:22:5422] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:54:29:5429] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:54:29:5429] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:54:29:5429] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:54:29:5429] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:54:36:5436] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:54:36:5436] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:55:05:555] [[32minfo[39m]: [32mGET /api/attendance?date=2026-08-21 - IP: ::1[39m
+3:56:48 AM [tsx] change in ./src\routes\branchRoutes.ts Restarting...
+[2026-08-21 03:56:54:5654] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:56:54:5654] [[32minfo[39m]: [32mAegis Biometric Banking Backend initialized on port 5000[39m
+[2026-08-21 03:56:54:5654] [[32minfo[39m]: [32mEnvironment: development[39m
+[2026-08-21 03:56:54:5654] [[32minfo[39m]: [32m===================================================[39m
+[2026-08-21 03:57:09:579] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 03:57:09:579] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 03:57:20:5720] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 03:58:57:5857] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:58:58:5858] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 03:58:59:5859] [[32minfo[39m]: [32mPOST /api/branches - IP: ::1[39m
+[2026-08-21 03:58:59:5859] [[32minfo[39m]: [32mPOST /api/branches - IP: ::1[39m
+[2026-08-21 04:00:29:029] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 04:00:29:029] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 04:00:32:032] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 04:02:04:24] [[32minfo[39m]: [32mPOST /api/auth/login - IP: ::1[39m
+[2026-08-21 04:02:11:211] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 04:02:11:211] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 04:02:11:211] [[32minfo[39m]: [32mGET /api/approvals/pending - IP: ::1[39m
+[2026-08-21 04:02:11:211] [[32minfo[39m]: [32mGET /api/staff/accountants - IP: ::1[39m
+[2026-08-21 04:02:12:212] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 04:02:12:212] [[32minfo[39m]: [32mGET /api/branches - IP: ::1[39m
+[2026-08-21 04:02:29:229] [[32minfo[39m]: [32mGET /api/attendance?date=2026-08-21 - IP: ::1[39m
+[2026-08-21 04:06:17:617] [[32minfo[39m]: [32mGET /api/attendance?date=2026-08-21 - IP: ::1[39m

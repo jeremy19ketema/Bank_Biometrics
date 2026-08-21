@@ -7,6 +7,7 @@ import biometricRoutes from "./biometricRoutes.js";
 import transactionRoutes from "./transactionRoutes.js";
 import auditRoutes from "./auditRoutes.js";
 import approvalRoutes from "./approvalRoutes.js";
+import attendanceRoutes from "./attendanceRoutes.js";
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use("/biometrics", biometricRoutes);
 router.use("/transactions", transactionRoutes);
 router.use("/audit", auditRoutes);
 router.use("/approvals", approvalRoutes);
+router.use("/attendance", attendanceRoutes);
 
 export default router;

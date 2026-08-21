@@ -6,7 +6,7 @@ const router = Router();
 
 router.get("/", authenticateJWT, getBranches);
 router.get("/:id", authenticateJWT, getBranchById);
-router.post("/", authenticateJWT, requireRole(["SUPER_ADMIN"]), createBranch);
+router.post("/", authenticateJWT, requireRole(["SUPER_ADMIN", "SUPER_ADMIN_IT", "HR"]), createBranch);
 router.put("/:id", authenticateJWT, requireRole(["SUPER_ADMIN"]), updateBranch);
 
 export default router;

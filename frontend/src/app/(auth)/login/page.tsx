@@ -87,10 +87,25 @@ export default function LoginPage() {
     };
   }, []);
 
+  // Configuration flag for demonstration purposes
+  // TEMPORARILY DISABLED FOR DEMONSTRATION — HARDWARE SCANNER
+  // Set to true to re-enable actual hardware scanner verification
+  const HARDWARE_AUTH_ENABLED = false;
+
   // ---- Navigation ----
   const goToStep = (target: number) => {
     setStep(target);
-    if (target === 2) startBiometricScan();
+    if (target === 2) {
+      if (!HARDWARE_AUTH_ENABLED) {
+        console.warn("TEMPORARILY DISABLED FOR DEMONSTRATION — HARDWARE SCANNER: Bypassing biometric capture.");
+        setBioProgress(100);
+        setBioStatus("Hardware Scanner Bypassed");
+        setBioSubStatus("Authentication Success (Demo Mode)");
+        setTimeout(() => goToStep(3), 1000);
+      } else {
+        startBiometricScan();
+      }
+    }
     if (target === 3) startRedirect();
   };
 

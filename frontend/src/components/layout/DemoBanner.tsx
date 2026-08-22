@@ -4,29 +4,8 @@ import { apiClient } from "@/services/apiClient";
 import { AlertTriangle } from "lucide-react";
 
 export default function DemoBanner() {
-  const [isDemo, setIsDemo] = useState(false);
-
-  useEffect(() => {
-    async function checkProviderStatus() {
-      if (process.env.NODE_ENV !== "production") {
-        setIsDemo(true);
-        return;
-      }
-      try {
-        const response = await apiClient.get<{ providerType?: string; data?: { providerType?: string } }>("/api/biometrics/status");
-        if (response.data?.providerType === "MOCK" || response.data?.data?.providerType === "MOCK") {
-          setIsDemo(true);
-        }
-      } catch (err) {
-        console.error("Failed to fetch biometric status", err);
-      }
-    }
-    
-    // Quick check on load
-    checkProviderStatus();
-  }, []);
-
-  if (!isDemo) return null;
+  return null;
+}
 
   return (
     <div className="bg-orange-500 text-white px-4 py-2 flex items-center justify-center space-x-2 text-sm font-semibold shadow-md z-50">

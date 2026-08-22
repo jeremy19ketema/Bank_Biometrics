@@ -3,6 +3,7 @@ import { prisma } from "../config/db.js";
 import { AuthenticatedRequest } from "../middleware/auth.js";
 import { logAuditEvent } from "../utils/audit.js";
 import { TransactionType, TransactionStatus } from "@prisma/client";
+import { isDemoBiometricBypassEnabled } from "../services/biometric/demoMode.js";
 
 export async function createTransaction(req: AuthenticatedRequest, res: Response): Promise<void> {
   const { accountNumber, amount, type, currency, referenceNumber, biometricScanId } = req.body;
@@ -58,15 +59,34 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
       };
     }
 
-    // Enforce Biometrics if required by policy
+    // Enforce biometrics if required by policy. The bypass is deliberately
+    // development-only so classroom demos can run until the scanner SDK arrives.
+    const biometricBypassedForDemo = policy.requiresBiometrics && !biometricScanId && isDemoBiometricBypassEnabled();
     if (policy.requiresBiometrics) {
       if (!biometricScanId) {
-        await logAuditEvent(req.user.id, "TRANSACTION_BLOCKED_NO_BIOMETRICS", "SECURITY", ipAddress, `Blocked ${type} without biometric proof`, "WARNING");
-        res.status(403).json({ success: false, message: "Biometric authorization is required for this transaction type" });
-        return;
+        if (!biometricBypassedForDemo) {
+          await logAuditEvent(req.user.id, "TRANSACTION_BLOCKED_NO_BIOMETRICS", "SECURITY", ipAddress, `Blocked ${type} without biometric proof`, "WARNING");
+          res.status(403).json({ success: false, message: "Biometric authorization is required for this transaction type" });
+          return;
+        }
+
+        await logAuditEvent(
+          req.user.id,
+          "TRANSACTION_BIOMETRICS_DEMO_BYPASSED",
+          "BIOMETRIC",
+          ipAddress,
+          `Demo-only biometric bypass used for ${type}. No hardware verification was performed.`,
+          "WARNING"
+        );
       }
 
-      const scanResult = await prisma.biometricScanResult.findUnique({ where: { scanId: biometricScanId } });
+      const scanResult = biometricScanId
+        ? await prisma.biometricScanResult.findUnique({ where: { scanId: biometricScanId } })
+        : null;
+      if (biometricBypassedForDemo) {
+        // Continue through the normal transaction and maker-checker workflow.
+        // The transaction remains explicitly marked as not hardware-verified.
+      } else {
       if (!scanResult) {
         res.status(404).json({ success: false, message: "Biometric scan record not found" });
         return;
@@ -95,6 +115,7 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
       if (scanResult.currency && scanResult.currency !== txCurrency) {
         res.status(403).json({ success: false, message: "Biometric assertion currency mismatch" });
         return;
+      }
       }
     }
 
@@ -129,7 +150,7 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
         amount: numericAmount,
         currency: txCurrency,
         status: transactionStatus,
-        biometricVerified: !!biometricScanId,
+        biometricVerified: !!biometricScanId && !biometricBypassedForDemo,
         biometricScanId: biometricScanId || null,
         accountantId: req.user.id,
         branchId: req.user.branchId || "br-1"

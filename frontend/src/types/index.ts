@@ -182,3 +182,11 @@ export interface SystemAuditLog {
   status: "SUCCESS" | "WARNING" | "FAILURE";
 }
 
+export interface BiometricDevice {
+  id: string;
+  serialNumber: string;
+  type: "FINGERPRINT" | "IRIS" | "FACE" | "MOCK";
+  branchId?: string | null;
+  status: "ACTIVE" | "INACTIVE" | "MAINTENANCE";
+  createdAt?: string;
+}

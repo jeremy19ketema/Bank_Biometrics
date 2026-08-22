@@ -5,6 +5,7 @@ import helmet from "helmet";
 import apiRoutes from "./routes/index.js";
 import { logger } from "./utils/logger.js";
 import { generalLimiter } from "./middleware/rateLimits.js";
+import { isDemoBiometricBypassEnabled } from "./services/biometric/demoMode.js";
 
 dotenv.config();
 
@@ -23,6 +24,10 @@ function validateMasterKey() {
 }
 
 validateMasterKey();
+
+if (isDemoBiometricBypassEnabled()) {
+  logger.warn("DEMO BIOMETRIC BYPASS ENABLED: hardware biometric verification is disabled. Do not use this configuration in production.");
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;

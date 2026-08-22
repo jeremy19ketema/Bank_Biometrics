@@ -53,17 +53,41 @@
     font-family: 'IBM Plex Mono', monospace;
   }
 
+  button, .btn {
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  button:hover, .btn:hover {
+    transform: translateY(-1px);
+  }
+  
+  button:active, .btn:active {
+    transform: translateY(1px);
+  }
+
   .glass-panel {
     background: rgba(15, 23, 40, 0.78);
     backdrop-filter: blur(18px);
     box-shadow: var(--shadow-card);
-    
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  .glass-panel:hover {
+    box-shadow: 0 20px 50px rgba(2, 8, 23, 0.5), inset 0 0 0 1px rgba(198, 154, 76, 0.15);
+    transform: translateY(-2px);
   }
 
   .surface-card {
     background: linear-gradient(180deg, rgba(23, 37, 61, 0.95), rgba(15, 23, 40, 0.95));
     border: 1px solid var(--line-strong);
     box-shadow: var(--shadow-card);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  .surface-card:hover {
+    border-color: rgba(198, 154, 76, 0.3);
+    box-shadow: var(--shadow-soft), 0 0 20px rgba(198, 154, 76, 0.1);
+    transform: translateY(-2px);
   }
 
   .section-title {

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Shield, ChevronRight, UserCog, Plus } from "lucide-react";
 import Link from "next/link";
+import { apiClient } from "@/services/apiClient";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
@@ -24,10 +25,8 @@ export default function RolesHub() {
 
   const fetchRoles = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/roles/custom`, {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-      });
-      const data = await res.json();
+      const res = await apiClient.get<any>("/api/roles/custom");
+      const data = res.data;
       if (data.success) {
         setRoles(data.data);
       }
@@ -44,15 +43,8 @@ export default function RolesHub() {
 
   const onSubmitRole = async (data: any) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/roles/custom`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify(data)
-      });
-      const result = await res.json();
+      const res = await apiClient.post<any>("/api/roles/custom", data);
+      const result = res.data;
       if (result.success) {
         toast.success("Success", "Custom role created successfully!");
         resetRole();
@@ -67,15 +59,8 @@ export default function RolesHub() {
 
   const onSubmitAssign = async (data: any) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/roles/assign`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify(data)
-      });
-      const result = await res.json();
+      const res = await apiClient.post<any>("/api/roles/assign", data);
+      const result = res.data;
       if (result.success) {
         toast.success("Success", "Role assigned successfully!");
         resetAssign();

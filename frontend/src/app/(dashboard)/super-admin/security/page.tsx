@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ShieldAlert, Download, Activity, FileText, ChevronRight, CheckCircle, Database } from "lucide-react";
 import Link from "next/link";
+import { apiClient } from "@/services/apiClient";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
@@ -24,19 +25,17 @@ export default function SecurityCenter() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const headers = { "Authorization": `Bearer ${localStorage.getItem("token")}` };
-      
       if (activeTab === "AUDIT") {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/audit/logs`, { headers });
-        const data = await res.json();
+        const res = await apiClient.get<any>("/api/audit/logs");
+        const data = res.data;
         if (data.success) setLogs(data.data.logs);
       } else if (activeTab === "ALERTS") {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/security/alerts`, { headers });
-        const data = await res.json();
+        const res = await apiClient.get<any>("/api/security/alerts");
+        const data = res.data;
         if (data.success) setAlerts(data.data);
       } else if (activeTab === "HEALTH") {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/security/health`, { headers });
-        const data = await res.json();
+        const res = await apiClient.get<any>("/api/security/health");
+        const data = res.data;
         if (data.success) setHealth(data.data);
       }
     } catch (err) {
@@ -48,11 +47,8 @@ export default function SecurityCenter() {
 
   const handleExport = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/audit/export`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-      });
-      const result = await res.json();
+      const res = await apiClient.post<any>("/api/audit/export", {});
+      const result = res.data;
       if (result.success) {
         toast.success("Success", result.message);
       } else {
@@ -65,11 +61,8 @@ export default function SecurityCenter() {
 
   const handleActionAlert = async (id: string, action: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/security/alerts/${id}/${action}`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-      });
-      const result = await res.json();
+      const res = await apiClient.post<any>(`/api/security/alerts/${id}/${action}`, {});
+      const result = res.data;
       if (result.success) {
         toast.success("Success", `Alert ${action}ed!`);
         fetchData();
@@ -83,26 +76,19 @@ export default function SecurityCenter() {
 
   const onSubmitPolicy = async (data: any) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/security/policies/propose`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify({
-          policyType: data.policyType,
-          policyId: data.policyId,
-          changes: { [data.field]: data.value }
-        })
+      const res = await apiClient.post<any>("/api/security/policies/propose", {
+        policyType: data.policyType,
+        policyId: data.policyId,
+        changes: { [data.field]: data.value }
       });
-      const result = await res.json();
+      const result = res.data;
       if (result.success) {
         toast.success("Success", "Approval Request submitted!");
       } else {
         toast.error("Error", result.message);
       }
     } catch (err) {
-      toast.error("Error", "Failed to submit proposal");
+      toast.error("Error", "Submission failed");
     }
   };
 

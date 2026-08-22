@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Server, Activity, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
+import { apiClient } from "@/services/apiClient";
 
 interface Device {
   id: string;
@@ -28,15 +29,8 @@ export default function ITDevicesPage() {
 
   const fetchDevices = async () => {
     try {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("aegis_auth_token="))
-        ?.split("=")[1];
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/devices`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      const res = await apiClient.get<any>("/api/devices");
+      const data = res.data;
       if (data.success) {
         setDevices(data.data);
       } else {

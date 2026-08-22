@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Building2, MapPin, Network, Users, Plus, ChevronRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { apiClient } from "@/services/apiClient";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
@@ -27,10 +28,8 @@ export default function OrganizationHub() {
 
   const fetchTree = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/org/tree`, {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-      });
-      const data = await res.json();
+      const res = await apiClient.get<any>("/api/org/tree");
+      const data = res.data;
       if (data.success) {
         setTreeData(data.data);
       }
@@ -51,15 +50,8 @@ export default function OrganizationHub() {
 
   const onSubmitOrg = async (data: any) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/org/organizations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify(data)
-      });
-      const result = await res.json();
+      const res = await apiClient.post<any>("/api/org/organizations", data);
+      const result = res.data;
       if (result.success) {
         toast.success("Success", "Organization created successfully!");
         resetOrg();
@@ -74,15 +66,8 @@ export default function OrganizationHub() {
 
   const onSubmitRegion = async (data: any) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/org/regions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify(data)
-      });
-      const result = await res.json();
+      const res = await apiClient.post<any>("/api/org/regions", data);
+      const result = res.data;
       if (result.success) {
         toast.success("Success", "Region created successfully!");
         resetRegion();
@@ -97,15 +82,8 @@ export default function OrganizationHub() {
 
   const onSubmitDept = async (data: any) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/org/departments`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify(data)
-      });
-      const result = await res.json();
+      const res = await apiClient.post<any>("/api/org/departments", data);
+      const result = res.data;
       if (result.success) {
         toast.success("Success", "Department created successfully!");
         resetDept();

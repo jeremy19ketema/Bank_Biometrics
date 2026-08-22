@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link2, KeyRound, RefreshCw, Activity, ShieldAlert, PowerOff, Database, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { apiClient } from "@/services/apiClient";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
@@ -24,10 +25,8 @@ export default function IntegrationsHub() {
   const fetchIntegrations = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/integrations`, {
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-      });
-      const data = await res.json();
+      const res = await apiClient.get<any>("/api/integrations");
+      const data = res.data;
       if (data.success) {
         setIntegrations(data.data);
       }
@@ -40,15 +39,8 @@ export default function IntegrationsHub() {
 
   const onSubmitRegister = async (data: any) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/integrations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify(data)
-      });
-      const result = await res.json();
+      const res = await apiClient.post<any>("/api/integrations", data);
+      const result = res.data;
       if (result.success) {
         toast.success("Success", "Integration registered securely!");
         setShowRegisterForm(false);
@@ -65,15 +57,8 @@ export default function IntegrationsHub() {
   const onRotate = async (data: any) => {
     if (!rotatingId) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/integrations/${rotatingId}/rotate`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify({ newApiKey: data.newApiKey })
-      });
-      const result = await res.json();
+      const res = await apiClient.post<any>(`/api/integrations/${rotatingId}/rotate`, { newApiKey: data.newApiKey });
+      const result = res.data;
       if (result.success) {
         toast.success("Success", "API Key rotated securely!");
         setRotatingId(null);
@@ -90,11 +75,8 @@ export default function IntegrationsHub() {
   const handleTestConnection = async (id: string) => {
     toast.success("Success", "Testing connection...");
     try {
-      const res = await fetch(`http://localhost:5000/api/integrations/${id}/test`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-      });
-      const result = await res.json();
+      const res = await apiClient.post<any>(`/api/integrations/${id}/test`, {});
+      const result = res.data;
       if (result.success) {
         toast.success("Success", "Connection verified successfully!");
         fetchIntegrations();
@@ -109,11 +91,8 @@ export default function IntegrationsHub() {
   const handleDeactivate = async (id: string) => {
     if (!confirm("Are you sure you want to deactivate this integration?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/integrations/${id}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }
-      });
-      const result = await res.json();
+      const res = await apiClient.delete<any>(`/api/integrations/${id}`);
+      const result = res.data;
       if (result.success) {
         toast.success("Success", "Integration deactivated");
         fetchIntegrations();

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Fingerprint, CheckCircle2, ShieldAlert } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
+import { apiClient } from "@/services/apiClient";
 
 export default function EnrollmentConsentPage() {
   const [loading, setLoading] = useState(false);
@@ -15,25 +16,13 @@ export default function EnrollmentConsentPage() {
     setLoading(true);
 
     try {
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("aegis_auth_token="))
-        ?.split("=")[1];
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/enrollment/consent`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          targetUserId,
-          consentVersion: "v1.0.0",
-          captureMethod: "DIGITAL_SIGNATURE"
-        })
+      const res = await apiClient.post<any>("/api/enrollment/consent", {
+        targetUserId,
+        consentVersion: "v1.0.0",
+        captureMethod: "DIGITAL_SIGNATURE"
       });
 
-      const data = await res.json();
+      const data = res.data;
       if (data.success) {
         toast.success("Success", "Biometric consent captured securely.");
         setTargetUserId("");

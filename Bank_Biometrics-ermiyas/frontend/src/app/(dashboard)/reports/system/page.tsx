@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Download,
   RefreshCw,
   Search,
-  Filter,
   X,
   ShieldCheck,
   ShieldAlert,
@@ -19,6 +17,7 @@ import {
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
 import Pagination from "@/components/ui/Pagination";
+import { bankApi } from "@/services/bankApi";
 
 export const dynamic = "force-dynamic";
 
@@ -28,121 +27,10 @@ type LogEntry = {
   actor: string;
   actorId?: string;
   ip: string;
-  time: string;
   timestamp: Date;
-  status: "SUCCESS" | "WARNING" | "CRITICAL" | "INFO";
+  status: "SUCCESS" | "WARNING" | "FAILURE" | "INFO";
   category: "AUTH" | "TRANSACTION" | "BIOMETRIC" | "SYSTEM" | "USER";
 };
-
-// Extended mock data
-const allLogs: LogEntry[] = [
-  {
-    id: "SEC-901",
-    event: "Super Admin Login Success",
-    actor: "Sarah Jenkins",
-    actorId: "SA-90421",
-    ip: "192.168.1.10",
-    time: "10 mins ago",
-    timestamp: new Date(Date.now() - 10 * 60 * 1000),
-    status: "SUCCESS",
-    category: "AUTH",
-  },
-  {
-    id: "SEC-902",
-    event: "High-Value Withdrawal Approved ($85,000)",
-    actor: "Dawit Wolde",
-    actorId: "MGR-101",
-    ip: "192.168.1.42",
-    time: "25 mins ago",
-    timestamp: new Date(Date.now() - 25 * 60 * 1000),
-    status: "SUCCESS",
-    category: "TRANSACTION",
-  },
-  {
-    id: "SEC-903",
-    event: "Biometric Hardware Sensor Self-Test",
-    actor: "SYSTEM_DAEMON",
-    ip: "localhost",
-    time: "1 hour ago",
-    timestamp: new Date(Date.now() - 60 * 60 * 1000),
-    status: "SUCCESS",
-    category: "BIOMETRIC",
-  },
-  {
-    id: "SEC-904",
-    event: "Failed Login Attempt (Exceeded Limit)",
-    actor: "Unknown",
-    ip: "192.168.1.55",
-    time: "2 hours ago",
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    status: "WARNING",
-    category: "AUTH",
-  },
-  {
-    id: "SEC-905",
-    event: "Role Assignment Changed",
-    actor: "Frehiwot Tadesse",
-    actorId: "MGR-102",
-    ip: "192.168.1.12",
-    time: "3 hours ago",
-    timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000),
-    status: "INFO",
-    category: "USER",
-  },
-  {
-    id: "SEC-906",
-    event: "System Patch Applied",
-    actor: "Solomon Tesfaye",
-    actorId: "IT-001",
-    ip: "localhost",
-    time: "5 hours ago",
-    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
-    status: "SUCCESS",
-    category: "SYSTEM",
-  },
-  {
-    id: "SEC-907",
-    event: "Transaction Override (High Value)",
-    actor: "Yonas Alemu",
-    actorId: "MGR-103",
-    ip: "192.168.1.78",
-    time: "6 hours ago",
-    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000),
-    status: "CRITICAL",
-    category: "TRANSACTION",
-  },
-  {
-    id: "SEC-908",
-    event: "Biometric Enrollment Failed",
-    actor: "System",
-    ip: "192.168.1.99",
-    time: "8 hours ago",
-    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000),
-    status: "WARNING",
-    category: "BIOMETRIC",
-  },
-  {
-    id: "SEC-909",
-    event: "User Profile Updated",
-    actor: "Bethelhem Haile",
-    actorId: "ACT-401",
-    ip: "192.168.1.23",
-    time: "12 hours ago",
-    timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000),
-    status: "SUCCESS",
-    category: "USER",
-  },
-  {
-    id: "SEC-910",
-    event: "Audit Log Export Triggered",
-    actor: "System",
-    ip: "192.168.1.1",
-    time: "1 day ago",
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    status: "INFO",
-    category: "SYSTEM",
-  },
-];
 
 const PAGE_SIZE = 5;
 
@@ -150,55 +38,94 @@ const PAGE_SIZE = 5;
 const statusConfig = {
   SUCCESS: { label: "Success", bg: "bg-[color:var(--moss)]/15", text: "text-[color:var(--moss)]", border: "border-[color:var(--moss)]/30", icon: CheckCircle2 },
   WARNING: { label: "Warning", bg: "bg-amber-500/15", text: "text-amber-400", border: "border-amber-500/30", icon: AlertTriangle },
-  CRITICAL: { label: "Critical", bg: "bg-[color:var(--clay)]/15", text: "text-[color:var(--clay)]", border: "border-[color:var(--clay)]/30", icon: ShieldAlert },
+  FAILURE: { label: "Failure", bg: "bg-[color:var(--clay)]/15", text: "text-[color:var(--clay)]", border: "border-[color:var(--clay)]/30", icon: ShieldAlert },
   INFO: { label: "Info", bg: "bg-slate-600/20", text: "text-slate-300", border: "border-slate-600/30", icon: ShieldQuestion },
 };
 
 const categoryOptions = ["ALL", "AUTH", "TRANSACTION", "BIOMETRIC", "SYSTEM", "USER"];
+const statusOptions = ["ALL", "SUCCESS", "WARNING", "FAILURE", "INFO"];
 
-const statusOptions = ["ALL", "SUCCESS", "WARNING", "CRITICAL", "INFO"];
+function relativeTime(date: Date): string {
+  const diffMs = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins} mins ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  return `${Math.floor(hours / 24)} day${Math.floor(hours / 24) !== 1 ? "s" : ""} ago`;
+}
 
 export default function SystemSecurityReportsPage() {
   const { toast, toasts, dismissToast } = useToast();
 
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [metrics, setMetrics] = useState({ totalSecurityEvents: 0, criticalThreatAlerts: 0, systemWarnings: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // KPI calculations
-  const totalLogs = allLogs.length;
-  const todayLogs = allLogs.filter(log =>
-    log.timestamp.toDateString() === new Date().toDateString()
-  ).length;
-  const warnings = allLogs.filter(log => log.status === "WARNING").length;
-  const critical = allLogs.filter(log => log.status === "CRITICAL").length;
+  const loadLogs = useCallback(
+    async (showToast = false) => {
+      setIsRefreshing(true);
+      setError("");
 
-  // Filter logs
+      const [logsResult, metricsResult] = await Promise.all([
+        bankApi.auditLogs({
+          category: categoryFilter !== "ALL" ? categoryFilter : undefined,
+          status: statusFilter !== "ALL" ? statusFilter : undefined
+        }),
+        bankApi.auditMetrics()
+      ]);
+
+      if (logsResult.success && Array.isArray(logsResult.data)) {
+        setLogs(logsResult.data as LogEntry[]);
+      } else {
+        setError(logsResult.message || "Failed to load audit logs.");
+      }
+
+      if (metricsResult.success && metricsResult.data) {
+        setMetrics(metricsResult.data as typeof metrics);
+      }
+
+      setIsRefreshing(false);
+      setLoading(false);
+      if (showToast) toast.success("Refreshed", "Audit logs updated.");
+    },
+    [categoryFilter, statusFilter]
+  );
+
+  useEffect(() => {
+    loadLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryFilter, statusFilter]);
+
+  // KPI calculations
+  const totalLogs = metrics.totalSecurityEvents || logs.length;
+  const todayLogs = logs.filter((log) => new Date(log.timestamp).toDateString() === new Date().toDateString()).length;
+  const warnings = metrics.systemWarnings;
+  const critical = metrics.criticalThreatAlerts;
+
+  // Client-side search on the fetched page of data
   const filtered = useMemo(() => {
-    return allLogs.filter(log => {
-      const matchesSearch =
-        log.event.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        log.actor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        log.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        log.ip.includes(searchQuery);
-      const matchesCategory = categoryFilter === "ALL" || log.category === categoryFilter;
-      const matchesStatus = statusFilter === "ALL" || log.status === statusFilter;
-      return matchesSearch && matchesCategory && matchesStatus;
-    });
-  }, [searchQuery, categoryFilter, statusFilter]);
+    const q = searchQuery.toLowerCase();
+    if (!q) return logs;
+    return logs.filter(
+      (log) =>
+        log.event.toLowerCase().includes(q) ||
+        log.actor.toLowerCase().includes(q) ||
+        log.id.toLowerCase().includes(q) ||
+        log.ip.includes(searchQuery)
+    );
+  }, [logs, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setIsRefreshing(false);
-      toast.success("Refreshed", "Audit logs updated.");
-    }, 800);
-  };
+  const handleRefresh = () => loadLogs(true);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -222,6 +149,36 @@ export default function SystemSecurityReportsPage() {
     setCurrentPage(1);
   };
 
+  const exportCsv = () => {
+    if (filtered.length === 0) {
+      toast.error("Nothing to Export", "No audit entries match your criteria.");
+      return;
+    }
+    const header = "Log ID,Timestamp,Event Description,Actor,Actor ID,IP Address,Category,Status";
+    const rows = filtered.map((log) =>
+      [
+        log.id,
+        new Date(log.timestamp).toISOString(),
+        log.event,
+        log.actor,
+        log.actorId || "",
+        log.ip,
+        log.category,
+        log.status
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(",")
+    );
+    const blob = new Blob([[header, ...rows].join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `security-audit-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Export Complete", `${filtered.length} audit entries exported.`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -242,12 +199,19 @@ export default function SystemSecurityReportsPage() {
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
             <span>{isRefreshing ? "Refreshing..." : "Refresh"}</span>
           </button>
-          <button className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)]">
+          <button
+            onClick={exportCsv}
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)]"
+          >
             <Download className="h-4 w-4" />
             <span>Export Audit Log (CSV)</span>
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-xs font-medium text-red-300">{error}</div>
+      )}
 
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -256,12 +220,8 @@ export default function SystemSecurityReportsPage() {
             <FileText className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
-              Total Events
-            </p>
-            <p className="text-xl font-bold text-[color:var(--ledger-paper)]">
-              {totalLogs}
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">Total Events</p>
+            <p className="text-xl font-bold text-[color:var(--ledger-paper)]">{totalLogs}</p>
           </div>
         </div>
 
@@ -270,12 +230,8 @@ export default function SystemSecurityReportsPage() {
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
-              Today's Events
-            </p>
-            <p className="text-xl font-bold text-[color:var(--moss)]">
-              {todayLogs}
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">Today&apos;s Events</p>
+            <p className="text-xl font-bold text-[color:var(--moss)]">{todayLogs}</p>
           </div>
         </div>
 
@@ -284,12 +240,8 @@ export default function SystemSecurityReportsPage() {
             <AlertTriangle className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
-              Warnings
-            </p>
-            <p className="text-xl font-bold text-amber-400">
-              {warnings}
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">Warnings</p>
+            <p className="text-xl font-bold text-amber-400">{warnings}</p>
           </div>
         </div>
 
@@ -298,12 +250,8 @@ export default function SystemSecurityReportsPage() {
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
-              Critical
-            </p>
-            <p className="text-xl font-bold text-[color:var(--clay)]">
-              {critical}
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">Failures</p>
+            <p className="text-xl font-bold text-[color:var(--clay)]">{critical}</p>
           </div>
         </div>
       </div>
@@ -343,7 +291,7 @@ export default function SystemSecurityReportsPage() {
           >
             {statusOptions.map((s) => (
               <option key={s} value={s}>
-                {s === "ALL" ? "All Status" : s}
+                {s === "ALL" ? "All Status" : s === "FAILURE" ? "Failure" : s}
               </option>
             ))}
           </select>
@@ -358,9 +306,7 @@ export default function SystemSecurityReportsPage() {
             </button>
           )}
 
-          <span className="text-[11px] text-slate-500 font-mono pl-1">
-            {filtered.length} entries
-          </span>
+          <span className="text-[11px] text-slate-500 font-mono pl-1">{filtered.length} entries</span>
         </div>
       </div>
 
@@ -368,7 +314,9 @@ export default function SystemSecurityReportsPage() {
       <div className="ledger-panel">
         <div className="ledger-head">
           <h3 className="display">Live activity</h3>
-          <div className="status-pill bg-[rgba(76,122,94,0.16)] text-[color:var(--moss)]">Secure</div>
+          <div className={`status-pill ${critical > 0 ? "bg-[rgba(184,74,74,0.16)] text-[color:var(--clay)]" : "bg-[rgba(76,122,94,0.16)] text-[color:var(--moss)]"}`}>
+            {loading ? "Loading…" : critical > 0 ? `${critical} failure${critical !== 1 ? "s" : ""}` : "Secure"}
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table>
@@ -384,7 +332,14 @@ export default function SystemSecurityReportsPage() {
               </tr>
             </thead>
             <tbody>
-              {paginated.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-12">
+                    <div className="animate-spin w-6 h-6 border-2 border-[color:var(--brass)] border-t-transparent rounded-full mx-auto mb-3" />
+                    <span className="text-xs text-[color:var(--ledger-paper-dim)]">Loading audit trail…</span>
+                  </td>
+                </tr>
+              ) : paginated.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-12 text-slate-500">
                     <ShieldCheck className="w-8 h-8 text-slate-600 mx-auto mb-2" />
@@ -393,26 +348,27 @@ export default function SystemSecurityReportsPage() {
                 </tr>
               ) : (
                 paginated.map((log) => {
-                  const status = statusConfig[log.status];
+                  const status = statusConfig[log.status] || statusConfig.INFO;
                   const StatusIcon = status.icon;
                   return (
                     <tr key={log.id} className="hover:bg-[rgba(198,154,76,0.04)] transition-colors">
-                      <td className="mono-cell font-semibold text-[color:var(--brass)]">{log.id}</td>
+                      <td className="mono-cell font-semibold text-[color:var(--brass)]">{log.id.slice(-8).toUpperCase()}</td>
                       <td className="font-medium">{log.event}</td>
-                      <td className="mono-cell">{log.actor}</td>
+                      <td className="mono-cell">
+                        {log.actor}
+                        {log.actorId && <span className="block text-[10px] text-slate-500">{log.actorId}</span>}
+                      </td>
                       <td className="mono-cell">{log.ip}</td>
                       <td>
-                        <span className="text-[10px] font-mono text-slate-400 bg-slate-700/30 px-2 py-0.5 rounded">
-                          {log.category}
-                        </span>
+                        <span className="text-[10px] font-mono text-slate-400 bg-slate-700/30 px-2 py-0.5 rounded">{log.category}</span>
                       </td>
-                      <td className="text-[color:var(--ledger-paper-dim)] text-xs">{log.time}</td>
+                      <td className="text-[color:var(--ledger-paper-dim)] text-xs" title={new Date(log.timestamp).toLocaleString()}>
+                        {relativeTime(log.timestamp)}
+                      </td>
                       <td style={{ textAlign: "right" }}>
                         <div className="flex items-center justify-end gap-1.5">
                           <StatusIcon className={`w-3.5 h-3.5 ${status.text}`} />
-                          <span className={`status-chip ${status.bg} ${status.text} border ${status.border}`}>
-                            {status.label}
-                          </span>
+                          <span className={`status-chip ${status.bg} ${status.text} border ${status.border}`}>{status.label}</span>
                         </div>
                       </td>
                     </tr>

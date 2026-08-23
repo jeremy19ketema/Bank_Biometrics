@@ -4,7 +4,7 @@ import { authenticateJWT, requireRole } from "../middleware/auth.js";
 
 const router = Router();
 
-router.get("/logs", authenticateJWT, requireRole(["SUPER_ADMIN", "SUPER_ADMIN_IT"]), getAuditLogs);
-router.get("/metrics", authenticateJWT, requireRole(["SUPER_ADMIN", "SUPER_ADMIN_IT"]), getSecurityMetrics);
+router.get("/logs", authenticateJWT, requireRole(["SUPER_ADMIN", "SUPER_ADMIN_IT", "BANK_MANAGER"]), getAuditLogs);
+router.get("/metrics", authenticateJWT, requireRole(["SUPER_ADMIN", "SUPER_ADMIN_IT", "BANK_MANAGER"]), getSecurityMetrics);
 
 export default router;

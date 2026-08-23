@@ -1,7 +1,21 @@
 import { Response } from "express";
 import { prisma } from "../config/db.js";
-import { AuthenticatedRequest } from "../middleware/auth.js";
+import { AuthenticatedRequest, UserRole } from "../middleware/auth.js";
 import { logAuditEvent } from "../utils/audit.js";
+
+const UNRESTRICTED_ROLES: UserRole[] = ["SUPER_ADMIN", "SUPER_ADMIN_MANAGER", "SUPER_ADMIN_IT", "SUPER_ADMIN_FOREX"];
+
+// Authorization: Bank Managers / Branch IT may only action requests that
+// target their own branch. HR and other roles cannot approve anything.
+function canActionApproval(user: NonNullable<AuthenticatedRequest["user"]>, targetBranchId: string | null): boolean {
+  if (UNRESTRICTED_ROLES.includes(user.role)) {
+    return true;
+  }
+  if (user.role === "BANK_MANAGER" || user.role === "BRANCH_IT") {
+    return !!targetBranchId && targetBranchId === user.branchId;
+  }
+  return false;
+}
 
 // Get all pending approval requests (Super Admin sees all, Bank Manager sees branch-level)
 export async function getPendingApprovals(req: AuthenticatedRequest, res: Response): Promise<void> {
@@ -135,6 +149,11 @@ export async function approveRequest(req: AuthenticatedRequest, res: Response): 
       return;
     }
 
+    if (!canActionApproval(req.user, approval.targetBranchId)) {
+      res.status(403).json({ success: false, message: "Access denied: you can only approve requests for your assigned branch" });
+      return;
+    }
+
     // Update the approval request
     const updated = await prisma.approvalRequest.update({
       where: { id },
@@ -207,6 +226,11 @@ export async function rejectRequest(req: AuthenticatedRequest, res: Response): P
       return;
     }
 
+    if (!canActionApproval(req.user, approval.targetBranchId)) {
+      res.status(403).json({ success: false, message: "Access denied: you can only reject requests for your assigned branch" });
+      return;
+    }
+
     const updated = await prisma.approvalRequest.update({
       where: { id },
       data: {
@@ -216,8 +240,9 @@ export async function rejectRequest(req: AuthenticatedRequest, res: Response): P
       }
     });
 
-    // If the request was about a user creation that was rejected, clean up
-    if (approval.targetUserId) {
+    // Only creation requests leave an orphaned user behind — deactivate it.
+    // Rejecting a SUSPEND/ACTIVATE request must NOT alter the target user.
+    if (approval.targetUserId && approval.requestType.startsWith("CREATE_")) {
       await prisma.user.update({
         where: { id: approval.targetUserId },
         data: { status: "INACTIVE", isActive: false }

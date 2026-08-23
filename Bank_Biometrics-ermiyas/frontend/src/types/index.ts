@@ -111,17 +111,19 @@ export interface BankManager {
 export interface Accountant {
   id: string;
   employeeId: string;
+  username: string;
   fullName: string;
   email: string;
-  phone: string;
   branchId: string;
   branchName: string;
-  tillNumber: string;
   status: StaffStatus;
   isFirstLogin?: boolean;
   isActive: boolean;
-  dailyProcessedVolume: number;
-  verificationSuccessRate: number;
+  lastLoginAt?: string | null;
+  createdAt: string;
+  totalTransactions: number;
+  totalProcessedVolume: number;
+  verificationSuccessRate: number | null;
 }
 
 export interface Customer {

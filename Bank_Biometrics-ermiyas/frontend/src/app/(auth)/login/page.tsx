@@ -696,6 +696,87 @@ export default function LoginPage() {
                 </button>
               </form>
 
+              {/* DEMO ACCESS — click a chip to fill the form */}
+              <div
+                style={{
+                  marginTop: "16px",
+                  padding: "12px 14px",
+                  borderRadius: "12px",
+                  border: "1px dashed rgba(198,154,76,0.45)",
+                  background: "rgba(198,154,76,0.07)",
+                }}
+              >
+                <div
+                  className="mono"
+                  style={{
+                    fontSize: "10px",
+                    letterSpacing: "0.1em",
+                    color: "var(--brass)",
+                    marginBottom: "10px",
+                    textAlign: "center",
+                  }}
+                >
+                  DEMO ACCESS — CLICK TO FILL
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "6px",
+                    justifyContent: "center",
+                  }}
+                >
+                  {[
+                    "admin",
+                    "manager",
+                    "hr",
+                    "itadmin",
+                    "accountant",
+                    "lemi1",
+                    "Ashu temesgen",
+                    "tola",
+                  ].map((u) => (
+                    <button
+                      key={u}
+                      type="button"
+                      onClick={() => {
+                        setStaffId(u);
+                        setPassword("Password@123");
+                        setErrorMsg("");
+                        setFieldErrors({ staffId: false, password: false });
+                      }}
+                      style={{
+                        padding: "5px 10px",
+                        borderRadius: "999px",
+                        border: "1px solid rgba(198,154,76,0.35)",
+                        background: "transparent",
+                        color: "var(--ledger-paper-dim)",
+                        fontSize: "11px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {u}
+                    </button>
+                  ))}
+                </div>
+
+                <div
+                  className="mono"
+                  style={{
+                    fontSize: "11px",
+                    color: "var(--ledger-paper-dim)",
+                    marginTop: "10px",
+                    textAlign: "center",
+                  }}
+                >
+                  Passcode for every account:{" "}
+                  <strong style={{ color: "var(--ledger-paper)" }}>
+                    Password@123
+                  </strong>
+                </div>
+              </div>
+
               <div className="divider">
                 <span>
                   OR VERIFY WITH

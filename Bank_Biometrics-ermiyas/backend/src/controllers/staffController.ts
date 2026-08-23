@@ -37,32 +37,80 @@ const formattedManagers = managers.map((m: typeof managers[number]) => ({
 
 export async function getAccountants(req: AuthenticatedRequest, res: Response): Promise<void> {
   try {
+    if (!req.user) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+
+    const whereClause: Record<string, unknown> = { role: "ACCOUNTANT" };
+
+    // Bank Managers / Branch IT can only see accountants in their own branch.
+    // Super Admin roles see all branches.
+    const isBranchScoped = req.user.role === "BANK_MANAGER" || req.user.role === "BRANCH_IT";
+    if (isBranchScoped) {
+      if (!req.user.branchId) {
+        res.status(200).json({ success: true, data: [] });
+        return;
+      }
+      whereClause.branchId = req.user.branchId;
+    }
+
     const accountants = await prisma.user.findMany({
-      where: { role: "ACCOUNTANT" },
+      where: whereClause,
       include: {
-        branch: true,
-        _count: {
-          select: { processedTransactions: true }
-        }
+        branch: true
       },
       orderBy: { fullName: "asc" }
     });
 
-    const formattedAccountants = accountants.map((a: typeof accountants[number]) => ({
-      id: a.id,
-      employeeId: `EMP-${a.username.toUpperCase()}`,
-      fullName: a.fullName,
-      email: a.email,
-      phone: "+251911000333",
-      branchId: a.branchId || "Unassigned",
-      branchName: a.branch?.name || "Unassigned",
-      tillNumber: `TILL-0${a.username.charCodeAt(a.username.length - 1) % 9 || 1}`,
-      status: a.status,
-      isFirstLogin: a.isFirstLogin,
-      isActive: a.isActive,
-      dailyProcessedVolume: a._count.processedTransactions * 12500,
-      verificationSuccessRate: 98.5
-    }));
+    const accountantIds = accountants.map((a) => a.id);
+
+    // Aggregate real performance figures from the ledger.
+    const txStats = accountantIds.length
+      ? await prisma.transaction.groupBy({
+          by: ["accountantId"],
+          where: { accountantId: { in: accountantIds } },
+          _count: { _all: true },
+          _sum: { amount: true }
+        })
+      : [];
+
+    const scanStats = accountantIds.length
+      ? await prisma.biometricScanResult.groupBy({
+          by: ["operatorId"],
+          where: { operatorId: { in: accountantIds } },
+          _count: { _all: true },
+          _avg: { matchScore: true }
+        })
+      : [];
+
+    const txStatsByAccountant = new Map(txStats.map((s) => [s.accountantId, s]));
+    const scanStatsByOperator = new Map(scanStats.map((s) => [s.operatorId, s]));
+
+    const formattedAccountants = accountants.map((a: typeof accountants[number]) => {
+      const txStat = txStatsByAccountant.get(a.id);
+      const scanStat = scanStatsByOperator.get(a.id);
+
+      return {
+        id: a.id,
+        employeeId: `EMP-${a.username.toUpperCase()}`,
+        username: a.username,
+        fullName: a.fullName,
+        email: a.email,
+        branchId: a.branchId || "Unassigned",
+        branchName: a.branch?.name || "Unassigned",
+        status: a.status,
+        isFirstLogin: a.isFirstLogin,
+        isActive: a.isActive,
+        lastLoginAt: a.lastLoginAt,
+        createdAt: a.createdAt,
+        totalTransactions: txStat?._count._all || 0,
+        totalProcessedVolume: txStat?._sum.amount || 0,
+        verificationSuccessRate: scanStat?._avg.matchScore
+          ? Math.round(scanStat._avg.matchScore * 10) / 10
+          : null
+      };
+    });
 
     res.status(200).json({ success: true, data: formattedAccountants });
   } catch (error: any) {
@@ -650,6 +698,11 @@ export async function getStaffDetails(req: AuthenticatedRequest, res: Response):
   const id = String(req.params.id);
 
   try {
+    if (!req.user) {
+      res.status(401).json({ success: false, message: "Unauthorized" });
+      return;
+    }
+
     const user = await prisma.user.findUnique({
       where: { id },
       include: { branch: true }
@@ -657,6 +710,15 @@ export async function getStaffDetails(req: AuthenticatedRequest, res: Response):
 
     if (!user) {
       res.status(404).json({ success: false, message: "Staff member not found" });
+      return;
+    }
+
+    // Bank Manager / Branch IT can only inspect users in their own branch
+    if (
+      (req.user.role === "BANK_MANAGER" || req.user.role === "BRANCH_IT") &&
+      user.branchId !== req.user.branchId
+    ) {
+      res.status(403).json({ success: false, message: "Access denied: you can only manage users in your assigned branch" });
       return;
     }
 
@@ -684,7 +746,7 @@ export async function getStaffDetails(req: AuthenticatedRequest, res: Response):
 
 export async function updateStaff(req: AuthenticatedRequest, res: Response): Promise<void> {
   const id = String(req.params.id);
-  const { fullName, email, branchId, status, isActive } = req.body;
+  const { fullName, email, status, isActive } = req.body;
   const ipAddress = req.ip || "unknown";
 
   try {
@@ -702,12 +764,21 @@ export async function updateStaff(req: AuthenticatedRequest, res: Response): Pro
       }
     }
 
+    if (email && email !== targetUser.email) {
+      const existingEmail = await prisma.user.findFirst({
+        where: { email, id: { not: id } }
+      });
+      if (existingEmail) {
+        res.status(400).json({ success: false, message: "Email already belongs to another staff member" });
+        return;
+      }
+    }
+
     const updated = await prisma.user.update({
       where: { id },
       data: {
         fullName: fullName ?? undefined,
         email: email ?? undefined,
-        branchId: branchId ?? undefined,
         status: status ?? undefined,
         isActive: isActive ?? undefined
       }

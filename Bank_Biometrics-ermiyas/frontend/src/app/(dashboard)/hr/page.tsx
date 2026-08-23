@@ -1,6 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  BarChart3,
+  CheckCircle2,
+  ClipboardList,
+  Clock,
+  FileCheck2,
+  Hourglass,
+  LayoutDashboard,
+  Loader2,
+  MonitorSmartphone,
+  RefreshCw,
+  ShieldCheck,
+  UserPlus,
+  UserRound,
+  Users,
+} from "lucide-react";
 
 type RequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 
@@ -31,25 +48,36 @@ type BranchOption = {
   city: string;
 };
 
-const SECTION_COLORS = {
-  dashboard: { primary: "#2563eb", light: "#dbeafe", border: "#93c5fd" },
-  employees: { primary: "#10b981", light: "#d1fae5", border: "#6ee7b7" },
-  approvals: { primary: "#f59e0b", light: "rgba(198,154,76,0.15)", border: "#fcd34d" },
-  reports: { primary: "#ec4899", light: "#fce7f3", border: "#fbcfe8" },
-  attendance: { primary: "#0ea5e9", light: "#e0f2fe", border: "#7dd3fc" },
-};
+type SectionKey = "dashboard" | "employees" | "attendance" | "approvals" | "reports";
 
 const ATTENDANCE_STATUSES = ["PRESENT", "LATE", "ON_LEAVE", "ABSENT"] as const;
 
-const STATUS_BUTTON_STYLES: Record<string, { bg: string; hover: string }> = {
-  PRESENT: { bg: "#10b981", hover: "#059669" },
-  LATE: { bg: "#f59e0b", hover: "#d97706" },
-  ON_LEAVE: { bg: "#8b5cf6", hover: "#7c3aed" },
-  ABSENT: { bg: "#ef4444", hover: "#dc2626" },
+const ATTENDANCE_PILL: Record<string, string> = {
+  PRESENT: "bg-[rgba(76,122,94,0.16)] text-[color:var(--moss)]",
+  LATE: "bg-[rgba(198,154,76,0.16)] text-[color:var(--brass)]",
+  ON_LEAVE: "bg-[rgba(139,92,246,0.16)] text-violet-300",
+  ABSENT: "bg-[rgba(168,69,46,0.16)] text-[color:var(--clay)]",
 };
 
+const ATTENDANCE_BUTTON: Record<string, string> = {
+  PRESENT: "border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/15",
+  LATE: "border-amber-500/40 text-amber-300 hover:bg-amber-500/15",
+  ON_LEAVE: "border-violet-500/40 text-violet-300 hover:bg-violet-500/15",
+  ABSENT: "border-red-500/40 text-red-300 hover:bg-red-500/15",
+};
+
+const inputClass =
+  "w-full rounded-xl border border-[#1E293B] bg-[#0B192C] px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 transition-colors focus:border-[color:var(--brass)] focus:outline-none";
+const labelClass = "mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-400";
+
+function statusPillClass(status: string): string {
+  if (status === "APPROVED") return "status-pill bg-[rgba(76,122,94,0.16)] text-[color:var(--moss)]";
+  if (status === "REJECTED") return "status-pill bg-[rgba(168,69,46,0.16)] text-[color:var(--clay)]";
+  return "status-pill bg-[rgba(198,154,76,0.16)] text-[color:var(--brass)]";
+}
+
 export default function HRPage() {
-  const [activeSection, setActiveSection] = useState("dashboard");
+  const [activeSection, setActiveSection] = useState<SectionKey>("dashboard");
   const [employeeSubsection, setEmployeeSubsection] = useState("employee-info");
 
   const [username, setUsername] = useState("");
@@ -75,9 +103,7 @@ export default function HRPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const [attendanceDate, setAttendanceDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().slice(0, 10));
   const [attendanceRecords, setAttendanceRecords] = useState<any[]>([]);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
   const [markingId, setMarkingId] = useState<string | null>(null);
@@ -111,10 +137,7 @@ export default function HRPage() {
       if (result.success && Array.isArray(result.data)) {
         setBranches(result.data);
       } else {
-        console.error(
-          "Failed to load branches:",
-          result.message || response.status
-        );
+        console.error("Failed to load branches:", result.message || response.status);
       }
     } catch (err) {
       console.error("Failed to load branches:", err);
@@ -127,14 +150,11 @@ export default function HRPage() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        `${API_URL}/attendance?date=${attendanceDate}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/attendance?date=${attendanceDate}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const result = await response.json();
 
@@ -200,10 +220,7 @@ export default function HRPage() {
 
       if (result.success && Array.isArray(result.data)) {
         const accountantRequests = result.data
-          .filter(
-            (item: any) =>
-              item.requestType === "CREATE_ACCOUNTANT"
-          )
+          .filter((item: any) => item.requestType === "CREATE_ACCOUNTANT")
           .map((item: any) => ({
             id: item.id,
             username: item.targetUserId || "N/A",
@@ -241,8 +258,7 @@ export default function HRPage() {
         setEmployees(
           result.data.map((employee: any) => ({
             id: employee.id,
-            username:
-              employee.username || employee.employeeId || "",
+            username: employee.username || employee.employeeId || "",
             fullName: employee.fullName,
             email: employee.email,
             role: "ACCOUNTANT",
@@ -256,15 +272,12 @@ export default function HRPage() {
     }
   }
 
-  async function handleCreateAccountant(
-    event: React.FormEvent<HTMLFormElement>
-  ) {
+  async function handleCreateAccountant(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setMessage("");
     setError("");
 
-    // Validation
     if (!username?.trim()) {
       setError("Username is required.");
       return;
@@ -295,7 +308,6 @@ export default function HRPage() {
       return;
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address.");
@@ -313,23 +325,20 @@ export default function HRPage() {
         return;
       }
 
-      const response = await fetch(
-        `${API_URL}/staff/hr-accountant`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            username: username.trim(),
-            fullName: fullName.trim(),
-            email: email.trim(),
-            branchId: branchId.trim(),
-            passcode: passcode.trim(),
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/staff/hr-accountant`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          username: username.trim(),
+          fullName: fullName.trim(),
+          email: email.trim(),
+          branchId: branchId.trim(),
+          passcode: passcode.trim(),
+        }),
+      });
 
       const result = await response.json();
 
@@ -340,42 +349,32 @@ export default function HRPage() {
       }
 
       if (!response.ok) {
-        setError(
-          result.message ||
-            "Failed to create Accountant request. Please try again."
-        );
+        setError(result.message || "Failed to create Accountant request. Please try again.");
         return;
       }
 
       setMessage(
         result.message ||
-          "✅ Accountant request created successfully and sent to Bank Manager for approval."
+          "Accountant request created successfully and sent to Bank Manager for approval."
       );
 
-      // Clear form
       setUsername("");
       setFullName("");
       setEmail("");
       setBranchId("");
       setPasscode("");
 
-      // Reload data
       await loadApprovalRequests();
       await loadEmployees();
     } catch (err) {
       console.error("Error creating accountant:", err);
-
-      setError(
-        "Cannot connect to the backend. Make sure the backend is running on port 5000."
-      );
+      setError("Cannot connect to the backend. Make sure the backend is running on port 5000.");
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleCreateBranchIT(
-    event: React.FormEvent<HTMLFormElement>
-  ) {
+  async function handleCreateBranchIT(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setItMessage("");
@@ -456,9 +455,7 @@ export default function HRPage() {
         return;
       }
 
-      setItMessage(
-        result.message || "✅ Branch IT user created successfully."
-      );
+      setItMessage(result.message || "Branch IT user created successfully.");
 
       setItUsername("");
       setItFullName("");
@@ -469,1953 +466,624 @@ export default function HRPage() {
       await loadEmployees();
     } catch (err) {
       console.error("Error creating Branch IT user:", err);
-      setItError(
-        "Cannot connect to the backend. Make sure the backend is running on port 5000."
-      );
+      setItError("Cannot connect to the backend. Make sure the backend is running on port 5000.");
     } finally {
       setItSaving(false);
     }
   }
 
-  function getStatusStyle(status: string) {
-    if (status === "APPROVED") {
-      return {
-        backgroundColor: "rgba(76,122,94,0.15)",
-        color: "#4C7A5E",
-      };
-    }
+  const pendingCount = requests.filter((request) => request.status === "PENDING").length;
+  const approvedCount = requests.filter((request) => request.status === "APPROVED").length;
+  const rejectedCount = requests.filter((request) => request.status === "REJECTED").length;
 
-    if (status === "REJECTED") {
-      return {
-        backgroundColor: "rgba(168,69,46,0.15)",
-        color: "#A8452E",
-      };
-    }
+  const headerTitle: Record<string, string> = {
+    dashboard: "HR command center",
+    "employee-info": "Employee information",
+    "create-accountant": "Create accountant request",
+    "create-branch-it": "Provision Branch IT user",
+    "accountant-requests": "Accountant requests",
+    approvals: "Approval queue",
+    attendance: "Daily attendance",
+    reports: "HR reports",
+  };
 
-    return {
-      backgroundColor: "rgba(198,154,76,0.15)",
-      color: "#C69A4C",
-    };
-  }
+  const headerDesc: Record<string, string> = {
+    dashboard: "Workforce readiness, pending requests and staff overview.",
+    "employee-info": "All registered accountants across your branches.",
+    "create-accountant": "Submit a new teller account for Bank Manager approval.",
+    "create-branch-it": "Provision a Branch IT operator for a selected branch.",
+    "accountant-requests": "Track every accountant creation request you filed.",
+    approvals: "Monitor requests awaiting branch manager sign-off.",
+    attendance: "Mark and review daily employee attendance.",
+    reports: "Generate and review HR reports and statistics.",
+  };
 
-  const pendingCount = requests.filter(
-    (request) => request.status === "PENDING"
-  ).length;
+  const currentKey =
+    activeSection === "employees" ? employeeSubsection : activeSection;
 
-  const approvedCount = requests.filter(
-    (request) => request.status === "APPROVED"
-  ).length;
+  const tabs: { key: SectionKey; label: string; icon: typeof LayoutDashboard }[] = [
+    { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { key: "employees", label: "Employees", icon: Users },
+    { key: "attendance", label: "Attendance", icon: Clock },
+    { key: "approvals", label: "Approval Queue", icon: Hourglass },
+    { key: "reports", label: "Reports", icon: BarChart3 },
+  ];
 
-  const rejectedCount = requests.filter(
-    (request) => request.status === "REJECTED"
-  ).length;
+  const employeeTabs = [
+    { key: "employee-info", label: "Information", icon: UserRound },
+    { key: "create-accountant", label: "Create Accountant", icon: UserPlus },
+    { key: "create-branch-it", label: "Create Branch IT", icon: MonitorSmartphone },
+    { key: "accountant-requests", label: "Requests", icon: ClipboardList },
+  ];
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#0F1B2B",
-        fontFamily: "Arial, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          minHeight: "100vh",
-        }}
-      >
-        {/* SIDEBAR */}
-        <aside
-          style={{
-            width: "280px",
-            backgroundColor: "#0f172a",
-            color: "white",
-            padding: "30px 15px",
-            overflowY: "auto",
-          }}
-        >
-          <div
-            style={{
-              fontSize: "24px",
-              fontWeight: "bold",
-              padding: "10px 15px 40px",
-              color: "#ffffff",
-            }}
-          >
-            🏦 Aegis Banking
+    <div className="space-y-6">
+      {/* Header */}
+      <section className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="section-title mb-2">Human resources workspace</div>
+            <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">
+              {headerTitle[currentKey] || "HR command center"}
+            </h1>
+            <p className="mt-2 text-sm text-[color:var(--ledger-paper-dim)]">
+              {headerDesc[currentKey] || ""}
+            </p>
           </div>
-
-          <div
-            style={{
-              padding: "10px 15px",
-              color: "#C9C2AE",
-              fontSize: "12px",
-              marginBottom: "20px",
-              fontWeight: "600",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-            }}
-          >
-            HUMAN RESOURCES MENU
-          </div>
-
-          {/* Dashboard Button */}
-          <button
-            onClick={() => {
-              setActiveSection("dashboard");
-            }}
-            style={{
-              width: "100%",
-              padding: "14px 16px",
-              marginBottom: "10px",
-              textAlign: "left",
-              border: "none",
-              borderRadius: "10px",
-              cursor: "pointer",
-              backgroundColor:
-                activeSection === "dashboard"
-                  ? SECTION_COLORS.dashboard.primary
-                  : "transparent",
-              color: "white",
-              fontSize: "15px",
-              fontWeight: activeSection === "dashboard" ? "600" : "500",
-              transition: "all 0.3s ease",
-              borderLeft:
-                activeSection === "dashboard"
-                  ? `4px solid ${SECTION_COLORS.dashboard.border}`
-                  : "4px solid transparent",
-            }}
-          >
-            📊 Dashboard
-          </button>
-
-          {/* Employees Button with Submenu */}
-          <button
-            onClick={() => setActiveSection("employees")}
-            style={{
-              width: "100%",
-              padding: "14px 16px",
-              marginBottom: "2px",
-              textAlign: "left",
-              border: "none",
-              borderRadius: "10px 10px 0 0",
-              cursor: "pointer",
-              backgroundColor:
-                activeSection === "employees"
-                  ? SECTION_COLORS.employees.primary
-                  : "transparent",
-              color: "white",
-              fontSize: "15px",
-              fontWeight: activeSection === "employees" ? "600" : "500",
-              transition: "all 0.3s ease",
-              borderLeft:
-                activeSection === "employees"
-                  ? `4px solid ${SECTION_COLORS.employees.border}`
-                  : "4px solid transparent",
-            }}
-          >
-            👥 Employees
-          </button>
-
-          {/* Employees Submenu */}
-          {activeSection === "employees" && (
-            <div
-              style={{
-                backgroundColor: "#0B192C",
-                borderRadius: "0 0 10px 10px",
-                marginBottom: "10px",
-                overflow: "hidden",
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-2 rounded-2xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)]">
+              <ShieldCheck className="h-4 w-4 text-[color:var(--brass)]" />
+              HR Administrator
+            </span>
+            <button
+              onClick={() => {
+                loadApprovalRequests();
+                loadEmployees();
+                if (activeSection === "attendance") loadAttendance();
               }}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper-dim)] transition hover:text-[color:var(--ledger-paper)]"
             >
-              <button
-                onClick={() => setEmployeeSubsection("employee-info")}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px 12px 32px",
-                  textAlign: "left",
-                  border: "none",
-                  backgroundColor:
-                    employeeSubsection === "employee-info"
-                      ? SECTION_COLORS.employees.light.replace("d1fae5", "a8e6c1").substring(0, 7) + "40"
-                      : "transparent",
-                  color:
-                    employeeSubsection === "employee-info"
-                      ? SECTION_COLORS.employees.primary
-                      : "#C9C2AE",
-                  fontSize: "14px",
-                  fontWeight: employeeSubsection === "employee-info" ? "600" : "500",
-                  cursor: "pointer",
-                  borderLeft:
-                    employeeSubsection === "employee-info"
-                      ? `3px solid ${SECTION_COLORS.employees.primary}`
-                      : "none",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                👤 Employee Information
-              </button>
-
-              <button
-                onClick={() => setEmployeeSubsection("create-accountant")}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px 12px 32px",
-                  textAlign: "left",
-                  border: "none",
-                  backgroundColor:
-                    employeeSubsection === "create-accountant"
-                      ? SECTION_COLORS.employees.light.replace("d1fae5", "a8e6c1").substring(0, 7) + "40"
-                      : "transparent",
-                  color:
-                    employeeSubsection === "create-accountant"
-                      ? SECTION_COLORS.employees.primary
-                      : "#C9C2AE",
-                  fontSize: "14px",
-                  fontWeight: employeeSubsection === "create-accountant" ? "600" : "500",
-                  cursor: "pointer",
-                  borderLeft:
-                    employeeSubsection === "create-accountant"
-                      ? `3px solid ${SECTION_COLORS.employees.primary}`
-                      : "none",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                ➕ Create Accountant
-              </button>
-
-              <button
-                onClick={() => setEmployeeSubsection("create-branch-it")}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px 12px 32px",
-                  textAlign: "left",
-                  border: "none",
-                  backgroundColor:
-                    employeeSubsection === "create-branch-it"
-                      ? SECTION_COLORS.employees.light.replace("d1fae5", "a8e6c1").substring(0, 7) + "40"
-                      : "transparent",
-                  color:
-                    employeeSubsection === "create-branch-it"
-                      ? SECTION_COLORS.employees.primary
-                      : "#C9C2AE",
-                  fontSize: "14px",
-                  fontWeight: employeeSubsection === "create-branch-it" ? "600" : "500",
-                  cursor: "pointer",
-                  borderLeft:
-                    employeeSubsection === "create-branch-it"
-                      ? `3px solid ${SECTION_COLORS.employees.primary}`
-                      : "none",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                ➕ Create Branch IT
-              </button>
-
-              <button
-                onClick={() => setEmployeeSubsection("accountant-requests")}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px 12px 32px",
-                  textAlign: "left",
-                  border: "none",
-                  backgroundColor:
-                    employeeSubsection === "accountant-requests"
-                      ? SECTION_COLORS.employees.light.replace("d1fae5", "a8e6c1").substring(0, 7) + "40"
-                      : "transparent",
-                  color:
-                    employeeSubsection === "accountant-requests"
-                      ? SECTION_COLORS.employees.primary
-                      : "#C9C2AE",
-                  fontSize: "14px",
-                  fontWeight: employeeSubsection === "accountant-requests" ? "600" : "500",
-                  cursor: "pointer",
-                  borderLeft:
-                    employeeSubsection === "accountant-requests"
-                      ? `3px solid ${SECTION_COLORS.employees.primary}`
-                      : "none",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                📋 Accountant Requests
-              </button>
-            </div>
-          )}
-
-          {/* Attendance Button */}
-          <button
-            onClick={() => setActiveSection("attendance")}
-            style={{
-              width: "100%",
-              padding: "14px 16px",
-              marginBottom: "10px",
-              textAlign: "left",
-              border: "none",
-              borderRadius: "10px",
-              cursor: "pointer",
-              backgroundColor:
-                activeSection === "attendance"
-                  ? SECTION_COLORS.attendance.primary
-                  : "transparent",
-              color: "white",
-              fontSize: "15px",
-              fontWeight: activeSection === "attendance" ? "600" : "500",
-              transition: "all 0.3s ease",
-              borderLeft:
-                activeSection === "attendance"
-                  ? `4px solid ${SECTION_COLORS.attendance.border}`
-                  : "4px solid transparent",
-            }}
-          >
-            🕒 Attendance
-          </button>
-
-          {/* Approval Queue Button */}
-          <button
-            onClick={() => setActiveSection("approvals")}
-            style={{
-              width: "100%",
-              padding: "14px 16px",
-              marginBottom: "10px",
-              textAlign: "left",
-              border: "none",
-              borderRadius: "10px",
-              cursor: "pointer",
-              backgroundColor:
-                activeSection === "approvals"
-                  ? SECTION_COLORS.approvals.primary
-                  : "transparent",
-              color: "white",
-              fontSize: "15px",
-              fontWeight: activeSection === "approvals" ? "600" : "500",
-              transition: "all 0.3s ease",
-              borderLeft:
-                activeSection === "approvals"
-                  ? `4px solid ${SECTION_COLORS.approvals.border}`
-                  : "4px solid transparent",
-            }}
-          >
-            ⏳ Approval Queue
-          </button>
-
-          {/* Reports Button */}
-          <button
-            onClick={() => setActiveSection("reports")}
-            style={{
-              width: "100%",
-              padding: "14px 16px",
-              marginBottom: "10px",
-              textAlign: "left",
-              border: "none",
-              borderRadius: "10px",
-              cursor: "pointer",
-              backgroundColor:
-                activeSection === "reports"
-                  ? SECTION_COLORS.reports.primary
-                  : "transparent",
-              color: "white",
-              fontSize: "15px",
-              fontWeight: activeSection === "reports" ? "600" : "500",
-              transition: "all 0.3s ease",
-              borderLeft:
-                activeSection === "reports"
-                  ? `4px solid ${SECTION_COLORS.reports.border}`
-                  : "4px solid transparent",
-            }}
-          >
-            📈 Reports
-          </button>
-        </aside>
-
-        {/* MAIN CONTENT */}
-        <main
-          style={{
-            flex: 1,
-            padding: "40px",
-            backgroundColor: "#0B192C",
-            overflowY: "auto",
-          }}
-        >
-          {/* HEADER */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "40px",
-            }}
-          >
-            <div>
-              <h1
-                style={{
-                  margin: 0,
-                  fontSize: "32px",
-                  color: "#0f172a",
-                  fontWeight: "700",
-                }}
-              >
-                {activeSection === "dashboard" && "📊 Dashboard"}
-                {activeSection === "employees" && employeeSubsection === "employee-info" && "👤 Employee Information"}
-                {activeSection === "employees" && employeeSubsection === "create-accountant" && "➕ Create Accountant"}
-                {activeSection === "employees" && employeeSubsection === "create-branch-it" && "➕ Create Branch IT"}
-                {activeSection === "employees" && employeeSubsection === "accountant-requests" && "📋 Accountant Requests"}
-                {activeSection === "approvals" && "⏳ Approval Queue"}
-                {activeSection === "reports" && "📈 Reports"}
-              </h1>
-
-              <p
-                style={{
-                  marginTop: "8px",
-                  color: "#C9C2AE",
-                  fontSize: "15px",
-                }}
-              >
-                {activeSection === "dashboard" && "Overview of HR metrics and statistics"}
-                {activeSection === "employees" && employeeSubsection === "employee-info" && "View all registered accountants and their details"}
-                {activeSection === "employees" && employeeSubsection === "create-accountant" && "Create new Accountant account requests"}
-                {activeSection === "employees" && employeeSubsection === "create-branch-it" && "Provision a new Branch IT user for a selected branch"}
-                {activeSection === "employees" && employeeSubsection === "accountant-requests" && "Track pending and approved Accountant requests"}
-                {activeSection === "approvals" && "Review and manage pending approvals"}
-                {activeSection === "attendance" && "Mark and review daily employee attendance"}
-                {activeSection === "reports" && "View and generate HR reports"}
-              </p>
-            </div>
-
-            <div
-              style={{
-                backgroundColor: "white",
-                padding: "14px 22px",
-                borderRadius: "12px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                fontSize: "14px",
-                fontWeight: "600",
-                color: "#0f172a",
-              }}
-            >
-              Role: <span style={{ color: SECTION_COLORS.dashboard.primary }}>HR Administrator</span>
-            </div>
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </button>
           </div>
+        </div>
+      </section>
 
-          {/* DASHBOARD */}
-          {activeSection === "dashboard" && (
-            <>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fit, minmax(220px, 1fr))",
-                  gap: "20px",
-                  marginBottom: "40px",
-                }}
+      {(error || message) && (
+        <div
+          className={`rounded-2xl border p-4 text-xs font-medium ${
+            error ? "border-red-500/30 bg-red-500/10 text-red-300" : "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+          }`}
+        >
+          {error || message}
+        </div>
+      )}
+
+      {/* Section rail + content */}
+      <div className="grid items-start gap-6 lg:grid-cols-[230px_1fr]">
+        <nav className="flex flex-col gap-1.5 rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.78)] p-3 backdrop-blur-xl">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeSection === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveSection(tab.key)}
+                className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+                  isActive
+                    ? "border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] text-[color:var(--ledger-paper)]"
+                    : "border border-transparent text-[color:var(--ledger-paper-dim)] hover:bg-[rgba(244,239,223,0.04)] hover:text-[color:var(--ledger-paper)]"
+                }`}
               >
-                {/* Pending Requests Card */}
-                <div
-                  style={{
-                    backgroundColor: "white",
-                    padding: "28px",
-                    borderRadius: "14px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    borderTop: `4px solid ${SECTION_COLORS.approvals.primary}`,
-                    transition: "transform 0.2s",
-                  }}
-                >
-                  <p
-                    style={{
-                      color: "#C9C2AE",
-                      margin: 0,
-                      fontSize: "14px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    ⏳ Pending Requests
-                  </p>
-
-                  <h2
-                    style={{
-                      margin: "12px 0 0",
-                      fontSize: "36px",
-                      color: SECTION_COLORS.approvals.primary,
-                      fontWeight: "700",
-                    }}
-                  >
+                <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[color:var(--brass)]" : ""}`} />
+                {tab.label}
+                {tab.key === "approvals" && pendingCount > 0 && (
+                  <span className="ml-auto rounded-full bg-[rgba(198,154,76,0.18)] px-2 py-0.5 text-[11px] font-bold text-[color:var(--brass)]">
                     {pendingCount}
-                  </h2>
-                </div>
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
-                {/* Approved Requests Card */}
+        <div className="min-w-0 space-y-6">
+
+      {/* Employee sub-tabs */}
+      {activeSection === "employees" && (
+        <nav className="flex flex-wrap gap-2 rounded-[20px] border border-white/10 bg-[rgba(15,23,40,0.78)] p-2 backdrop-blur-xl">
+          {employeeTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = employeeSubsection === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setEmployeeSubsection(tab.key)}
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition ${
+                  isActive
+                    ? "border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] text-[color:var(--ledger-paper)]"
+                    : "border border-transparent text-[color:var(--ledger-paper-dim)] hover:text-[color:var(--ledger-paper)]"
+                }`}
+              >
+                <Icon className={`h-3.5 w-3.5 ${isActive ? "text-[color:var(--brass)]" : ""}`} />
+                {tab.label}
+              </button>
+            );
+          })}
+        </nav>
+      )}
+
+      {/* DASHBOARD */}
+      {activeSection === "dashboard" && (
+        <>
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              { label: "Pending requests", value: String(pendingCount), delta: pendingCount > 0 ? "Awaiting sign-off" : "Queue clear", icon: FileCheck2 },
+              { label: "Approved requests", value: String(approvedCount), delta: "Activated accounts", icon: CheckCircle2 },
+              { label: "Rejected requests", value: String(rejectedCount), delta: "Needs re-filing", icon: Hourglass },
+              { label: "Total accountants", value: String(employees.length), delta: `${employees.filter((e) => e.status === "ACTIVE").length} active`, icon: Users },
+            ].map((metric) => {
+              const Icon = metric.icon;
+              return (
                 <div
-                  style={{
-                    backgroundColor: "white",
-                    padding: "28px",
-                    borderRadius: "14px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    borderTop: `4px solid ${SECTION_COLORS.employees.primary}`,
-                  }}
+                  key={metric.label}
+                  className="rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.78)] p-5 shadow-[0_16px_40px_rgba(2,8,23,0.28)] transition hover:border-[color:var(--brass)]/40"
                 >
-                  <p
-                    style={{
-                      color: "#C9C2AE",
-                      margin: 0,
-                      fontSize: "14px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    ✅ Approved Requests
-                  </p>
-
-                  <h2
-                    style={{
-                      margin: "12px 0 0",
-                      fontSize: "36px",
-                      color: SECTION_COLORS.employees.primary,
-                      fontWeight: "700",
-                    }}
-                  >
-                    {approvedCount}
-                  </h2>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[color:var(--ledger-paper-dim)]">{metric.label}</span>
+                    <div className="rounded-2xl border border-[color:var(--brass)]/20 bg-[rgba(198,154,76,0.12)] p-2 text-[color:var(--brass)]">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                  </div>
+                  <div className="mt-5 text-3xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">{metric.value}</div>
+                  <div className="mt-2 text-sm text-[color:var(--ledger-paper-dim)]">{metric.delta}</div>
                 </div>
+              );
+            })}
+          </section>
 
-                {/* Rejected Requests Card */}
-                <div
-                  style={{
-                    backgroundColor: "white",
-                    padding: "28px",
-                    borderRadius: "14px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    borderTop: `4px solid #ef4444`,
+          <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+            {/* Recent requests */}
+            <div className="rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-5 shadow-[0_20px_60px_rgba(2,8,23,0.36)]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="section-title">Request pipeline</div>
+                  <h2 className="mt-1 text-lg font-semibold text-[color:var(--ledger-paper)]">Latest filings</h2>
+                </div>
+                <button
+                  onClick={() => {
+                    setActiveSection("employees");
+                    setEmployeeSubsection("accountant-requests");
                   }}
+                  className="text-sm font-semibold text-[color:var(--brass)] hover:underline"
                 >
-                  <p
-                    style={{
-                      color: "#C9C2AE",
-                      margin: 0,
-                      fontSize: "14px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    ❌ Rejected Requests
-                  </p>
-
-                  <h2
-                    style={{
-                      margin: "12px 0 0",
-                      fontSize: "36px",
-                      color: "#A8452E",
-                      fontWeight: "700",
-                    }}
-                  >
-                    {rejectedCount}
-                  </h2>
-                </div>
-
-                {/* Total Accountants Card */}
-                <div
-                  style={{
-                    backgroundColor: "white",
-                    padding: "28px",
-                    borderRadius: "14px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    borderTop: `4px solid ${SECTION_COLORS.dashboard.primary}`,
-                  }}
-                >
-                  <p
-                    style={{
-                      color: "#C9C2AE",
-                      margin: 0,
-                      fontSize: "14px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    👥 Total Accountants
-                  </p>
-
-                  <h2
-                    style={{
-                      margin: "12px 0 0",
-                      fontSize: "36px",
-                      color: SECTION_COLORS.dashboard.primary,
-                      fontWeight: "700",
-                    }}
-                  >
-                    {employees.length}
-                  </h2>
-                </div>
+                  Open full list →
+                </button>
               </div>
 
-              {/* HR Responsibilities Card */}
-              <div
-                style={{
-                  backgroundColor: "white",
-                  borderRadius: "14px",
-                  padding: "32px",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  borderLeft: `5px solid ${SECTION_COLORS.dashboard.primary}`,
-                }}
-              >
-                <h2 style={{ marginTop: 0, color: "#0f172a", fontSize: "20px" }}>
-                  📋 HR Responsibilities
-                </h2>
-
-                <ul
-                  style={{
-                    lineHeight: "2.2",
-                    color: "#475569",
-                    marginTop: "16px",
-                    paddingLeft: "20px",
-                  }}
-                >
-                  <li>✓ Create Accountant requests and manage approvals</li>
-                  <li>✓ Assign branches to new Accountant employees</li>
-                  <li>✓ Track all pending, approved, and rejected requests</li>
-                  <li>✓ Monitor employee information and status</li>
-                  <li>✓ Coordinate with Bank Managers for approvals</li>
-                  <li>✓ Generate and review HR reports</li>
-                </ul>
+              <div className="mt-5 space-y-3">
+                {requests.length === 0 ? (
+                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[rgba(244,239,223,0.04)] p-4 text-sm text-[color:var(--ledger-paper-dim)]">
+                    <CheckCircle2 className="h-5 w-5 text-[color:var(--moss)]" />
+                    No accountant requests yet — file one from the Employees tab.
+                  </div>
+                ) : (
+                  requests.slice(0, 5).map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-[rgba(244,239,223,0.04)] p-4 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-[color:var(--ledger-paper)]">
+                          Accountant creation
+                        </div>
+                        <div className="mt-1 truncate text-sm text-[color:var(--ledger-paper-dim)]">
+                          {item.fullName} ·{" "}
+                          {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-"}
+                        </div>
+                      </div>
+                      <span className={`shrink-0 ${statusPillClass(item.status)}`}>{item.status}</span>
+                    </div>
+                  ))
+                )}
               </div>
-            </>
-          )}
+            </div>
 
-          {/* EMPLOYEES SECTION */}
-          {activeSection === "employees" && (
-            <>
-              {/* Employee Information View */}
-              {employeeSubsection === "employee-info" && (
-                <div
-                  style={{
-                    backgroundColor: "white",
-                    borderRadius: "14px",
-                    padding: "28px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    overflowX: "auto",
-                  }}
-                >
-                  <h3
-                    style={{
-                      marginTop: 0,
-                      color: "#0f172a",
-                      fontSize: "18px",
-                    }}
+            {/* Responsibilities */}
+            <div className="rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-5 shadow-[0_20px_60px_rgba(2,8,23,0.36)]">
+              <div className="section-title">Mandate</div>
+              <h2 className="mt-1 text-lg font-semibold text-[color:var(--ledger-paper)]">HR responsibilities</h2>
+
+              <div className="mt-5 space-y-3">
+                {[
+                  "Create accountant requests and manage approvals",
+                  "Assign branches to new accountant employees",
+                  "Track pending, approved and rejected requests",
+                  "Monitor employee information and status",
+                  "Coordinate with bank managers for sign-off",
+                  "Provision Branch IT operators",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-3 rounded-2xl border border-white/10 bg-[rgba(244,239,223,0.04)] p-4 text-sm text-[color:var(--ledger-paper-dim)]"
                   >
-                    Registered Accountants
-                  </h3>
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[color:var(--moss)]" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
 
-                  {employees.length === 0 ? (
-                    <p style={{ color: "#C9C2AE" }}>
-                      No Accountant employees found.
-                    </p>
-                  ) : (
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                      }}
-                    >
-                      <thead>
-                        <tr
-                          style={{
-                            backgroundColor:
-                              SECTION_COLORS.employees
-                                .light,
-                          }}
-                        >
-                          <th
-                            style={{
-                              textAlign: "left",
-                              padding: "14px",
-                              borderBottom: `2px solid ${SECTION_COLORS.employees.border}`,
-                              fontWeight: "600",
-                              color: SECTION_COLORS.employees
-                                .primary,
-                            }}
-                          >
-                            Name
-                          </th>
-
-                          <th
-                            style={{
-                              textAlign: "left",
-                              padding: "14px",
-                              borderBottom: `2px solid ${SECTION_COLORS.employees.border}`,
-                              fontWeight: "600",
-                              color: SECTION_COLORS.employees
-                                .primary,
-                            }}
-                          >
-                            Email
-                          </th>
-
-                          <th
-                            style={{
-                              textAlign: "left",
-                              padding: "14px",
-                              borderBottom: `2px solid ${SECTION_COLORS.employees.border}`,
-                              fontWeight: "600",
-                              color: SECTION_COLORS.employees
-                                .primary,
-                            }}
-                          >
-                            Role
-                          </th>
-
-                          <th
-                            style={{
-                              textAlign: "left",
-                              padding: "14px",
-                              borderBottom: `2px solid ${SECTION_COLORS.employees.border}`,
-                              fontWeight: "600",
-                              color: SECTION_COLORS.employees
-                                .primary,
-                            }}
-                          >
-                            Branch
-                          </th>
-
-                          <th
-                            style={{
-                              textAlign: "left",
-                              padding: "14px",
-                              borderBottom: `2px solid ${SECTION_COLORS.employees.border}`,
-                              fontWeight: "600",
-                              color: SECTION_COLORS.employees
-                                .primary,
-                            }}
-                          >
-                            Status
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {employees.map((employee) => (
-                          <tr
-                            key={employee.id}
-                            style={{
-                              borderBottom:
-                                "1px solid #e2e8f0",
-                              transition:
-                                "background-color 0.2s",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                "rgba(198,154,76,0.04)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                "transparent";
-                            }}
-                          >
-                            <td
-                              style={{
-                                padding: "14px",
-                              }}
-                            >
-                              {employee.fullName}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "14px",
-                                color: "#C9C2AE",
-                              }}
-                            >
-                              {employee.email}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "14px",
-                                color: "#C9C2AE",
-                              }}
-                            >
-                              {employee.role}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "14px",
-                                color: "#C9C2AE",
-                              }}
-                            >
-                              {employee.branchName ||
-                                "Unassigned"}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "14px",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  ...getStatusStyle(
-                                    employee.status
-                                  ),
-                                  padding:
-                                    "6px 12px",
-                                  borderRadius:
-                                    "20px",
-                                  fontSize: "12px",
-                                  fontWeight:
-                                    "600",
-                                }}
-                              >
-                                {
-                                  employee.status
-                                }
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              )}
-
-              {/* Create Accountant Form */}
-              {employeeSubsection === "create-accountant" && (
-                <div
-                  style={{
-                    backgroundColor: "white",
-                    borderRadius: "14px",
-                    padding: "32px",
-                    maxWidth: "900px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  }}
-                >
-                  <h3
-                    style={{
-                      marginTop: 0,
-                      color: "#0f172a",
-                      fontSize: "18px",
-                    }}
-                  >
-                    Create New Accountant Request
-                  </h3>
-
-                  <p
-                    style={{
-                      color: "#C9C2AE",
-                      marginTop: "8px",
-                    }}
-                  >
-                    Fill in the form below to create a new Accountant account. This
-                    request will be sent to the Bank Manager for approval.
-                  </p>
-
-                  {message && (
-                    <div
-                      style={{
-                        backgroundColor:
-                          SECTION_COLORS
-                            .employees.light,
-                        color: SECTION_COLORS
-                          .employees.primary,
-                        padding: "16px",
-                        borderRadius: "10px",
-                        marginBottom: "20px",
-                        borderLeft: `4px solid ${SECTION_COLORS.employees.primary}`,
-                      }}
-                    >
-                      ✅ {message}
-                    </div>
-                  )}
-
-                  {error && (
-                    <div
-                      style={{
-                        backgroundColor: "rgba(168,69,46,0.15)",
-                        color: "#A8452E",
-                        padding: "16px",
-                        borderRadius: "10px",
-                        marginBottom: "20px",
-                        borderLeft: "4px solid #dc2626",
-                      }}
-                    >
-                      ❌ {error}
-                    </div>
-                  )}
-
-                  <form
-                    onSubmit={handleCreateAccountant}
-                  >
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns:
-                          "repeat(auto-fit, minmax(280px, 1fr))",
-                        gap: "20px",
-                      }}
-                    >
-                      <div>
-                        <label
-                          style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "600",
-                            color: "#0f172a",
-                          }}
-                        >
-                          Username *
-                        </label>
-
-                        <input
-                          type="text"
-                          value={username}
-                          onChange={(e) =>
-                            setUsername(
-                              e.target.value
-                            )
-                          }
-                          placeholder="Enter username"
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: `1.5px solid #e2e8f0`,
-                            borderRadius: "8px",
-                            boxSizing:
-                              "border-box",
-                            fontSize: "14px",
-                            transition:
-                              "border-color 0.3s",
-                          }}
-                          onFocus={(e) => {
-                            e.currentTarget.style.borderColor =
-                              SECTION_COLORS
-                                .employees
-                                .primary;
-                          }}
-                          onBlur={(e) => {
-                            e.currentTarget.style.borderColor =
-                              "#e2e8f0";
-                          }}
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "600",
-                            color: "#0f172a",
-                          }}
-                        >
-                          Full Name *
-                        </label>
-
-                        <input
-                          type="text"
-                          value={fullName}
-                          onChange={(e) =>
-                            setFullName(
-                              e.target.value
-                            )
-                          }
-                          placeholder="Employee full name"
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: `1.5px solid #e2e8f0`,
-                            borderRadius: "8px",
-                            boxSizing:
-                              "border-box",
-                            fontSize: "14px",
-                            transition:
-                              "border-color 0.3s",
-                          }}
-                          onFocus={(e) => {
-                            e.currentTarget.style.borderColor =
-                              SECTION_COLORS
-                                .employees
-                                .primary;
-                          }}
-                          onBlur={(e) => {
-                            e.currentTarget.style.borderColor =
-                              "#e2e8f0";
-                          }}
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "600",
-                            color: "#0f172a",
-                          }}
-                        >
-                          Email *
-                        </label>
-
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) =>
-                            setEmail(
-                              e.target.value
-                            )
-                          }
-                          placeholder="employee@email.com"
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: `1.5px solid #e2e8f0`,
-                            borderRadius: "8px",
-                            boxSizing:
-                              "border-box",
-                            fontSize: "14px",
-                            transition:
-                              "border-color 0.3s",
-                          }}
-                          onFocus={(e) => {
-                            e.currentTarget.style.borderColor =
-                              SECTION_COLORS
-                                .employees
-                                .primary;
-                          }}
-                          onBlur={(e) => {
-                            e.currentTarget.style.borderColor =
-                              "#e2e8f0";
-                          }}
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "600",
-                            color: "#0f172a",
-                          }}
-                        >
-                          Branch *
-                        </label>
-
-                        <select
-                          value={branchId}
-                          onChange={(e) =>
-                            setBranchId(
-                              e.target.value
-                            )
-                          }
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: `1.5px solid #e2e8f0`,
-                            borderRadius: "8px",
-                            boxSizing:
-                              "border-box",
-                            fontSize: "14px",
-                            transition:
-                              "border-color 0.3s",
-                            backgroundColor: "#ffffff",
-                          }}
-                          onFocus={(e) => {
-                            e.currentTarget.style.borderColor =
-                              SECTION_COLORS
-                                .employees
-                                .primary;
-                          }}
-                          onBlur={(e) => {
-                            e.currentTarget.style.borderColor =
-                              "#e2e8f0";
-                          }}
-                        >
-                          <option value="">
-                            Select a branch
-                          </option>
-
-                          {branches.length === 0 && (
-                            <option value="" disabled>
-                              No branches loaded — refresh the page
-                            </option>
-                          )}
-
-                          {branches.map((b) => (
-                            <option
-                              key={b.id}
-                              value={b.id}
-                            >
-                              {b.code} — {b.name} ({b.city})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "600",
-                            color: "#0f172a",
-                          }}
-                        >
-                          Temporary Passcode *
-                        </label>
-
-                        <input
-                          type="password"
-                          value={passcode}
-                          onChange={(e) =>
-                            setPasscode(
-                              e.target.value
-                            )
-                          }
-                          placeholder="Minimum 6 characters"
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: `1.5px solid #e2e8f0`,
-                            borderRadius: "8px",
-                            boxSizing:
-                              "border-box",
-                            fontSize: "14px",
-                            transition:
-                              "border-color 0.3s",
-                          }}
-                          onFocus={(e) => {
-                            e.currentTarget.style.borderColor =
-                              SECTION_COLORS
-                                .employees
-                                .primary;
-                          }}
-                          onBlur={(e) => {
-                            e.currentTarget.style.borderColor =
-                              "#e2e8f0";
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      style={{
-                        marginTop: "28px",
-                        padding: "14px 32px",
-                        border: "none",
-                        borderRadius: "8px",
-                        backgroundColor: loading
-                          ? "#C9C2AE"
-                          : SECTION_COLORS
-                              .employees
-                              .primary,
-                        color: "white",
-                        cursor: loading
-                          ? "not-allowed"
-                          : "pointer",
-                        fontSize: "15px",
-                        fontWeight: "600",
-                        transition:
-                          "background-color 0.3s",
-                      }}
-                    >
-                      {loading
-                        ? "Submitting..."
-                        : "✓ Create Accountant Request"}
-                    </button>
-                  </form>
-                </div>
-              )}
-
-              {/* Create Branch IT View */}
-              {employeeSubsection === "create-branch-it" && (
-                <div
-                  style={{
-                    backgroundColor: "white",
-                    borderRadius: "14px",
-                    padding: "32px",
-                    maxWidth: "900px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  }}
-                >
-                  <h3
-                    style={{
-                      marginTop: 0,
-                      color: "#0f172a",
-                      fontSize: "18px",
-                    }}
-                  >
-                    Create New Branch IT User
-                  </h3>
-
-                  <p
-                    style={{
-                      color: "#C9C2AE",
-                      marginTop: "8px",
-                    }}
-                  >
-                    Fill in the form below to provision a Branch IT user for a
-                    branch. The account will be created immediately.
-                  </p>
-
-                  {itMessage && (
-                    <div
-                      style={{
-                        backgroundColor:
-                          SECTION_COLORS.employees.light,
-                        color: SECTION_COLORS.employees.primary,
-                        padding: "16px",
-                        borderRadius: "10px",
-                        marginBottom: "20px",
-                        borderLeft: `4px solid ${SECTION_COLORS.employees.primary}`,
-                      }}
-                    >
-                      ✅ {itMessage}
-                    </div>
-                  )}
-
-                  {itError && (
-                    <div
-                      style={{
-                        backgroundColor: "rgba(168,69,46,0.15)",
-                        color: "#A8452E",
-                        padding: "16px",
-                        borderRadius: "10px",
-                        marginBottom: "20px",
-                        borderLeft: "4px solid #dc2626",
-                      }}
-                    >
-                      ❌ {itError}
-                    </div>
-                  )}
-
-                  <form onSubmit={handleCreateBranchIT}>
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns:
-                          "repeat(auto-fit, minmax(280px, 1fr))",
-                        gap: "20px",
-                      }}
-                    >
-                      <div>
-                        <label
-                          style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "600",
-                            color: "#0f172a",
-                          }}
-                        >
-                          Username *
-                        </label>
-
-                        <input
-                          type="text"
-                          value={itUsername}
-                          onChange={(e) => setItUsername(e.target.value)}
-                          placeholder="Enter username"
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1.5px solid #e2e8f0",
-                            borderRadius: "8px",
-                            boxSizing: "border-box",
-                            fontSize: "14px",
-                          }}
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "600",
-                            color: "#0f172a",
-                          }}
-                        >
-                          Full Name *
-                        </label>
-
-                        <input
-                          type="text"
-                          value={itFullName}
-                          onChange={(e) => setItFullName(e.target.value)}
-                          placeholder="Employee full name"
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1.5px solid #e2e8f0",
-                            borderRadius: "8px",
-                            boxSizing: "border-box",
-                            fontSize: "14px",
-                          }}
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "600",
-                            color: "#0f172a",
-                          }}
-                        >
-                          Email *
-                        </label>
-
-                        <input
-                          type="email"
-                          value={itEmail}
-                          onChange={(e) => setItEmail(e.target.value)}
-                          placeholder="employee@email.com"
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1.5px solid #e2e8f0",
-                            borderRadius: "8px",
-                            boxSizing: "border-box",
-                            fontSize: "14px",
-                          }}
-                        />
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "600",
-                            color: "#0f172a",
-                          }}
-                        >
-                          Branch *
-                        </label>
-
-                        <select
-                          value={itBranchId}
-                          onChange={(e) => setItBranchId(e.target.value)}
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1.5px solid #e2e8f0",
-                            borderRadius: "8px",
-                            boxSizing: "border-box",
-                            fontSize: "14px",
-                            backgroundColor: "#ffffff",
-                          }}
-                        >
-                          <option value="">Select a branch</option>
-
-                          {branches.length === 0 && (
-                            <option value="" disabled>
-                              No branches loaded — refresh the page
-                            </option>
-                          )}
-
-                          {branches.map((b) => (
-                            <option key={b.id} value={b.id}>
-                              {b.code} — {b.name} ({b.city})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label
-                          style={{
-                            display: "block",
-                            marginBottom: "8px",
-                            fontWeight: "600",
-                            color: "#0f172a",
-                          }}
-                        >
-                          Temporary Passcode *
-                        </label>
-
-                        <input
-                          type="password"
-                          value={itPasscode}
-                          onChange={(e) => setItPasscode(e.target.value)}
-                          placeholder="Minimum 6 characters"
-                          style={{
-                            width: "100%",
-                            padding: "12px",
-                            border: "1.5px solid #e2e8f0",
-                            borderRadius: "8px",
-                            boxSizing: "border-box",
-                            fontSize: "14px",
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={itSaving}
-                      style={{
-                        marginTop: "28px",
-                        padding: "14px 32px",
-                        border: "none",
-                        borderRadius: "8px",
-                        backgroundColor: itSaving
-                          ? "#C9C2AE"
-                          : SECTION_COLORS.employees.primary,
-                        color: "white",
-                        cursor: itSaving ? "not-allowed" : "pointer",
-                        fontSize: "15px",
-                        fontWeight: "600",
-                      }}
-                    >
-                      {itSaving ? "Creating..." : "✓ Create Branch IT User"}
-                    </button>
-                  </form>
-                </div>
-              )}
-
-              {/* Accountant Requests View */}
-              {employeeSubsection === "accountant-requests" && (
-                <div
-                  style={{
-                    backgroundColor: "white",
-                    borderRadius: "14px",
-                    padding: "28px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    overflowX: "auto",
-                  }}
-                >
-                  <h3
-                    style={{
-                      marginTop: 0,
-                      color: "#0f172a",
-                      fontSize: "18px",
-                    }}
-                  >
-                    Pending Accountant Requests
-                  </h3>
-
-                  {requests.length === 0 ? (
-                    <p style={{ color: "#C9C2AE" }}>
-                      No Accountant requests found.
-                    </p>
-                  ) : (
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                      }}
-                    >
-                      <thead>
-                        <tr
-                          style={{
-                            backgroundColor:
-                              SECTION_COLORS
-                                .employees
-                                .light,
-                          }}
-                        >
-                          <th
-                            style={{
-                              textAlign: "left",
-                              padding: "14px",
-                              borderBottom: `2px solid ${SECTION_COLORS.employees.border}`,
-                              fontWeight: "600",
-                              color: SECTION_COLORS
-                                .employees
-                                .primary,
-                            }}
-                          >
-                            Request
-                          </th>
-
-                          <th
-                            style={{
-                              textAlign: "left",
-                              padding: "14px",
-                              borderBottom: `2px solid ${SECTION_COLORS.employees.border}`,
-                              fontWeight: "600",
-                              color: SECTION_COLORS
-                                .employees
-                                .primary,
-                            }}
-                          >
-                            Branch
-                          </th>
-
-                          <th
-                            style={{
-                              textAlign: "left",
-                              padding: "14px",
-                              borderBottom: `2px solid ${SECTION_COLORS.employees.border}`,
-                              fontWeight: "600",
-                              color: SECTION_COLORS
-                                .employees
-                                .primary,
-                            }}
-                          >
-                            Status
-                          </th>
-
-                          <th
-                            style={{
-                              textAlign: "left",
-                              padding: "14px",
-                              borderBottom: `2px solid ${SECTION_COLORS.employees.border}`,
-                              fontWeight: "600",
-                              color: SECTION_COLORS
-                                .employees
-                                .primary,
-                            }}
-                          >
-                            Date
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {requests.map((request) => (
-                          <tr
-                            key={request.id}
-                            style={{
-                              borderBottom:
-                                "1px solid #e2e8f0",
-                              transition:
-                                "background-color 0.2s",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                "rgba(198,154,76,0.04)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor =
-                                "transparent";
-                            }}
-                          >
-                            <td
-                              style={{
-                                padding: "14px",
-                              }}
-                            >
-                              {request.fullName}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "14px",
-                                color: "#C9C2AE",
-                              }}
-                            >
-                              {request.branchId}
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "14px",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  ...getStatusStyle(
-                                    request.status
-                                  ),
-                                  padding:
-                                    "6px 12px",
-                                  borderRadius:
-                                    "20px",
-                                  fontSize: "12px",
-                                  fontWeight:
-                                    "600",
-                                }}
-                              >
-                                {request.status}
-                              </span>
-                            </td>
-
-                            <td
-                              style={{
-                                padding: "14px",
-                                color: "#C9C2AE",
-                              }}
-                            >
-                              {request.createdAt
-                                ? new Date(
-                                    request.createdAt
-                                  ).toLocaleDateString()
-                                : "-"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-
-          {/* APPROVAL QUEUE SECTION */}
-          {activeSection === "approvals" && (
-            <div
-              style={{
-                backgroundColor: "white",
-                borderRadius: "14px",
-                padding: "28px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                overflowX: "auto",
-              }}
-            >
-              <h3
-                style={{
-                  marginTop: 0,
-                  color: "#0f172a",
-                  fontSize: "18px",
-                }}
-              >
-                Pending Approvals
-              </h3>
-
-              {requests.length === 0 ? (
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: "40px 20px",
-                    color: "#C9C2AE",
-                  }}
-                >
-                  <p style={{ fontSize: "16px" }}>
-                    ✓ All approvals are up to date!
-                  </p>
-                </div>
-              ) : (
-                <table
-                  style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                  }}
-                >
-                  <thead>
-                    <tr
-                      style={{
-                        backgroundColor:
-                          SECTION_COLORS.approvals
-                            .light,
-                      }}
-                    >
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "14px",
-                          borderBottom: `2px solid ${SECTION_COLORS.approvals.border}`,
-                          fontWeight: "600",
-                          color: SECTION_COLORS
-                            .approvals.primary,
-                        }}
-                      >
-                        Request Details
-                      </th>
-
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "14px",
-                          borderBottom: `2px solid ${SECTION_COLORS.approvals.border}`,
-                          fontWeight: "600",
-                          color: SECTION_COLORS
-                            .approvals.primary,
-                        }}
-                      >
-                        Branch
-                      </th>
-
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "14px",
-                          borderBottom: `2px solid ${SECTION_COLORS.approvals.border}`,
-                          fontWeight: "600",
-                          color: SECTION_COLORS
-                            .approvals.primary,
-                        }}
-                      >
-                        Status
-                      </th>
-
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "14px",
-                          borderBottom: `2px solid ${SECTION_COLORS.approvals.border}`,
-                          fontWeight: "600",
-                          color: SECTION_COLORS
-                            .approvals.primary,
-                        }}
-                      >
-                        Submitted Date
-                      </th>
+      {/* EMPLOYEE INFO */}
+      {activeSection === "employees" && employeeSubsection === "employee-info" && (
+        <div className="ledger-panel">
+          <div className="ledger-head">
+            <h3 className="display">Registered accountants</h3>
+            <span className="mono text-xs text-ledger-paper-dim">{employees.length} on roster</span>
+          </div>
+          {employees.length === 0 ? (
+            <div className="p-8 text-center text-sm text-[color:var(--ledger-paper-dim)]">
+              No accountant employees found.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Branch</th>
+                    <th style={{ textAlign: "right" }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {employees.map((employee) => (
+                    <tr key={employee.id}>
+                      <td className="font-semibold">{employee.fullName}</td>
+                      <td className="text-ledger-paper-dim">{employee.email}</td>
+                      <td>{employee.role}</td>
+                      <td className="mono-cell">{employee.branchName || "Unassigned"}</td>
+                      <td style={{ textAlign: "right" }}>
+                        <span className={statusPillClass(employee.status)}>{employee.status.replace(/_/g, " ")}</span>
+                      </td>
                     </tr>
-                  </thead>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
-                  <tbody>
-                    {requests.map((request) => (
-                      <tr
-                        key={request.id}
-                        style={{
-                          borderBottom: "1px solid #e2e8f0",
-                          transition:
-                            "background-color 0.2s",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor =
-                            "rgba(198,154,76,0.15)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor =
-                            "transparent";
-                        }}
-                      >
-                        <td
-                          style={{
-                            padding: "14px",
-                            fontWeight: "500",
-                          }}
-                        >
-                          {request.fullName}
+      {/* CREATE ACCOUNTANT */}
+      {activeSection === "employees" && employeeSubsection === "create-accountant" && (
+        <div className="rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)]">
+          <div className="section-title">New filing</div>
+          <h2 className="mt-1 text-lg font-semibold text-[color:var(--ledger-paper)]">Create accountant request</h2>
+          <p className="mt-2 text-sm text-[color:var(--ledger-paper-dim)]">
+            This request will be sent to the Bank Manager for approval before the account is activated.
+          </p>
+
+          {message && (
+            <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm font-medium text-emerald-300">
+              {message}
+            </div>
+          )}
+          {error && (
+            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-medium text-red-300">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleCreateAccountant} className="mt-6 space-y-5">
+            <div className="grid gap-5 md:grid-cols-2">
+              <div>
+                <label className={labelClass}>Username *</label>
+                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Enter username" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Full name *</label>
+                <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Employee full name" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Email *</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="employee@email.com" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Branch *</label>
+                <select value={branchId} onChange={(e) => setBranchId(e.target.value)} className={inputClass}>
+                  <option value="">Select a branch</option>
+                  {branches.length === 0 && (
+                    <option value="" disabled>
+                      No branches loaded — refresh the page
+                    </option>
+                  )}
+                  {branches.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.code} — {b.name} ({b.city})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Temporary passcode *</label>
+                <input type="password" value={passcode} onChange={(e) => setPasscode(e.target.value)} placeholder="Minimum 6 characters" className={inputClass} />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-6 py-3 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)] disabled:opacity-50"
+            >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {loading ? "Submitting…" : "Create accountant request"}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* CREATE BRANCH IT */}
+      {activeSection === "employees" && employeeSubsection === "create-branch-it" && (
+        <div className="rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)]">
+          <div className="section-title">New provisioning</div>
+          <h2 className="mt-1 text-lg font-semibold text-[color:var(--ledger-paper)]">Create Branch IT user</h2>
+          <p className="mt-2 text-sm text-[color:var(--ledger-paper-dim)]">
+            The Branch IT account will be created immediately for the selected branch.
+          </p>
+
+          {itMessage && (
+            <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm font-medium text-emerald-300">
+              {itMessage}
+            </div>
+          )}
+          {itError && (
+            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-medium text-red-300">
+              {itError}
+            </div>
+          )}
+
+          <form onSubmit={handleCreateBranchIT} className="mt-6 space-y-5">
+            <div className="grid gap-5 md:grid-cols-2">
+              <div>
+                <label className={labelClass}>Username *</label>
+                <input type="text" value={itUsername} onChange={(e) => setItUsername(e.target.value)} placeholder="Enter username" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Full name *</label>
+                <input type="text" value={itFullName} onChange={(e) => setItFullName(e.target.value)} placeholder="Employee full name" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Email *</label>
+                <input type="email" value={itEmail} onChange={(e) => setItEmail(e.target.value)} placeholder="employee@email.com" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Branch *</label>
+                <select value={itBranchId} onChange={(e) => setItBranchId(e.target.value)} className={inputClass}>
+                  <option value="">Select a branch</option>
+                  {branches.length === 0 && (
+                    <option value="" disabled>
+                      No branches loaded — refresh the page
+                    </option>
+                  )}
+                  {branches.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.code} — {b.name} ({b.city})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Temporary passcode *</label>
+                <input type="password" value={itPasscode} onChange={(e) => setItPasscode(e.target.value)} placeholder="Minimum 6 characters" className={inputClass} />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={itSaving}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-6 py-3 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)] disabled:opacity-50"
+            >
+              {itSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+              {itSaving ? "Creating…" : "Create Branch IT user"}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* ACCOUNTANT REQUESTS */}
+      {activeSection === "employees" && employeeSubsection === "accountant-requests" && (
+        <div className="ledger-panel">
+          <div className="ledger-head">
+            <h3 className="display">Accountant requests</h3>
+            <span className="mono text-xs text-ledger-paper-dim">{requests.length} filings</span>
+          </div>
+          {requests.length === 0 ? (
+            <div className="p-8 text-center text-sm text-[color:var(--ledger-paper-dim)]">
+              No accountant requests found.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Request</th>
+                    <th>Branch</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: "right" }}>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map((request) => (
+                    <tr key={request.id}>
+                      <td className="font-semibold">{request.fullName}</td>
+                      <td className="mono-cell">{request.branchId}</td>
+                      <td>
+                        <span className={statusPillClass(request.status)}>{request.status}</span>
+                      </td>
+                      <td style={{ textAlign: "right" }} className="text-ledger-paper-dim text-xs">
+                        {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* APPROVAL QUEUE */}
+      {activeSection === "approvals" && (
+        <div className="ledger-panel">
+          <div className="ledger-head">
+            <h3 className="display">Pending approvals</h3>
+            <Link href="/approvals" className="mono text-xs text-[color:var(--brass)] hover:underline">
+              Open manager queue →
+            </Link>
+          </div>
+          {requests.length === 0 ? (
+            <div className="p-8 text-center space-y-2">
+              <CheckCircle2 className="mx-auto h-8 w-8 text-[color:var(--moss)]" />
+              <p className="text-sm text-[color:var(--ledger-paper-dim)]">All approvals are up to date.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Request details</th>
+                    <th>Branch</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: "right" }}>Submitted</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {requests.map((request) => (
+                    <tr key={request.id}>
+                      <td className="font-semibold">{request.fullName}</td>
+                      <td className="mono-cell">{request.branchId}</td>
+                      <td>
+                        <span className={statusPillClass(request.status)}>{request.status}</span>
+                      </td>
+                      <td style={{ textAlign: "right" }} className="text-ledger-paper-dim text-xs">
+                        {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ATTENDANCE */}
+      {activeSection === "attendance" && (
+        <div className="ledger-panel">
+          <div className="ledger-head">
+            <h3 className="display">Daily attendance</h3>
+            <div className="flex items-center gap-2">
+              <label className="mono text-xs text-ledger-paper-dim">Date:</label>
+              <input
+                type="date"
+                value={attendanceDate}
+                onChange={(e) => setAttendanceDate(e.target.value)}
+                className="rounded-lg border border-[#1E293B] bg-[#0B192C] px-3 py-1.5 text-xs text-slate-200 focus:border-[color:var(--brass)] focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div className="mx-5 mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs font-medium text-red-300">{error}</div>
+          )}
+
+          {attendanceLoading ? (
+            <div className="flex items-center justify-center gap-2 p-10 text-xs text-[color:var(--ledger-paper-dim)]">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading attendance…
+            </div>
+          ) : employees.length === 0 ? (
+            <div className="p-10 text-center text-sm text-[color:var(--ledger-paper-dim)]">
+              No employees found to track.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Role</th>
+                    <th>Marked status</th>
+                    <th style={{ textAlign: "right" }}>Mark attendance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {employees.map((emp) => {
+                    const record = attendanceRecords.find(
+                      (r) => r.employee?.id === emp.id || r.employeeId === emp.id
+                    );
+
+                    return (
+                      <tr key={emp.id}>
+                        <td>
+                          <div className="font-semibold">{emp.fullName}</div>
+                          <div className="mono text-[11px] text-slate-500">@{emp.username}</div>
                         </td>
-
-                        <td
-                          style={{
-                            padding: "14px",
-                            color: "#C9C2AE",
-                          }}
-                        >
-                          {request.branchId}
+                        <td className="text-ledger-paper-dim">{emp.role}</td>
+                        <td>
+                          {record ? (
+                            <span className={`status-pill ${ATTENDANCE_PILL[record.status] || ""}`}>
+                              {record.status.replace(/_/g, " ")}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-[color:var(--ledger-paper-dim)]">Not marked</span>
+                          )}
                         </td>
-
-                        <td
-                          style={{
-                            padding: "14px",
-                          }}
-                        >
-                          <span
-                            style={{
-                              ...getStatusStyle(
-                                request.status
-                              ),
-                              padding: "6px 12px",
-                              borderRadius: "20px",
-                              fontSize: "12px",
-                              fontWeight: "600",
-                            }}
-                          >
-                            {request.status}
-                          </span>
-                        </td>
-
-                        <td
-                          style={{
-                            padding: "14px",
-                            color: "#C9C2AE",
-                          }}
-                        >
-                          {request.createdAt
-                            ? new Date(
-                                request.createdAt
-                              ).toLocaleDateString()
-                            : "-"}
+                        <td style={{ textAlign: "right" }}>
+                          <div className="flex justify-end gap-1.5">
+                            {ATTENDANCE_STATUSES.map((st) => (
+                              <button
+                                key={st}
+                                onClick={() => markAttendance(emp.id, st)}
+                                disabled={markingId === emp.id}
+                                title={record?.status === st ? "Currently marked" : `Mark ${st.replace(/_/g, " ").toLowerCase()}`}
+                                className={`rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition disabled:opacity-40 ${ATTENDANCE_BUTTON[st]} ${
+                                  record?.status === st ? "ring-1 ring-current" : "opacity-70 hover:opacity-100"
+                                }`}
+                              >
+                                {st.replace(/_/g, " ")}
+                              </button>
+                            ))}
+                          </div>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
+        </div>
+      )}
 
-
-          {/* ATTENDANCE SECTION */}
-          {activeSection === "attendance" && (
-            <div
-              style={{
-                backgroundColor: "white",
-                borderRadius: "14px",
-                padding: "32px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: "16px",
-                  marginBottom: "24px",
-                }}
-              >
-                <h3 style={{ margin: 0, color: "#0f172a", fontSize: "20px" }}>
-                  🕒 Daily Attendance
-                </h3>
-
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <label style={{ fontWeight: "600", color: "#0f172a", fontSize: "14px" }}>
-                    Date:
-                  </label>
-
-                  <input
-                    type="date"
-                    value={attendanceDate}
-                    onChange={(e) => setAttendanceDate(e.target.value)}
-                    style={{
-                      padding: "10px 12px",
-                      border: "1.5px solid #e2e8f0",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                    }}
-                  />
-                </div>
-              </div>
-
-              {error && (
-                <div
-                  style={{
-                    padding: "12px 16px",
-                    marginBottom: "16px",
-                    backgroundColor: "#fee2e2",
-                    color: "#991b1b",
-                    borderRadius: "8px",
-                    fontSize: "14px",
-                  }}
-                >
-                  {error}
-                </div>
-              )}
-
-              {attendanceLoading ? (
-                <p style={{ textAlign: "center", color: "#C9C2AE", padding: "32px 0" }}>
-                  Loading attendance…
-                </p>
-              ) : employees.length === 0 ? (
-                <p style={{ textAlign: "center", color: "#C9C2AE", padding: "32px 0" }}>
-                  No employees found to track.
-                </p>
-              ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "2px solid #e2e8f0", textAlign: "left" }}>
-                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Employee</th>
-                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Role</th>
-                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Marked Status</th>
-                      <th style={{ padding: "12px 8px", color: "#64748b" }}>Mark Attendance</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {employees.map((emp) => {
-                      const record = attendanceRecords.find(
-                        (r) => r.employee?.id === emp.id || r.employeeId === emp.id
-                      );
-
-                      return (
-                        <tr key={emp.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                          <td style={{ padding: "12px 8px" }}>
-                            <div style={{ fontWeight: "600", color: "#0f172a" }}>{emp.fullName}</div>
-                            <div style={{ fontSize: "12px", color: "#94a3b8" }}>@{emp.username}</div>
-                          </td>
-
-                          <td style={{ padding: "12px 8px", color: "#475569" }}>{emp.role}</td>
-
-                          <td style={{ padding: "12px 8px" }}>
-                            {record ? (
-                              <span
-                                style={{
-                                  padding: "4px 10px",
-                                  borderRadius: "999px",
-                                  fontSize: "12px",
-                                  fontWeight: "600",
-                                  backgroundColor:
-                                    record.status === "PRESENT"
-                                      ? "#d1fae5"
-                                      : record.status === "LATE"
-                                      ? "#fef3c7"
-                                      : record.status === "ON_LEAVE"
-                                      ? "#ede9fe"
-                                      : "#fee2e2",
-                                  color:
-                                    record.status === "PRESENT"
-                                      ? "#065f46"
-                                      : record.status === "LATE"
-                                      ? "#92400e"
-                                      : record.status === "ON_LEAVE"
-                                      ? "#5b21b6"
-                                      : "#991b1b",
-                                }}
-                              >
-                                {record.status.replace("_", " ")}
-                              </span>
-                            ) : (
-                              <span style={{ color: "#C9C2AE", fontSize: "13px" }}>Not marked</span>
-                            )}
-                          </td>
-
-                          <td style={{ padding: "12px 8px" }}>
-                            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                              {ATTENDANCE_STATUSES.map((st) => (
-                                <button
-                                  key={st}
-                                  onClick={() => markAttendance(emp.id, st)}
-                                  disabled={markingId === emp.id}
-                                  style={{
-                                    padding: "6px 12px",
-                                    border: "none",
-                                    borderRadius: "6px",
-                                    cursor: markingId === emp.id ? "wait" : "pointer",
-                                    fontSize: "12px",
-                                    fontWeight: "600",
-                                    color: "white",
-                                    backgroundColor: STATUS_BUTTON_STYLES[st].bg,
-                                    opacity: markingId === emp.id ? 0.5 : record?.status === st ? 1 : 0.55,
-                                    outline: record?.status === st ? `2px solid ${STATUS_BUTTON_STYLES[st].hover}` : "none",
-                                  }}
-                                >
-                                  {st.replace("_", " ")}
-                                </button>
-                              ))}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          )}
-
-          {/* REPORTS SECTION */}
-          {activeSection === "reports" && (
-            <div
-              style={{
-                backgroundColor: "white",
-                borderRadius: "14px",
-                padding: "32px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-              }}
-            >
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "60px 20px",
-                  color: "#C9C2AE",
-                }}
-              >
-                <p style={{ fontSize: "48px", margin: "0 0 16px 0" }}>
-                  📈
-                </p>
-                <p style={{ fontSize: "16px" }}>
-                  Reports and analytics coming soon.
-                </p>
-                <p style={{ fontSize: "14px", color: "#C9C2AE" }}>
-                  Generate and view HR reports and statistics here.
-                </p>
-              </div>
-            </div>
-          )}
-        </main>
+      {/* REPORTS */}
+      {activeSection === "reports" && (
+        <div className="rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.82)] p-10 text-center shadow-[0_20px_60px_rgba(2,8,23,0.36)]">
+          <div className="mx-auto mb-4 w-fit rounded-2xl border border-[color:var(--brass)]/20 bg-[rgba(198,154,76,0.12)] p-3 text-[color:var(--brass)]">
+            <BarChart3 className="h-6 w-6" />
+          </div>
+          <h2 className="text-lg font-semibold text-[color:var(--ledger-paper)]">Reports &amp; analytics</h2>
+          <p className="mt-2 text-sm text-[color:var(--ledger-paper-dim)]">
+            Generate and view HR reports and workforce statistics here.
+          </p>
+        </div>
+      )}
+        </div>
       </div>
     </div>
   );

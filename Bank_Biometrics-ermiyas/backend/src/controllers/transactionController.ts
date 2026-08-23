@@ -4,6 +4,15 @@ import { AuthenticatedRequest } from "../middleware/auth.js";
 import { logAuditEvent } from "../utils/audit.js";
 import { TransactionType, TransactionStatus } from "@prisma/client";
 
+const VALID_TYPES: string[] = ["CASH_WITHDRAWAL", "CHEQUE_DEPOSIT", "CHEQUE_CLEARANCE", "TRANSFER"];
+const HIGH_VALUE_THRESHOLD = 50000;
+
+function startOfToday(): Date {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 export async function createTransaction(req: AuthenticatedRequest, res: Response): Promise<void> {
   const { accountNumber, amount, type, biometricVerified } = req.body;
   const ipAddress = req.ip || "unknown";
@@ -18,9 +27,19 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
     return;
   }
 
+  if (!VALID_TYPES.includes(type)) {
+    res.status(400).json({ success: false, message: `Invalid transaction type. Allowed: ${VALID_TYPES.join(", ")}` });
+    return;
+  }
+
+  if (!req.user.branchId) {
+    res.status(400).json({ success: false, message: "Your account is not assigned to a branch. Contact your administrator." });
+    return;
+  }
+
   const numericAmount = parseFloat(amount);
-  if (numericAmount <= 0) {
-    res.status(400).json({ success: false, message: "Transaction amount must be positive" });
+  if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+    res.status(400).json({ success: false, message: "Transaction amount must be a positive number" });
     return;
   }
 
@@ -36,61 +55,84 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
       return;
     }
 
-    // Check branch limit
     const branch = await prisma.branch.findUnique({
-      where: { id: req.user.branchId || "br-1" }
+      where: { id: req.user.branchId }
     });
 
-    const branchLimit = branch?.dailyTransactionLimit || 1000000;
-    const requiresApproval = numericAmount > 50000 || !biometricVerified;
-
-    let transactionStatus: TransactionStatus = "COMPLETED";
-
-    if (requiresApproval) {
-      transactionStatus = "PENDING_APPROVAL";
+    if (!branch || branch.status !== "ACTIVE") {
+      res.status(400).json({ success: false, message: "Your assigned branch is not active" });
+      return;
     }
 
-    // If completed withdrawal, deduct balance immediately
-    if (transactionStatus === "COMPLETED") {
-      if (type === "CASH_WITHDRAWAL" || type === "TRANSFER") {
-        if (customer.balance < numericAmount) {
-          res.status(400).json({ success: false, message: "Insufficient account balance" });
-          return;
-        }
-        await prisma.customer.update({
-          where: { id: customer.id },
-          data: { balance: customer.balance - numericAmount }
-        });
-      } else if (type === "CHEQUE_DEPOSIT") {
-        await prisma.customer.update({
-          where: { id: customer.id },
-          data: { balance: customer.balance + numericAmount }
-        });
-      }
+    // Enforce the branch daily transaction limit
+    const todaysAggregate = await prisma.transaction.aggregate({
+      where: {
+        branchId: req.user.branchId,
+        timestamp: { gte: startOfToday() },
+        status: { in: ["COMPLETED", "PENDING_APPROVAL"] }
+      },
+      _sum: { amount: true }
+    });
+
+    const volumeToday = todaysAggregate._sum.amount || 0;
+    if (volumeToday + numericAmount > branch.dailyTransactionLimit) {
+      res.status(400).json({
+        success: false,
+        message: `Branch daily transaction limit exceeded. Limit: ${branch.dailyTransactionLimit}. Used today: ${volumeToday}.`
+      });
+      return;
     }
+
+    const requiresApproval = numericAmount > HIGH_VALUE_THRESHOLD || !biometricVerified;
+    const transactionStatus: TransactionStatus = requiresApproval ? "PENDING_APPROVAL" : "COMPLETED";
 
     const referenceNumber = `TX-${Date.now().toString().substring(5)}-${Math.floor(100 + Math.random() * 900)}`;
 
-    const transaction = await prisma.transaction.create({
-      data: {
-        referenceNumber,
-        accountNumber,
-        customerName: customer.fullName,
-        type: type as TransactionType,
-        amount: numericAmount,
-        status: transactionStatus,
-        biometricVerified: !!biometricVerified,
-        accountantId: req.user.id,
-        branchId: req.user.branchId || "br-1"
+    // Balance movement + ledger entry must be atomic
+    const transaction = await prisma.$transaction(async (tx) => {
+      if (transactionStatus === "COMPLETED") {
+        if (type === "CASH_WITHDRAWAL" || type === "TRANSFER") {
+          if (customer.balance < numericAmount) {
+            throw new Error("Insufficient account balance");
+          }
+          await tx.customer.update({
+            where: { id: customer.id },
+            data: { balance: customer.balance - numericAmount }
+          });
+        } else if (type === "CHEQUE_DEPOSIT") {
+          await tx.customer.update({
+            where: { id: customer.id },
+            data: { balance: customer.balance + numericAmount }
+          });
+        }
       }
+
+      return tx.transaction.create({
+        data: {
+          referenceNumber,
+          accountNumber,
+          customerName: customer.fullName,
+          type: type as TransactionType,
+          amount: numericAmount,
+          status: transactionStatus,
+          biometricVerified: !!biometricVerified,
+          accountantId: req.user!.id,
+          branchId: req.user!.branchId!
+        }
+      });
+    }).catch((err: Error & { code?: string }) => {
+      res.status(400).json({ success: false, message: err.message || "Failed to create transaction" });
+      return null;
     });
+
+    if (!transaction) return;
 
     await logAuditEvent(
       req.user.id,
       "TRANSACTION_CREATE",
       "TRANSACTION",
       ipAddress,
-      `Initiated transaction ${referenceNumber} (${type}) for customer: ${customer.fullName}. Amount: ${numericAmount}. Status: ${transactionStatus}. Biometric Verified: ${biometricVerified}`,
+      `Initiated transaction ${referenceNumber} (${type}) for customer: ${customer.fullName}. Amount: ${numericAmount}. Status: ${transactionStatus}. Biometric Verified: ${!!biometricVerified}`,
       transactionStatus === "COMPLETED" ? "SUCCESS" : "WARNING"
     );
 
@@ -103,12 +145,24 @@ export async function createTransaction(req: AuthenticatedRequest, res: Response
 export async function getTransactionHistory(req: AuthenticatedRequest, res: Response): Promise<void> {
   const { status, type } = req.query;
 
+  if (!req.user) {
+    res.status(401).json({ success: false, message: "Unauthorized" });
+    return;
+  }
+
   try {
+    const whereClause: Record<string, unknown> = {
+      status: status ? (status as TransactionStatus) : undefined,
+      type: type ? (type as TransactionType) : undefined
+    };
+
+    // Branch-scoped roles only see their own branch's ledger
+    if (req.user.role === "BANK_MANAGER" || req.user.role === "BRANCH_IT" || req.user.role === "ACCOUNTANT") {
+      whereClause.branchId = req.user.branchId;
+    }
+
     const transactions = await prisma.transaction.findMany({
-      where: {
-        status: status ? (status as TransactionStatus) : undefined,
-        type: type ? (type as TransactionType) : undefined
-      },
+      where: whereClause,
       include: {
         accountant: { select: { fullName: true } },
         approvedBy: { select: { fullName: true } }
@@ -155,6 +209,12 @@ export async function approveTransaction(req: AuthenticatedRequest, res: Respons
       return;
     }
 
+    // Bank Managers can only authorize transactions from their own branch
+    if (req.user.role === "BANK_MANAGER" && tx.branchId !== req.user.branchId) {
+      res.status(403).json({ success: false, message: "Access denied: you can only authorize transactions for your assigned branch" });
+      return;
+    }
+
     if (tx.status !== "PENDING_APPROVAL") {
       res.status(400).json({ success: false, message: `Transaction has already been finalized: ${tx.status}` });
       return;
@@ -162,38 +222,52 @@ export async function approveTransaction(req: AuthenticatedRequest, res: Respons
 
     const nextStatus: TransactionStatus = decision === "APPROVED" ? "COMPLETED" : "REJECTED";
 
+    let updated;
     if (nextStatus === "COMPLETED") {
-      const customer = await prisma.customer.findUnique({ where: { accountNumber: tx.accountNumber } });
-      if (!customer) {
-        res.status(404).json({ success: false, message: "Customer account not found" });
-        return;
-      }
-
-      // Deduct balance now since it was pending before
-      if (tx.type === "CASH_WITHDRAWAL" || tx.type === "TRANSFER") {
-        if (customer.balance < tx.amount) {
-          res.status(400).json({ success: false, message: "Insufficient account balance to authorize payout" });
-          return;
+      updated = await prisma.$transaction(async (prismaTx) => {
+        const customer = await prismaTx.customer.findUnique({ where: { accountNumber: tx.accountNumber } });
+        if (!customer) {
+          throw new Error("Customer account not found");
         }
-        await prisma.customer.update({
-          where: { id: customer.id },
-          data: { balance: customer.balance - tx.amount }
-        });
-      } else if (tx.type === "CHEQUE_DEPOSIT") {
-        await prisma.customer.update({
-          where: { id: customer.id },
-          data: { balance: customer.balance + tx.amount }
-        });
-      }
-    }
 
-    const updated = await prisma.transaction.update({
-      where: { id },
-      data: {
-        status: nextStatus,
-        approvedById: req.user.id
-      }
-    });
+        // Deduct balance now since it was pending before
+        if (tx.type === "CASH_WITHDRAWAL" || tx.type === "TRANSFER") {
+          if (customer.balance < tx.amount) {
+            throw new Error("Insufficient account balance to authorize payout");
+          }
+          await prismaTx.customer.update({
+            where: { id: customer.id },
+            data: { balance: customer.balance - tx.amount }
+          });
+        } else if (tx.type === "CHEQUE_DEPOSIT") {
+          await prismaTx.customer.update({
+            where: { id: customer.id },
+            data: { balance: customer.balance + tx.amount }
+          });
+        }
+
+        return prismaTx.transaction.update({
+          where: { id },
+          data: {
+            status: nextStatus,
+            approvedById: req.user!.id
+          }
+        });
+      }).catch((err: Error & { code?: string }) => {
+        res.status(400).json({ success: false, message: err.message || "Authorization failed" });
+        return null;
+      });
+
+      if (!updated) return;
+    } else {
+      updated = await prisma.transaction.update({
+        where: { id },
+        data: {
+          status: nextStatus,
+          approvedById: req.user.id
+        }
+      });
+    }
 
     await logAuditEvent(
       req.user.id,

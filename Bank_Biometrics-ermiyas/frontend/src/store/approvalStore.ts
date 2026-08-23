@@ -6,6 +6,7 @@ interface ApprovalState {
   approvalRequests: ApprovalRequest[];
   pendingCount: number;
   loading: boolean;
+  lastBranchId?: string;
 
   // Actions
   fetchPendingApprovals: (branchId?: string) => Promise<void>;
@@ -19,7 +20,7 @@ export const useApprovalStore = create<ApprovalState>((set, get) => ({
   loading: false,
 
   fetchPendingApprovals: async (branchId?: string) => {
-    set({ loading: true });
+    set({ loading: true, lastBranchId: branchId });
     try {
       const endpoint = branchId
         ? `/api/approvals/pending?branchId=${branchId}`
@@ -42,7 +43,7 @@ export const useApprovalStore = create<ApprovalState>((set, get) => ({
     try {
       const data = await apiClient.put<ApprovalRequest>(`/approvals/${id}/approve`, {});
       if (data.success) {
-        await get().fetchPendingApprovals();
+        await get().fetchPendingApprovals(get().lastBranchId);
         return true;
       }
       return false;
@@ -56,7 +57,7 @@ export const useApprovalStore = create<ApprovalState>((set, get) => ({
     try {
       const data = await apiClient.put<ApprovalRequest>(`/approvals/${id}/reject`, { rejectionReason: reason });
       if (data.success) {
-        await get().fetchPendingApprovals();
+        await get().fetchPendingApprovals(get().lastBranchId);
         return true;
       }
       return false;

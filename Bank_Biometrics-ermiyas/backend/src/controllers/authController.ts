@@ -17,14 +17,18 @@ export async function login(req: AuthenticatedRequest, res: Response): Promise<v
   const { username, passcode } = req.body;
   const ipAddress = req.ip || "unknown";
 
-  if (!username || !passcode) {
+  const normalizedUsername = typeof username === "string" ? username.trim() : "";
+
+  if (!normalizedUsername || !passcode) {
     res.status(400).json({ success: false, message: "Username and passcode are required" });
     return;
   }
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { username },
+    // Case-insensitive username match so operators are not locked out by
+    // capitalization or stray whitespace in what they type.
+    const user = await prisma.user.findFirst({
+      where: { username: { equals: normalizedUsername, mode: "insensitive" } },
       include: { branch: true }
     });
 

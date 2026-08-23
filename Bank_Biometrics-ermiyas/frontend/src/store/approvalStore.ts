@@ -5,6 +5,7 @@ import { apiClient } from "@/services/apiClient";
 interface ApprovalState {
   approvalRequests: ApprovalRequest[];
   pendingCount: number;
+  resolvedToday: number;
   loading: boolean;
   lastBranchId?: string;
 
@@ -17,6 +18,7 @@ interface ApprovalState {
 export const useApprovalStore = create<ApprovalState>((set, get) => ({
   approvalRequests: [],
   pendingCount: 0,
+  resolvedToday: 0,
   loading: false,
 
   fetchPendingApprovals: async (branchId?: string) => {
@@ -25,11 +27,18 @@ export const useApprovalStore = create<ApprovalState>((set, get) => ({
       const endpoint = branchId
         ? `/api/approvals/pending?branchId=${branchId}`
         : "/api/approvals/pending";
-      const data = await apiClient.get<ApprovalRequest[]>(endpoint.replace("/api", ""));
+      const [data, counts] = await Promise.all([
+        apiClient.get<ApprovalRequest[]>(endpoint.replace("/api", "")),
+        apiClient
+          .get<{ pendingCount: number; resolvedToday: number }>("/approvals/counts")
+          .catch(() => null),
+      ]);
       if (data.success) {
+        const countsData = counts?.success && counts.data ? counts.data : null;
         set({
           approvalRequests: data.data || [],
-          pendingCount: (data.data || []).length,
+          pendingCount: countsData ? countsData.pendingCount : (data.data || []).length,
+          resolvedToday: countsData && typeof countsData.resolvedToday === "number" ? countsData.resolvedToday : 0,
         });
       }
     } catch (error) {

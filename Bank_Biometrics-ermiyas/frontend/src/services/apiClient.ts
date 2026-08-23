@@ -14,11 +14,26 @@ class ApiClient {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
+    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   }
 
   private async request<T>(endpoint: string, init: RequestInit): Promise<ApiResponse<T>> {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, { ...init, credentials: "same-origin" });
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const headers = new Headers(init.headers);
+        headers.set("Authorization", `Bearer ${token}`);
+        init = { ...init, headers };
+      }
+    }
+
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl}${endpoint}`, { ...init, credentials: "same-origin" });
+    } catch {
+      return { success: false, message: "Cannot reach the backend. Make sure the API server is running." };
+    }
+
     const payload = await response.json().catch(() => ({}));
 
     if (payload && typeof payload === "object" && "success" in payload) {
@@ -28,7 +43,7 @@ class ApiClient {
     return {
       success: response.ok,
       data: payload as T,
-      message: response.ok ? undefined : "Request failed"
+      message: response.ok ? undefined : `Request failed (${response.status})`
     };
   }
 

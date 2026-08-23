@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useApprovalStore } from "@/store/approvalStore";
 import { getStoredUser } from "@/lib/auth";
-import { UserRole } from "@/types";
+import { ApprovalRequest, UserRole } from "@/types";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
@@ -30,6 +30,7 @@ export default function ApprovalsPage() {
   const {
     approvalRequests,
     pendingCount,
+    resolvedToday,
     loading,
     fetchPendingApprovals,
     approveRequest,
@@ -46,6 +47,7 @@ export default function ApprovalsPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [approveTarget, setApproveTarget] = useState<{ id: string; name: string } | null>(null);
   const [rejectTarget, setRejectTarget] = useState<{ id: string; name: string } | null>(null);
+  const [detailRequest, setDetailRequest] = useState<ApprovalRequest | null>(null);
 
   useEffect(() => {
     const stored = getStoredUser();
@@ -63,7 +65,6 @@ export default function ApprovalsPage() {
   // Calculate KPIs
   const urgentCount = approvalRequests.filter((r) => r.priority === "URGENT" || r.priority === "High").length;
   const highCount = approvalRequests.filter((r) => r.priority === "HIGH" || r.priority === "High").length;
-  const resolvedToday = 8; // Mock – would come from store
 
   // Filter approvals
   const filtered = useMemo(() => {
@@ -380,6 +381,7 @@ const getRoleLabel = (role?: string) => {
                       </button>
                       <button
                         className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                        onClick={() => setDetailRequest(req)}
                         title="View Details"
                       >
                         <Eye className="w-4 h-4" />
@@ -464,6 +466,92 @@ const getRoleLabel = (role?: string) => {
           setRejectReason("");
         }}
       />
+
+      {/* Request Details Modal */}
+      {detailRequest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDetailRequest(null)} />
+          <div className="relative w-full max-w-lg glass-panel rounded-2xl border border-slate-700 shadow-2xl shadow-black/60 p-6 space-y-5">
+            <button
+              onClick={() => setDetailRequest(null)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div>
+              <h3 className="text-base font-bold text-white">Request Details</h3>
+              <p className="text-xs text-slate-400 mt-0.5 font-mono">ID: {detailRequest.id}</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              {[
+                ["Request Type", detailRequest.requestType?.replace(/_/g, " ") || "N/A"],
+                ["Requested By", detailRequest.requestedByName || "Unknown"],
+                ["Target Role", getRoleLabel(detailRequest.targetRole)],
+                [
+                  "Created",
+                  detailRequest.createdAt
+                    ? new Date(detailRequest.createdAt).toLocaleString()
+                    : "N/A",
+                ],
+                ["Status", detailRequest.status || "PENDING"],
+                ["Priority", (detailRequest.priority || "MEDIUM").toUpperCase()],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-xl bg-[#0B192C] border border-[#1E293B] p-3">
+                  <p className="text-[10px] uppercase tracking-[0.06em] text-slate-500">{label}</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-200 capitalize">{value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-xl bg-[#0B192C] border border-[#1E293B] p-3">
+              <p className="text-[10px] uppercase tracking-[0.06em] text-slate-500">Details</p>
+              <p className="mt-1 text-sm text-slate-300 leading-relaxed">{detailRequest.details || "—"}</p>
+            </div>
+
+            {detailRequest.rejectionReason && (
+              <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 p-3">
+                <p className="text-[10px] uppercase tracking-[0.06em] text-rose-300">Rejection Reason</p>
+                <p className="mt-1 text-sm text-rose-200 leading-relaxed">{detailRequest.rejectionReason}</p>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+              <button
+                onClick={() => setDetailRequest(null)}
+                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors border border-slate-700"
+              >
+                Close
+              </button>
+              {detailRequest.status === "PENDING" && (
+                <>
+                  <button
+                    onClick={() => {
+                      const target = detailRequest;
+                      setDetailRequest(null);
+                      handleApprove(target.id, target.requestedByName || "Request");
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-[color:var(--moss)] hover:bg-emerald-500 text-[#16233A] text-xs font-bold transition-all shadow-lg"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => {
+                      const target = detailRequest;
+                      setDetailRequest(null);
+                      handleRejectClick(target.id, target.requestedByName || "Request");
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold transition-all shadow-lg shadow-rose-500/20"
+                  >
+                    Reject
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>

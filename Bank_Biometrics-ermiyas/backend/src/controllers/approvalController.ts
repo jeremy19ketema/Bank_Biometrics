@@ -267,17 +267,28 @@ export async function getApprovalCounts(req: AuthenticatedRequest, res: Response
 
     const { role, branchId } = req.user;
 
-    let whereClause: any = { status: "PENDING" };
-
+    const scopeClause: any = {};
     if (role === "BANK_MANAGER" || role === "BRANCH_IT") {
-      whereClause.targetBranchId = branchId;
+      scopeClause.targetBranchId = branchId;
     }
 
-    const count = await prisma.approvalRequest.count({
-      where: whereClause
-    });
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
 
-    res.status(200).json({ success: true, data: { pendingCount: count } });
+    const [pendingCount, resolvedToday] = await Promise.all([
+      prisma.approvalRequest.count({
+        where: { ...scopeClause, status: "PENDING" }
+      }),
+      prisma.approvalRequest.count({
+        where: {
+          ...scopeClause,
+          status: { not: "PENDING" },
+          updatedAt: { gte: startOfToday }
+        }
+      })
+    ]);
+
+    res.status(200).json({ success: true, data: { pendingCount, resolvedToday } });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || "Failed to get approval counts" });
   }

@@ -16,7 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { bankApi, getSessionUser, ApiResult } from "@/services/bankApi";
-import { Accountant, ApprovalRequest } from "@/types";
+import { Accountant, ApprovalRequest, Branch } from "@/types";
 
 type TxSummary = {
   total: number;
@@ -38,6 +38,7 @@ export default function ManagerDashboardPage() {
   const [pendingApprovals, setPendingApprovals] = useState<ApprovalRequest[]>([]);
   const [accountants, setAccountants] = useState<Accountant[]>([]);
   const [txSummary, setTxSummary] = useState<TxSummary>({ total: 0, volumeToday: 0, pendingCount: 0 });
+  const [branchLimit, setBranchLimit] = useState<number | null>(null);
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
@@ -46,14 +47,16 @@ export default function ManagerDashboardPage() {
     const user = getSessionUser();
     setSessionUser(user);
 
-    const [approvalsResult, accountantsResult, txResult]: [
+    const [approvalsResult, accountantsResult, txResult, branchesResult]: [
       ApiResult<ApprovalRequest[]>,
       ApiResult<Accountant[]>,
-      ApiResult<any[]>
+      ApiResult<any[]>,
+      ApiResult<Branch[]>
     ] = await Promise.all([
       bankApi.pendingApprovals(user?.branchId),
       bankApi.accountants(),
-      bankApi.transactions()
+      bankApi.transactions(),
+      bankApi.branches()
     ]);
 
     const errors: string[] = [];
@@ -67,6 +70,13 @@ export default function ManagerDashboardPage() {
       setAccountants(accountantsResult.data);
     } else if (!accountantsResult.success) {
       errors.push("accountant roster");
+    }
+
+    if (branchesResult.success && Array.isArray(branchesResult.data)) {
+      const own = branchesResult.data.find((b) => b.id === user?.branchId);
+      setBranchLimit(own ? own.dailyTransactionLimit : null);
+    } else {
+      setBranchLimit(null);
     }
 
     if (txResult.success && Array.isArray(txResult.data)) {
@@ -292,6 +302,27 @@ export default function ManagerDashboardPage() {
                   </div>
                 </div>
               </div>
+
+              {branchLimit !== null && (
+                <div className="rounded-2xl border border-white/10 bg-[rgba(244,239,223,0.04)] p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold text-[color:var(--ledger-paper)]">Daily limit usage</div>
+                    <div className={`mono text-xs font-semibold ${txSummary.volumeToday > branchLimit ? "text-[color:var(--clay)]" : "text-[color:var(--moss)]"}`}>
+                      {Math.min(100, Math.round((txSummary.volumeToday / branchLimit) * 100))}%
+                    </div>
+                  </div>
+                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className={`h-full rounded-full transition-all ${txSummary.volumeToday > branchLimit ? "bg-[color:var(--clay)]" : "bg-[color:var(--moss)]"}`}
+                      style={{ width: `${Math.min(100, Math.max(0, (txSummary.volumeToday / branchLimit) * 100))}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-xs text-[color:var(--ledger-paper-dim)]">
+                    <span>{formatMoney(txSummary.volumeToday)} processed today</span>
+                    <span>limit {formatMoney(branchLimit)}</span>
+                  </div>
+                </div>
+              )}
 
               <Link
                 href="/accountants/create"

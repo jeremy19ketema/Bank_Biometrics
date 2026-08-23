@@ -82,7 +82,18 @@ export default function SystemSecurityReportsPage() {
       ]);
 
       if (logsResult.success && Array.isArray(logsResult.data)) {
-        setLogs(logsResult.data as LogEntry[]);
+        setLogs(
+          (logsResult.data as Record<string, unknown>[]).map((l) => ({
+            id: String(l.id ?? ""),
+            event: String(l.action ?? l.event ?? ""),
+            actor: String(l.actorName ?? l.actor ?? ""),
+            actorId: l.actorId ? String(l.actorId) : undefined,
+            ip: String(l.ipAddress ?? l.ip ?? ""),
+            timestamp: l.timestamp as Date,
+            status: (l.status || "INFO") as LogEntry["status"],
+            category: (l.category || "SYSTEM") as LogEntry["category"]
+          }))
+        );
       } else {
         setError(logsResult.message || "Failed to load audit logs.");
       }

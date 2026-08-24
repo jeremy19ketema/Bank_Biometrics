@@ -15,6 +15,7 @@ import {
   UserX,
   UserCog,
   HardDrive,
+  Code,
 } from "lucide-react";
 import { useSuperAdminStore } from "@/store/superAdminStore";
 import { useToast } from "@/hooks/useToast";
@@ -83,18 +84,26 @@ export default function ITUsersListPage() {
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[28px] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl">
           <div>
-            <h1 className="text-2xl font-extrabold text-[color:var(--ledger-paper)]">IT User Management</h1>
-            <p className="text-xs text-[color:var(--ledger-paper-dim)] mt-1">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-full bg-[color:var(--brass)]/10 text-[color:var(--brass)]">
+                <Code className="w-4 h-4" />
+              </div>
+              <div className="text-xs uppercase tracking-wider text-[color:var(--brass)] font-semibold">System Access</div>
+            </div>
+            <h1 className="text-2xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">
+              IT Personnel Management
+            </h1>
+            <p className="text-sm text-[color:var(--ledger-paper-dim)] mt-1">
               System administrators, infrastructure engineers, and technical support personnel.
             </p>
           </div>
           <Link
             href="/it-users/create"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[color:var(--brass)] hover:bg-[#d7ab5c] text-[color:var(--ink-navy)] font-bold text-xs transition-all shadow-lg shadow-[color:var(--brass)]/20"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[color:var(--brass)] hover:bg-[#d7ab5c] text-[color:var(--ink-navy)] font-bold text-sm transition-all shadow-lg shadow-[color:var(--brass)]/20"
           >
             <Plus className="w-4 h-4" />
             <span>Add IT User</span>
@@ -102,132 +111,153 @@ export default function ITUsersListPage() {
         </div>
 
         {/* KPI Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[color:var(--brass)]/10 text-[color:var(--brass)] border border-[color:var(--brass)]/30 flex items-center justify-center">
-              <Users className="w-5 h-5" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[24px] p-6 flex flex-col justify-between shadow-xl backdrop-blur-xl relative overflow-hidden group hover:border-[color:var(--brass)]/30 transition-colors">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Users className="w-16 h-16 text-[color:var(--brass)]" />
             </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[color:var(--brass)]/10 text-[color:var(--brass)] border border-[color:var(--brass)]/20 flex items-center justify-center">
+                <Users className="w-5 h-5" />
+              </div>
+              <p className="text-xs uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)] font-semibold">
                 Total IT Users
               </p>
-              <p className="text-xl font-bold text-[color:var(--ledger-paper)]">
-                {totalUsers}
+            </div>
+            <p className="text-3xl font-light text-white tracking-tight">
+              {totalUsers}
+            </p>
+          </div>
+          
+          <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[24px] p-6 flex flex-col justify-between shadow-xl backdrop-blur-xl relative overflow-hidden group hover:border-[color:var(--moss)]/30 transition-colors">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <UserCheck className="w-16 h-16 text-[color:var(--moss)]" />
+            </div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[color:var(--moss)]/10 text-[color:var(--moss)] border border-[color:var(--moss)]/20 flex items-center justify-center">
+                <UserCheck className="w-5 h-5" />
+              </div>
+              <p className="text-xs uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)] font-semibold">
+                Active Users
               </p>
             </div>
+            <p className="text-3xl font-light text-white tracking-tight">
+              {activeUsers}
+            </p>
           </div>
 
-          <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[color:var(--moss)]/10 text-[color:var(--moss)] border border-[color:var(--moss)]/30 flex items-center justify-center">
-              <UserCheck className="w-5 h-5" />
+          <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[24px] p-6 flex flex-col justify-between shadow-xl backdrop-blur-xl relative overflow-hidden group hover:border-[color:var(--clay)]/30 transition-colors">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <UserX className="w-16 h-16 text-[color:var(--clay)]" />
             </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
-                Active
-              </p>
-              <p className="text-xl font-bold text-[color:var(--moss)]">
-                {activeUsers}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[color:var(--clay)]/10 text-[color:var(--clay)] border border-[color:var(--clay)]/30 flex items-center justify-center">
-              <UserX className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[color:var(--clay)]/10 text-[color:var(--clay)] border border-[color:var(--clay)]/20 flex items-center justify-center">
+                <UserX className="w-5 h-5" />
+              </div>
+              <p className="text-xs uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)] font-semibold">
                 Suspended
               </p>
-              <p className="text-xl font-bold text-[color:var(--clay)]">
-                {suspendedUsers}
-              </p>
             </div>
+            <p className="text-3xl font-light text-white tracking-tight">
+              {suspendedUsers}
+            </p>
           </div>
 
-          <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center">
-              <HardDrive className="w-5 h-5" />
+          <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[24px] p-6 flex flex-col justify-between shadow-xl backdrop-blur-xl relative overflow-hidden group hover:border-amber-400/30 transition-colors">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <HardDrive className="w-16 h-16 text-amber-400" />
             </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-amber-400/10 text-amber-400 border border-amber-400/20 flex items-center justify-center">
+                <HardDrive className="w-5 h-5" />
+              </div>
+              <p className="text-xs uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)] font-semibold">
                 Departments
               </p>
-              <p className="text-xl font-bold text-amber-400">
-                {departments}
-              </p>
             </div>
+            <p className="text-3xl font-light text-white tracking-tight">
+              {departments}
+            </p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 glass-panel p-4 rounded-xl border border-slate-800">
-          <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[20px] p-5 shadow-xl backdrop-blur-xl">
+          <div className="relative w-full sm:w-96">
+            <Search className="w-4 h-4 text-white/50 absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search employee ID, name, email, department..."
+              placeholder="Search employee ID, name, email..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full bg-[#0B192C] border border-[#1E293B] rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-colors placeholder:text-slate-500"
+              className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-2.5 text-sm text-white focus:bg-white/10 focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] outline-none transition-all placeholder:text-white/40"
             />
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
             {STATUS_OPTIONS.map((s) => (
               <button
                 key={s}
                 onClick={() => handleStatusChange(s)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all border shrink-0 ${
                   statusFilter === s
-                    ? "bg-[color:var(--brass)]/15 border-[color:var(--brass)]/40 text-[color:var(--brass)]"
-                    : "bg-[#0B192C] border-[#1E293B] text-slate-400 hover:text-slate-200"
+                    ? "bg-[color:var(--brass)]/15 border-[color:var(--brass)]/40 text-[color:var(--brass)] shadow-sm"
+                    : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10"
                 }`}
               >
-                {s === "ALL" && <Filter className="w-3 h-3" />}
+                {s === "ALL" && <Filter className="w-3.5 h-3.5" />}
                 {s === "ALL" ? "All Status" : s}
               </button>
             ))}
-            <span className="text-[11px] text-slate-500 font-mono pl-1">
-              {filtered.length} record{filtered.length !== 1 ? "s" : ""}
-            </span>
+            <div className="px-3 border-l border-white/10 hidden sm:block">
+              <span className="text-[11px] text-white/40 uppercase tracking-wider font-semibold">
+                {filtered.length} Record{filtered.length !== 1 ? "s" : ""}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Table */}
-        <div className="ledger-panel">
-          <div className="ledger-head">
-            <h3 className="display">IT Personnel</h3>
-            <span className="mono text-xs text-[color:var(--ledger-paper-dim)]">{filtered.length} entries</span>
+        <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[28px] overflow-hidden shadow-xl backdrop-blur-xl">
+          <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-white/5">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-[color:var(--brass)] shadow-[0_0_8px_var(--brass)]"></div>
+              <h3 className="text-base font-semibold text-white tracking-wide">IT Directory</h3>
+            </div>
           </div>
           <div className="overflow-x-auto">
-            <table>
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr>
-                  <th>Employee ID</th>
-                  <th>Full Name</th>
-                  <th>Email</th>
-                  <th>Department</th>
-                  <th>Last Login</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
+                <tr className="bg-white/5 border-b border-white/10">
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/50">Employee ID</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/50">Full Name</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/50">Email</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/50">Department</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/50">Last Login</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/50">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-white/50 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-white/5">
                 {paginated.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12 text-slate-500">
-                      <UserX className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                      No IT users found.
+                    <td colSpan={7} className="text-center py-16">
+                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
+                        <UserX className="w-8 h-8 text-white/20" />
+                      </div>
+                      <p className="text-white/60 font-medium">No IT users found.</p>
+                      <p className="text-sm text-white/40 mt-1">Try adjusting your filters or search query.</p>
                     </td>
                   </tr>
                 ) : (
                   paginated.map((user) => (
-                    <tr key={user.id} className="hover:bg-[rgba(198,154,76,0.04)] transition-colors">
-                      <td className="mono-cell font-semibold text-[color:var(--brass)]">{user.employeeId}</td>
-                      <td className="font-semibold">{user.fullName}</td>
-                      <td className="text-[color:var(--ledger-paper-dim)]">{user.email}</td>
-                      <td>{user.department}</td>
-                      <td className="mono-cell text-xs text-[color:var(--ledger-paper-dim)]">
+                    <tr key={user.id} className="hover:bg-white/5 transition-colors group">
+                      <td className="px-6 py-4">
+                        <span className="font-mono text-xs font-semibold text-[color:var(--brass)] bg-[color:var(--brass)]/10 px-2 py-1 rounded-md border border-[color:var(--brass)]/20">{user.employeeId}</span>
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-white">{user.fullName}</td>
+                      <td className="px-6 py-4 text-sm text-white/60">{user.email}</td>
+                      <td className="px-6 py-4 text-sm text-white/80">{user.department}</td>
+                      <td className="px-6 py-4 font-mono text-xs text-white/50">
                         {user.lastLogin
                           ? new Date(user.lastLogin).toLocaleDateString("en-US", {
                               month: "short",
@@ -237,38 +267,38 @@ export default function ITUsersListPage() {
                             })
                           : "Never"}
                       </td>
-                      <td>
+                      <td className="px-6 py-4">
                         <StatusBadge status={user.status} />
                       </td>
-                      <td style={{ textAlign: "right" }}>
-                        <div className="flex justify-end gap-1.5">
+                      <td className="px-6 py-4">
+                        <div className="flex justify-end gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                           <Link
                             href={`/it-users/details?id=${user.id}`}
-                            className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                            className="p-2 rounded-xl bg-white/5 hover:bg-[color:var(--brass)]/15 border border-white/5 hover:border-[color:var(--brass)]/30 text-white/50 hover:text-[color:var(--brass)] transition-all"
                             title="View Details"
                           >
-                            <Eye className="w-3.5 h-3.5" />
+                            <Eye className="w-4 h-4" />
                           </Link>
                           <Link
                             href={`/it-users/edit?id=${user.id}`}
-                            className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-white/50 hover:text-white transition-all"
                             title="Edit"
                           >
-                            <Pencil className="w-3.5 h-3.5" />
+                            <Pencil className="w-4 h-4" />
                           </Link>
                           <button
-                            className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-amber-500/20 text-slate-400 hover:text-amber-400 transition-colors"
+                            className="p-2 rounded-xl bg-white/5 hover:bg-amber-500/15 border border-white/5 hover:border-amber-500/30 text-white/50 hover:text-amber-400 transition-all"
                             onClick={() => setResetTarget({ id: user.id, name: user.fullName })}
                             title="Reset Password"
                           >
-                            <KeyRound className="w-3.5 h-3.5" />
+                            <KeyRound className="w-4 h-4" />
                           </button>
                           <button
-                            className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors"
+                            className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/15 border border-white/5 hover:border-rose-500/30 text-white/50 hover:text-rose-400 transition-all"
                             onClick={() => setDeleteTarget({ id: user.id, name: user.fullName })}
                             title="Remove User"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -278,13 +308,17 @@ export default function ITUsersListPage() {
               </tbody>
             </table>
           </div>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={filtered.length}
-            pageSize={PAGE_SIZE}
-            onPageChange={setCurrentPage}
-          />
+          {totalPages > 1 && (
+            <div className="px-6 py-4 border-t border-white/10 bg-white/5">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filtered.length}
+                pageSize={PAGE_SIZE}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
         </div>
       </div>
 

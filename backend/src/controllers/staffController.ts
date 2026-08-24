@@ -604,11 +604,9 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
 
     const passwordHash = await bcrypt.hash(passcode, 10);
 
-    // Determine status based on creator's role
-    // HR-created users go to PENDING_APPROVAL (needs Super Admin Manager approval)
-    // Super Admin / Super Admin Manager created users go to PENDING_FIRST_LOGIN
-    const isHRCreating = req.user.role === "HR";
-    const userStatus = isHRCreating ? "PENDING_APPROVAL" : "PENDING_FIRST_LOGIN";
+    // If HR is creating, or if role is SUPER_ADMIN_IT, force approval
+    const requiresApproval = req.user.role === "HR" || role === "SUPER_ADMIN_IT";
+    const userStatus = requiresApproval ? "PENDING_APPROVAL" : "PENDING_FIRST_LOGIN";
 
     const user = await prisma.user.create({
       data: {
@@ -625,8 +623,8 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
       }
     });
 
-    // If HR created this user, create an approval request
-    if (isHRCreating) {
+    // If it requires approval, create an approval request
+    if (requiresApproval) {
       await prisma.approvalRequest.create({
         data: {
           requestType: `CREATE_${role}`,
@@ -635,7 +633,7 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
           targetUserId: user.id,
           targetRole: role as any,
           targetBranchId: branchId || null,
-          details: `HR created ${role}: ${fullName} (${username})`,
+          details: `${req.user.role} created ${role}: ${fullName} (${username})`,
           status: "PENDING"
         }
       });

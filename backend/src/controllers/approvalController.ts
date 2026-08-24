@@ -18,10 +18,10 @@ export async function getPendingApprovals(req: AuthenticatedRequest, res: Respon
     // Unique queues per role
     if (role === "SUPER_ADMIN") {
       // Super Admin approves high-level management and HR
-      whereClause.targetRole = { in: ["SUPER_ADMIN_MANAGER", "SUPER_ADMIN_IT", "SUPER_ADMIN_FOREX", "BANK_MANAGER", "HR"] };
+      whereClause.targetRole = { in: ["SUPER_ADMIN_MANAGER", "SUPER_ADMIN_FOREX", "BANK_MANAGER", "HR"] };
     } else if (role === "SUPER_ADMIN_MANAGER") {
-      // Super Admin Manager approves branch-level staff typically created by HR
-      whereClause.targetRole = { in: ["BRANCH_IT", "ACCOUNTANT"] };
+      // Super Admin Manager approves branch-level staff typically created by HR and IT users
+      whereClause.targetRole = { in: ["BRANCH_IT", "ACCOUNTANT", "SUPER_ADMIN_IT"] };
     } else if (role === "BANK_MANAGER") {
       // Bank Manager sees branch-level requests
       whereClause.targetBranchId = branchId;
@@ -252,9 +252,9 @@ export async function getApprovalCounts(req: AuthenticatedRequest, res: Response
     let whereClause: any = { status: "PENDING" };
 
     if (role === "SUPER_ADMIN") {
-      whereClause.targetRole = { in: ["SUPER_ADMIN_MANAGER", "SUPER_ADMIN_IT", "SUPER_ADMIN_FOREX", "BANK_MANAGER", "HR"] };
+      whereClause.targetRole = { in: ["SUPER_ADMIN_MANAGER", "SUPER_ADMIN_FOREX", "BANK_MANAGER", "HR"] };
     } else if (role === "SUPER_ADMIN_MANAGER") {
-      whereClause.targetRole = { in: ["BRANCH_IT", "ACCOUNTANT"] };
+      whereClause.targetRole = { in: ["BRANCH_IT", "ACCOUNTANT", "SUPER_ADMIN_IT"] };
     } else if (role === "BANK_MANAGER") {
       whereClause.targetBranchId = branchId;
       whereClause.targetRole = { in: ["ACCOUNTANT"] };

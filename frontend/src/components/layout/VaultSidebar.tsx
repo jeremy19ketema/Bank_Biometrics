@@ -183,69 +183,96 @@ const VaultSidebar: React.FC = () => {
     }
   };
 
+  const isSettingsPage = pathname === "/settings/system";
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-[240px] flex-col border-r border-[color:var(--line)] bg-[color:var(--vault-charcoal)] py-4 px-3">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-2 pb-5">
-        <div
-          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[color:var(--brass)] font-display text-[17px] text-[color:var(--brass)]"
-          onClick={handleGlyphClick}
-        >
-          A
-        </div>
-        <div className="overflow-hidden">
-          <p className="font-mono text-[11px] tracking-[0.12em] text-[color:var(--ledger-paper-dim)]">
-            AEGIS
-          </p>
-          <p className="text-[10px] text-[color:var(--ledger-paper-dim)]/60">
-            {userRole ? userRole.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()) : "Loading..."}
-          </p>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
-        {navItems.map((item, index) => {
-          if (item.isSection) {
-            return (
-              <div key={`section-${index}`} className="mt-4 mb-1 px-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--ledger-paper-dim)] opacity-70">
-                  {item.label}
-                </span>
-              </div>
-            );
+    <>
+      {isSettingsPage && (
+        <style>{`
+          .app-shell > .main-wrapper {
+            margin-left: 0 !important;
+            transition: margin-left 0.3s ease;
           }
-          
-          const Icon = item.icon!;
-          const active = isActive(item.href!);
-          return (
-            <button
-              key={item.href}
-              onClick={() => router.push(item.href!)}
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all duration-200 ${
-                active
-                  ? "bg-[rgba(198,154,76,0.15)] text-[color:var(--brass)]"
-                  : "text-[color:var(--ledger-paper-dim)] hover:bg-[rgba(244,239,223,0.06)] hover:text-[color:var(--ledger-paper)]"
-              }`}
-            >
-              <Icon className={`h-5 w-5 shrink-0 ${active ? "text-[color:var(--brass)]" : ""}`} />
-              <span className="text-sm font-medium">{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
+        `}</style>
+      )}
 
-      {/* Bottom */}
-      <div className="mt-auto border-t border-[color:var(--line)] pt-3">
-        <button
-          onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[color:var(--ledger-paper-dim)] transition-all hover:bg-[rgba(244,239,223,0.06)] hover:text-[color:var(--ledger-paper)]"
-        >
-          <LogOut className="h-5 w-5 shrink-0" />
-          <span className="text-sm font-medium">Sign Out</span>
-        </button>
-      </div>
-    </aside>
+      {/* Trigger area to reveal sidebar when collapsed */}
+      {isSettingsPage && !isHovered && (
+        <div 
+          className="fixed left-0 top-0 h-screen w-6 z-50 cursor-pointer bg-gradient-to-r from-[rgba(15,23,40,0.5)] to-transparent"
+          onMouseEnter={() => setIsHovered(true)}
+        />
+      )}
+
+      <aside 
+        onMouseLeave={() => setIsHovered(false)}
+        className={`fixed left-0 top-0 z-40 flex h-screen w-[240px] flex-col border-r border-[color:var(--line)] bg-[color:var(--vault-charcoal)] py-4 px-3 transition-transform duration-300 ease-in-out shadow-2xl ${
+          isSettingsPage && !isHovered ? "-translate-x-full" : "translate-x-0"
+        }`}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-2 pb-5">
+          <div
+            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[color:var(--brass)] font-display text-[17px] text-[color:var(--brass)]"
+            onClick={handleGlyphClick}
+          >
+            A
+          </div>
+          <div className="overflow-hidden">
+            <p className="font-mono text-[11px] tracking-[0.12em] text-[color:var(--ledger-paper-dim)]">
+              AEGIS
+            </p>
+            <p className="text-[10px] text-[color:var(--ledger-paper-dim)]/60">
+              {userRole ? userRole.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()) : "Loading..."}
+            </p>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
+          {navItems.map((item, index) => {
+            if (item.isSection) {
+              return (
+                <div key={`section-${index}`} className="mt-4 mb-1 px-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--ledger-paper-dim)] opacity-70">
+                    {item.label}
+                  </span>
+                </div>
+              );
+            }
+            
+            const Icon = item.icon!;
+            const active = isActive(item.href!);
+            return (
+              <button
+                key={item.href}
+                onClick={() => router.push(item.href!)}
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all duration-200 ${
+                  active
+                    ? "bg-[rgba(198,154,76,0.15)] text-[color:var(--brass)]"
+                    : "text-[color:var(--ledger-paper-dim)] hover:bg-[rgba(244,239,223,0.06)] hover:text-[color:var(--ledger-paper)]"
+                }`}
+              >
+                <Icon className={`h-5 w-5 shrink-0 ${active ? "text-[color:var(--brass)]" : ""}`} />
+                <span className="text-sm font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Bottom */}
+        <div className="mt-auto border-t border-[color:var(--line)] pt-3">
+          <button
+            onClick={handleSignOut}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[color:var(--ledger-paper-dim)] transition-all hover:bg-[rgba(244,239,223,0.06)] hover:text-[color:var(--ledger-paper)]"
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            <span className="text-sm font-medium">Sign Out</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };
 

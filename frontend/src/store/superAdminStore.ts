@@ -84,6 +84,9 @@ interface SuperAdminState {
     passcode: string;
     department?: string;
   }) => Promise<{success: boolean, message?: string}>;
+
+  // Real backend integration
+  createBranch: (data: any) => Promise<{success: boolean, message?: string}>;
 }
 
 // Mock data
@@ -456,6 +459,34 @@ export const useSuperAdminStore = create<SuperAdminState>((set, get) => ({
       return { success: true };
     } catch (error: any) {
       return { success: false, message: error.message || "Failed to create user" };
+    }
+  },
+
+  createBranch: async (data) => {
+    try {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("aegis_auth_token="))
+        ?.split("=")[1];
+
+      const res = await fetch("http://localhost:5000/api/branches", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+      if (!result.success) throw new Error(result.message);
+      
+      // Update local state so it appears immediately if we use it
+      set((state) => ({ branches: [...state.branches, result.data] }));
+      
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, message: error.message || "Failed to create branch" };
     }
   },
 }));

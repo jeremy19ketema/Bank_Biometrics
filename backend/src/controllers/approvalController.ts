@@ -146,7 +146,7 @@ export async function approveRequest(req: AuthenticatedRequest, res: Response): 
 
     // If the request was about a user, update their status
     if (approval.targetUserId) {
-      if (approval.requestType === "CREATE_BANK_MANAGER" || approval.requestType === "CREATE_ACCOUNTANT" || approval.requestType === "CREATE_BRANCH_IT") {
+      if (approval.requestType.startsWith("CREATE_")) {
         await prisma.user.update({
           where: { id: approval.targetUserId },
           data: {

@@ -9,44 +9,11 @@ import {
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useHRStore } from "@/store/hrStore";
+import Link from "next/link";
 
 export default function HRDashboardPage() {
   const { toast, toasts, dismissToast } = useToast();
-  const [showAddModal, setShowAddModal] = useState(false);
-  
-  const { loading, createStaffRequest } = useHRStore();
-  const [formData, setFormData] = useState({
-    username: "",
-    fullName: "",
-    email: "",
-    role: "BANK_MANAGER",
-    branchId: "",
-    passcode: "",
-  });
-
-  const handleCreateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.username || !formData.fullName || !formData.email || !formData.passcode) {
-      toast.error("Missing Fields", "Please fill in all required fields.");
-      return;
-    }
-
-    const success = await createStaffRequest(formData);
-    if (success) {
-      toast.success("Success", `${formData.role.replace(/_/g, " ")} created and sent for Super Admin approval.`);
-      setShowAddModal(false);
-      setFormData({
-        username: "",
-        fullName: "",
-        email: "",
-        role: "BANK_MANAGER",
-        branchId: "",
-        passcode: "",
-      });
-    } else {
-      toast.error("Error", "Failed to create staff member. Check console or try again.");
-    }
-  };
+  const { loading } = useHRStore();
 
   // Mock Data for KPI Cards
   const kpis = [
@@ -60,6 +27,27 @@ export default function HRDashboardPage() {
     { label: "Access Reviews Due", value: "45", delta: "Quarterly review", icon: Briefcase },
   ];
 
+  const handleExportReport = () => {
+    try {
+      const csvContent = [
+        ["Metric", "Value", "Status/Delta"],
+        ...kpis.map(kpi => [`"${kpi.label}"`, `"${kpi.value}"`, `"${kpi.delta}"`])
+      ].map(e => e.join(",")).join("\n");
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `HR_Report_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Export Successful", "The HR report has been downloaded.");
+    } catch (error) {
+      toast.error("Export Failed", "Could not generate the report.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header & Top Action Bar */}
@@ -71,12 +59,12 @@ export default function HRDashboardPage() {
           </h1>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <button 
-            onClick={() => setShowAddModal(true)}
+          <Link 
+            href="/hr-dash/create"
             className="inline-flex items-center gap-2 rounded-xl bg-[color:var(--brass)] px-4 py-2.5 text-sm font-bold text-[#16233A] shadow-lg transition hover:bg-[#d7ab5c]"
           >
             <UserPlus className="h-4 w-4" /> Add Employee
-          </button>
+          </Link>
           <button className="inline-flex items-center gap-2 rounded-xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)]">
              Start Onboarding
           </button>
@@ -86,7 +74,7 @@ export default function HRDashboardPage() {
           <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
             Attendance Exception
           </button>
-          <button className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+          <button onClick={handleExportReport} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
             <FileDown className="h-4 w-4" /> Export Report
           </button>
         </div>
@@ -252,45 +240,7 @@ export default function HRDashboardPage() {
         </div>
       </div>
 
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-           <div className="relative w-full max-w-lg rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.95)] p-8 shadow-2xl">
-              <h3 className="text-xl font-semibold text-white mb-2">Add Employee</h3>
-              <p className="text-sm text-slate-400 mb-6">Initiate onboarding for a new staff member.</p>
-              
-              <form onSubmit={handleCreateSubmit} className="space-y-4 mb-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <input required type="text" placeholder="Full Name" value={formData.fullName} onChange={e => setFormData({...formData, fullName: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                  <input required type="text" placeholder="Username" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <input required type="email" placeholder="Email Address" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                  <select value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none appearance-none">
-                    <option value="BANK_MANAGER">Bank Manager</option>
-                    <option value="SUPER_ADMIN_IT">Super Admin IT</option>
-                    <option value="SUPER_ADMIN_FOREX">Super Admin Forex</option>
-                    <option value="BRANCH_IT">Branch IT</option>
-                    <option value="ACCOUNTANT">Accountant</option>
-                  </select>
-                </div>
 
-                {["BANK_MANAGER", "BRANCH_IT", "ACCOUNTANT"].includes(formData.role) && (
-                  <input type="text" placeholder="Branch ID (Optional)" value={formData.branchId} onChange={e => setFormData({...formData, branchId: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                )}
-
-                <input required type="password" placeholder="Initial Passcode" value={formData.passcode} onChange={e => setFormData({...formData, passcode: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-
-                <div className="flex gap-3 justify-end pt-4">
-                  <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 rounded-xl border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Cancel</button>
-                  <button type="submit" disabled={loading} className="px-5 py-2.5 rounded-xl bg-[color:var(--brass)] text-[#16233A] text-sm font-bold hover:bg-[#d7ab5c] flex items-center gap-2">
-                    {loading && <span className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />}
-                    Submit Request
-                  </button>
-                </div>
-              </form>
-           </div>
-        </div>
-      )}
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>

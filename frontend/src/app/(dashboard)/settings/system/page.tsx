@@ -387,34 +387,42 @@ export default function SystemSettingsPage() {
   // ---- Section renderers ----
 
   const renderGeneral = () => (
-    <div>
-      <h2 className="text-lg font-display font-medium text-[color:var(--ledger-paper)]">General Settings</h2>
-      <p className="text-xs text-[color:var(--ledger-paper-dim)] mt-1">Configure core application settings.</p>
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Bank Name</label>
+    <div className="space-y-6">
+      <div className="border-b border-white/10 pb-5">
+        <h2 className="text-2xl font-bold tracking-tight text-[color:var(--ledger-paper)] flex items-center gap-2">
+          <Settings className="w-6 h-6 text-[color:var(--brass)]" />
+          General Settings
+        </h2>
+        <p className="text-sm text-[color:var(--ledger-paper-dim)] mt-2">
+          Configure core application preferences and global formatting options.
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Bank Name</label>
           <input
             type="text"
             value={general.bankName}
             onChange={(e) => setGeneral({ ...general, bankName: e.target.value })}
-            className="input-field"
+            className="w-full bg-[#0B192C] border border-[#1E293B] rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] transition-all shadow-inner"
           />
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">System Name</label>
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">System Name</label>
           <input
             type="text"
             value={general.systemName}
             onChange={(e) => setGeneral({ ...general, systemName: e.target.value })}
-            className="input-field"
+            className="w-full bg-[#0B192C] border border-[#1E293B] rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] transition-all shadow-inner"
           />
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Time Zone</label>
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Time Zone</label>
           <select
             value={general.timeZone}
             onChange={(e) => setGeneral({ ...general, timeZone: e.target.value })}
-            className="input-field cursor-pointer"
+            className="w-full bg-[#0B192C] border border-[#1E293B] rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-all cursor-pointer"
           >
             <option value="Africa/Addis_Ababa">Africa/Addis_Ababa</option>
             <option value="UTC">UTC</option>
@@ -424,12 +432,12 @@ export default function SystemSettingsPage() {
             <option value="Asia/Singapore">Asia/Singapore</option>
           </select>
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Currency</label>
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Currency</label>
           <select
             value={general.currency}
             onChange={(e) => setGeneral({ ...general, currency: e.target.value })}
-            className="input-field cursor-pointer"
+            className="w-full bg-[#0B192C] border border-[#1E293B] rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-all cursor-pointer"
           >
             <option value="ETB">ETB (Ethiopian Birr)</option>
             <option value="USD">USD</option>
@@ -437,12 +445,12 @@ export default function SystemSettingsPage() {
             <option value="GBP">GBP</option>
           </select>
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Language</label>
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Language</label>
           <select
             value={general.language}
             onChange={(e) => setGeneral({ ...general, language: e.target.value })}
-            className="input-field cursor-pointer"
+            className="w-full bg-[#0B192C] border border-[#1E293B] rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-all cursor-pointer"
           >
             <option value="English">English</option>
             <option value="Amharic">Amharic</option>
@@ -450,56 +458,57 @@ export default function SystemSettingsPage() {
             <option value="Arabic">Arabic</option>
           </select>
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Date Format</label>
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Date Format</label>
           <select
             value={general.dateFormat}
             onChange={(e) => setGeneral({ ...general, dateFormat: e.target.value })}
-            className="input-field cursor-pointer"
+            className="w-full bg-[#0B192C] border border-[#1E293B] rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-all cursor-pointer"
           >
             <option value="YYYY-MM-DD">YYYY-MM-DD</option>
             <option value="DD/MM/YYYY">DD/MM/YYYY</option>
             <option value="MM/DD/YYYY">MM/DD/YYYY</option>
           </select>
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Time Format</label>
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Time Format</label>
           <select
             value={general.timeFormat}
             onChange={(e) => setGeneral({ ...general, timeFormat: e.target.value })}
-            className="input-field cursor-pointer"
+            className="w-full bg-[#0B192C] border border-[#1E293B] rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-all cursor-pointer"
           >
             <option value="24h">24-hour</option>
             <option value="12h">12-hour (AM/PM)</option>
           </select>
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Branch Code Format</label>
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Branch Code Format</label>
           <input
             type="text"
             value={general.branchCodeFormat}
             onChange={(e) => setGeneral({ ...general, branchCodeFormat: e.target.value })}
-            className="input-field font-mono"
+            className="w-full bg-[#0B192C] border border-[#1E293B] rounded-xl px-4 py-3 text-sm font-mono text-[color:var(--brass)] focus:outline-none focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] transition-all shadow-inner"
           />
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Staff ID Format</label>
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Staff ID Format</label>
           <input
             type="text"
             value={general.staffIdFormat}
             onChange={(e) => setGeneral({ ...general, staffIdFormat: e.target.value })}
-            className="input-field font-mono"
+            className="w-full bg-[#0B192C] border border-[#1E293B] rounded-xl px-4 py-3 text-sm font-mono text-[color:var(--brass)] focus:outline-none focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] transition-all shadow-inner"
           />
         </div>
       </div>
-      <div className="flex justify-end mt-6 pt-4 border-t border-[color:var(--line)]">
+      
+      <div className="flex justify-end pt-6 mt-8 border-t border-white/10">
         <button
           onClick={() => handleSaveSection("general")}
           disabled={isSaving}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[color:var(--brass)] hover:bg-[#d7ab5c] text-[color:var(--ink-navy)] font-bold text-sm transition-all shadow-lg shadow-[color:var(--brass)]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-8 py-3 rounded-xl bg-[color:var(--brass)] hover:brightness-110 text-[#0B192C] font-bold text-sm transition-all shadow-[0_0_20px_rgba(198,154,76,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
-          {isSaving && saveTarget === "general" ? "Saving..." : "Save General Settings"}
+          {isSaving && saveTarget === "general" ? "Saving Preferences..." : "Save General Settings"}
         </button>
       </div>
     </div>

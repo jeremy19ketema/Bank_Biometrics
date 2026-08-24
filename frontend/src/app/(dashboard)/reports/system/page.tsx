@@ -222,6 +222,36 @@ export default function SystemSecurityReportsPage() {
     setCurrentPage(1);
   };
 
+  const handleExport = () => {
+    try {
+      const csvContent = [
+        ["Log ID", "Event Description", "Actor", "Actor ID", "IP Address", "Category", "Status", "Timestamp"],
+        ...filtered.map(log => [
+          `"${log.id}"`,
+          `"${log.event}"`,
+          `"${log.actor}"`,
+          `"${log.actorId || 'N/A'}"`,
+          `"${log.ip}"`,
+          `"${log.category}"`,
+          `"${log.status}"`,
+          `"${log.timestamp.toISOString()}"`
+        ])
+      ].map(row => row.join(",")).join("\n");
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Security_Audit_Log_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Export Successful", "The audit log has been downloaded.");
+    } catch (error) {
+      toast.error("Export Failed", "Could not generate the audit log export.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -242,7 +272,7 @@ export default function SystemSecurityReportsPage() {
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
             <span>{isRefreshing ? "Refreshing..." : "Refresh"}</span>
           </button>
-          <button className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)]">
+          <button onClick={handleExport} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[color:var(--brass)]/30 bg-[rgba(198,154,76,0.14)] px-4 py-2.5 text-sm font-semibold text-[color:var(--ledger-paper)] transition hover:bg-[rgba(198,154,76,0.22)]">
             <Download className="h-4 w-4" />
             <span>Export Audit Log (CSV)</span>
           </button>

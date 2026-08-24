@@ -169,6 +169,24 @@ export default function ApprovalsPage() {
       .toUpperCase();
   };
 
+  const formatDetails = (details: string | undefined) => {
+    if (!details) return "No additional details provided.";
+    try {
+      const parsed = JSON.parse(details);
+      if (typeof parsed === 'object' && parsed !== null) {
+        return Object.entries(parsed)
+          .map(([key, value]) => {
+            const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            return `${formattedKey}: ${value}`;
+          })
+          .join(" • ");
+      }
+    } catch {
+      // Not JSON, return as is
+    }
+    return details;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -298,125 +316,122 @@ export default function ApprovalsPage() {
         </div>
       </div>
 
-      {/* Queue Table */}
-      <div className="ledger-panel">
-        <div className="ledger-head">
-          <h3 className="display">Pending Sign-off Ledger</h3>
+      {/* Modern Approvals List */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-2">
+          <h3 className="text-lg font-semibold text-[color:var(--ledger-paper)]">Action Required</h3>
           <div className="flex items-center gap-3">
-            <span className="mono text-xs text-[color:var(--ledger-paper-dim)]">
+            <span className="font-mono text-xs text-[color:var(--ledger-paper-dim)]">
               {filtered.length} items
             </span>
-            <span className={`status-chip ${pendingCount > 0 ? "fail" : "pass"}`}>
+            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${pendingCount > 0 ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 'bg-green-500/10 text-green-500 border-green-500/20'}`}>
               {pendingCount > 0 ? `${pendingCount} pending` : "All clear"}
             </span>
           </div>
         </div>
 
-        <div className="queue-head-row">
-          <span></span>
-          <span>Request / Requester</span>
-          <span>Target Role</span>
-          <span>Priority</span>
-          <span>Details</span>
-          <span style={{ textAlign: "right" }}>Action</span>
-        </div>
-
         {loading ? (
-          <div className="p-12 text-center">
-            <div className="animate-spin w-6 h-6 border-2 border-[color:var(--brass)] border-t-transparent rounded-full mx-auto mb-3" />
-            <p className="text-xs text-[color:var(--ledger-paper-dim)]">Loading authorization requests...</p>
+          <div className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.6)] p-12 text-center backdrop-blur-xl">
+            <div className="animate-spin w-8 h-8 border-2 border-[color:var(--brass)] border-t-transparent rounded-full mx-auto mb-4" />
+            <p className="text-sm font-medium text-white">Loading authorization requests...</p>
           </div>
         ) : paginated.length === 0 ? (
-          <div className="p-12 text-center">
-            <CheckCircle2 className="w-8 h-8 text-[color:var(--moss)]/40 mx-auto mb-3" />
-            <p className="text-sm text-[color:var(--ledger-paper-dim)]">No pending approvals.</p>
-            <p className="text-xs text-[color:var(--ledger-paper-dim)]/60 mt-1">All caught up!</p>
+          <div className="rounded-[28px] border border-white/10 bg-[rgba(15,23,40,0.6)] p-16 text-center backdrop-blur-xl shadow-[0_20px_60px_rgba(2,8,23,0.36)] relative overflow-hidden">
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[color:var(--moss)] opacity-[0.05] blur-[80px] rounded-full pointer-events-none" />
+             <CheckCircle2 className="w-12 h-12 text-[color:var(--moss)]/60 mx-auto mb-4 relative z-10" />
+             <p className="text-lg font-semibold text-white relative z-10">No pending approvals</p>
+             <p className="text-sm text-[color:var(--ledger-paper-dim)] mt-2 relative z-10">You're all caught up for now!</p>
           </div>
         ) : (
-          paginated.map((req) => {
-            const initials = getInitials(req.requestedByName);
-            const priority = req.priority || "MEDIUM";
+          <div className="grid gap-4">
+            {paginated.map((req) => {
+              const initials = getInitials(req.requestedByName);
+              const priority = req.priority || "MEDIUM";
 
-            return (
-              <div className="queue-row" key={req.id}>
-                <div className="q-avatar">{initials}</div>
-                <div className="q-who">
-                  <div className="q-n1 font-semibold">{req.requestedByName || "Unknown"}</div>
-                  <div className="q-n2">{req.requestType || "Request"}</div>
+              return (
+                <div key={req.id} className="group rounded-[24px] border border-white/10 bg-[rgba(15,23,40,0.7)] hover:bg-[rgba(15,23,40,0.9)] p-5 md:p-6 transition-all duration-300 shadow-[0_8px_30px_rgba(2,8,23,0.2)] backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  
+                  {/* Left Side: Avatar & Info */}
+                  <div className="flex items-start md:items-center gap-5">
+                    <div className="relative">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-[rgba(244,239,223,0.05)] font-display text-base font-bold text-[color:var(--brass)] shadow-[inset_0_2px_10px_rgba(255,255,255,0.05)]">
+                        {initials}
+                      </div>
+                      <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-[#0B192C] ${priority === "URGENT" || priority === "HIGH" ? "bg-red-500" : priority === "MEDIUM" ? "bg-amber-500" : "bg-green-500"}`} />
+                    </div>
+                    
+                    <div>
+                      <div className="flex flex-wrap items-center gap-3 mb-1">
+                        <span className="font-semibold text-[color:var(--ledger-paper)] text-base">{req.requestedByName || "Unknown"}</span>
+                        <span className="inline-flex items-center rounded-lg bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[color:var(--ledger-paper-dim)]">
+                          {req.requestType || "Request"}
+                        </span>
+                      </div>
+                      <div className="text-sm text-[color:var(--ledger-paper-dim)] max-w-xl line-clamp-1">
+                        {formatDetails(req.details)}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3 mt-3">
+                         <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 bg-white/5 px-2.5 py-1 rounded-md">
+                           <User className="w-3.5 h-3.5" />
+                           {getRoleLabel(req.targetRole)}
+                         </span>
+                         <span className="text-xs text-slate-500 font-mono">ID: {req.id.split('-')[0]}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Side: Actions */}
+                  <div className="flex items-center gap-3 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-white/10 md:pl-6 md:border-l">
+                    {req.status === "PENDING" ? (
+                      <>
+                        <button
+                          onClick={() => handleRejectClick(req.id, req.requestedByName || "Request")}
+                          className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 font-semibold text-sm hover:bg-red-500/20 transition-colors"
+                        >
+                          <XCircle className="w-4 h-4" /> Reject
+                        </button>
+                        <button
+                          onClick={() => handleApprove(req.id, req.requestedByName || "Request")}
+                          className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[color:var(--moss)] text-[#0B192C] font-bold text-sm hover:brightness-110 transition-all shadow-[0_0_20px_rgba(40,167,69,0.3)]"
+                        >
+                          <CheckCircle2 className="w-4 h-4" /> Approve
+                        </button>
+                      </>
+                    ) : (
+                      <span className={`inline-flex items-center rounded-full border px-4 py-2 text-xs font-bold ${req.status === "APPROVED" ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-red-500/10 text-red-500 border-red-500/20"}`}>
+                        {req.status}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="status-chip pass" style={{ justifySelf: "start" }}>
-                  {getRoleLabel(req.targetRole)}
-                </div>
-                <div>
-                  {priority === "URGENT" || priority === "HIGH" ? (
-                    <span className="status-chip fail">Urgent</span>
-                  ) : priority === "MEDIUM" ? (
-                    <span className="status-chip info">Medium</span>
-                  ) : (
-                    <span className="status-chip pass">Low</span>
-                  )}
-                </div>
-                <div className="mono text-xs text-[color:var(--ledger-paper-dim)] max-w-[200px] truncate">
-                  {req.details || "—"}
-                </div>
-                <div className="q-actions">
-                  {req.status === "PENDING" ? (
-                    <>
-                      <button
-                        className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-[color:var(--moss)]/20 text-slate-400 hover:text-[color:var(--moss)] transition-colors"
-                        onClick={() => handleApprove(req.id, req.requestedByName || "Request")}
-                        title="Approve"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-[color:var(--clay)]/20 text-slate-400 hover:text-[color:var(--clay)] transition-colors"
-                        onClick={() => handleRejectClick(req.id, req.requestedByName || "Request")}
-                        title="Reject"
-                      >
-                        <XCircle className="w-4 h-4" />
-                      </button>
-                      <button
-                        className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
-                        title="View Details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </>
-                  ) : (
-                    <span className={`status-chip ${req.status === "APPROVED" ? "pass" : "fail"}`}>
-                      {req.status}
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         )}
 
         {/* Pagination */}
         {filtered.length > PAGE_SIZE && (
-          <div className="flex items-center justify-between px-5 py-3.5 border-t border-[color:var(--line)]">
+          <div className="flex items-center justify-between px-2 pt-4">
             <span className="text-[11px] text-[color:var(--ledger-paper-dim)] font-mono">
               Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} of {filtered.length} entries
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-1.5 rounded-lg bg-[#0B192C] border border-[color:var(--line)] text-[color:var(--ledger-paper-dim)] hover:text-[color:var(--ledger-paper)] hover:border-[color:var(--brass)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronLeft className="w-3.5 h-3.5" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-xs text-[color:var(--ledger-paper-dim)] px-2">
-                {currentPage} / {totalPages}
+              <span className="text-xs text-[color:var(--ledger-paper-dim)] font-medium px-2">
+                Page {currentPage} of {totalPages}
               </span>
               <button
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-1.5 rounded-lg bg-[#0B192C] border border-[color:var(--line)] text-[color:var(--ledger-paper-dim)] hover:text-[color:var(--ledger-paper)] hover:border-[color:var(--brass)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronRight className="w-3.5 h-3.5" />
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>

@@ -350,9 +350,14 @@ export default function SystemSettingsPage() {
   const handleExportLogs = async () => {
     setIsExporting(true);
     try {
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("aegis_auth_token="))
+        ?.split("=")[1];
+
       const res = await fetch("http://localhost:5000/api/audit/logs", {
         headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
+          "Authorization": `Bearer ${token}`
         }
       });
       const data = await res.json();

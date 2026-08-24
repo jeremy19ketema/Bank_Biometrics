@@ -6,13 +6,14 @@ import Link from "next/link";
 import { useHRStore } from "@/store/hrStore";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
-import { UserPlus, ArrowLeft, Briefcase, Shield, KeyRound, Building, Mail, User } from "lucide-react";
+import { UserPlus, ArrowLeft, Briefcase, Shield, KeyRound, Building, Mail, User, Eye, EyeOff } from "lucide-react";
 
 export default function CreateEmployeePage() {
   const router = useRouter();
   const { loading, createStaffRequest } = useHRStore();
   const { toasts, toast, dismissToast } = useToast();
 
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     fullName: "",
@@ -120,14 +121,23 @@ export default function CreateEmployeePage() {
               <label className="text-xs font-semibold text-white/70 uppercase tracking-wider flex items-center gap-2">
                 <KeyRound className="w-3.5 h-3.5" /> Initial Passcode
               </label>
-              <input 
-                required 
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:bg-white/10 focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] outline-none transition-all font-mono" 
-                placeholder="••••••••" 
-                type="password" 
-                value={formData.passcode} 
-                onChange={e => setFormData({...formData, passcode: e.target.value})} 
-              />
+              <div className="relative">
+                <input 
+                  required 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pr-12 text-sm text-white focus:bg-white/10 focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] outline-none transition-all font-mono" 
+                  placeholder="••••••••" 
+                  type={showPassword ? "text" : "password"} 
+                  value={formData.passcode} 
+                  onChange={e => setFormData({...formData, passcode: e.target.value})} 
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-[color:var(--brass)] transition-colors focus:outline-none"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-2">

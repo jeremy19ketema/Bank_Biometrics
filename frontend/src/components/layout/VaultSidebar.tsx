@@ -21,6 +21,8 @@ import {
   UserMinus,
   CalendarDays,
   GraduationCap,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 
 type UserRole = "SUPER_ADMIN" | "SUPER_ADMIN_MANAGER" | "SUPER_ADMIN_IT" | "SUPER_ADMIN_FOREX" | "BANK_MANAGER" | "BRANCH_IT" | "ACCOUNTANT" | "HR";
@@ -30,6 +32,7 @@ interface NavItem {
   href?: string;
   icon?: React.FC<{ className?: string }>;
   isSection?: boolean;
+  subItems?: NavItem[];
 }
 
 // Role → dashboard path mapping
@@ -48,6 +51,11 @@ const VaultSidebar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
+
+  const toggleMenu = (label: string) => {
+    setExpandedMenus(prev => ({ ...prev, [label]: !prev[label] }));
+  };
 
   useEffect(() => {
     try {
@@ -82,15 +90,21 @@ const VaultSidebar: React.FC = () => {
       ];
     }
 
-   if (role === "SUPER_ADMIN_MANAGER") {
-  return [
-    { label: "Dashboard", href: "/internal-manager", icon: LayoutDashboard },
-    { label: "Approval Queue", href: "/approvals", icon: Clock },
-    { label: "IT Users", href: "/it-users", icon: Code },
-    { label: "FOREX Operations", href: "/forex/users", icon: Globe }, // ← Updated
-    { label: "Reports", href: "/reports/system", icon: Receipt },
-  ];
-}
+    if (role === "SUPER_ADMIN_MANAGER") {
+      return [
+        { label: "Dashboard", href: "/internal-manager", icon: LayoutDashboard },
+        { label: "Approval Queue", href: "/approvals", icon: Clock },
+        { 
+          label: "Users", 
+          icon: Users,
+          subItems: [
+            { label: "IT Users", href: "/it-users", icon: Code },
+            { label: "FOREX Operations", href: "/forex/users", icon: Globe },
+          ]
+        },
+        { label: "Reports", href: "/reports/system", icon: Receipt },
+      ];
+    }
 
     if (role === "SUPER_ADMIN_IT") {
       return [
@@ -243,6 +257,57 @@ const VaultSidebar: React.FC = () => {
             }
             
             const Icon = item.icon!;
+            const hasSubItems = item.subItems && item.subItems.length > 0;
+            const isExpanded = expandedMenus[item.label];
+            
+            if (hasSubItems) {
+              // A menu that has subItems (but no href of its own)
+              const anyChildActive = item.subItems!.some(child => isActive(child.href!));
+              
+              return (
+                <div key={item.label} className="flex flex-col gap-1">
+                  <button
+                    onClick={() => toggleMenu(item.label)}
+                    className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-all duration-200 ${
+                      anyChildActive || isExpanded
+                        ? "bg-[rgba(244,239,223,0.06)] text-[color:var(--ledger-paper)]"
+                        : "text-[color:var(--ledger-paper-dim)] hover:bg-[rgba(244,239,223,0.06)] hover:text-[color:var(--ledger-paper)]"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className={`h-5 w-5 shrink-0 ${anyChildActive ? "text-[color:var(--brass)]" : ""}`} />
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </div>
+                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  </button>
+                  
+                  {isExpanded && (
+                    <div className="ml-9 flex flex-col gap-1 mt-1 border-l border-white/10 pl-2">
+                      {item.subItems!.map((child) => {
+                        const ChildIcon = child.icon!;
+                        const childActive = isActive(child.href!);
+                        return (
+                          <button
+                            key={child.href}
+                            onClick={() => router.push(child.href!)}
+                            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-all duration-200 ${
+                              childActive
+                                ? "bg-[rgba(198,154,76,0.15)] text-[color:var(--brass)]"
+                                : "text-[color:var(--ledger-paper-dim)] hover:bg-[rgba(244,239,223,0.06)] hover:text-[color:var(--ledger-paper)]"
+                            }`}
+                          >
+                            <ChildIcon className={`h-4 w-4 shrink-0 ${childActive ? "text-[color:var(--brass)]" : ""}`} />
+                            <span className="text-[13px] font-medium">{child.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            // Normal single item
             const active = isActive(item.href!);
             return (
               <button

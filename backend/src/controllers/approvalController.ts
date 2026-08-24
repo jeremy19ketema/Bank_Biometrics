@@ -15,14 +15,21 @@ export async function getPendingApprovals(req: AuthenticatedRequest, res: Respon
 
     let whereClause: any = { status: "PENDING" };
 
-    // Bank Manager only sees branch-level requests
-    if (role === "BANK_MANAGER") {
+    // Unique queues per role
+    if (role === "SUPER_ADMIN") {
+      // Super Admin approves high-level management and HR
+      whereClause.targetRole = { in: ["SUPER_ADMIN_MANAGER", "SUPER_ADMIN_IT", "SUPER_ADMIN_FOREX", "BANK_MANAGER", "HR"] };
+    } else if (role === "SUPER_ADMIN_MANAGER") {
+      // Super Admin Manager approves branch-level staff typically created by HR
+      whereClause.targetRole = { in: ["BRANCH_IT", "ACCOUNTANT"] };
+    } else if (role === "BANK_MANAGER") {
+      // Bank Manager sees branch-level requests
       whereClause.targetBranchId = branchId;
-    }
-
-    // Branch IT sees their branch requests
-    if (role === "BRANCH_IT") {
+      whereClause.targetRole = { in: ["ACCOUNTANT"] }; // e.g. approving accountants
+    } else if (role === "BRANCH_IT") {
+      // Branch IT sees IT requests for their branch
       whereClause.targetBranchId = branchId;
+      whereClause.requestType = { contains: "PASSWORD_RESET" };
     }
 
     const approvals = await prisma.approvalRequest.findMany({
@@ -244,8 +251,16 @@ export async function getApprovalCounts(req: AuthenticatedRequest, res: Response
 
     let whereClause: any = { status: "PENDING" };
 
-    if (role === "BANK_MANAGER" || role === "BRANCH_IT") {
+    if (role === "SUPER_ADMIN") {
+      whereClause.targetRole = { in: ["SUPER_ADMIN_MANAGER", "SUPER_ADMIN_IT", "SUPER_ADMIN_FOREX", "BANK_MANAGER", "HR"] };
+    } else if (role === "SUPER_ADMIN_MANAGER") {
+      whereClause.targetRole = { in: ["BRANCH_IT", "ACCOUNTANT"] };
+    } else if (role === "BANK_MANAGER") {
       whereClause.targetBranchId = branchId;
+      whereClause.targetRole = { in: ["ACCOUNTANT"] };
+    } else if (role === "BRANCH_IT") {
+      whereClause.targetBranchId = branchId;
+      whereClause.requestType = { contains: "PASSWORD_RESET" };
     }
 
     const count = await prisma.approvalRequest.count({

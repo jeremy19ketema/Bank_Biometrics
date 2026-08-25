@@ -86,16 +86,16 @@ export default function FOREXUsersListPage() {
     <>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[28px] p-6 shadow-[0_20px_60px_rgba(2,8,23,0.36)] backdrop-blur-xl">
           <div>
-            <h1 className="text-2xl font-extrabold text-[color:var(--ledger-paper)]">FOREX User Management</h1>
-            <p className="text-xs text-[color:var(--ledger-paper-dim)] mt-1">
+            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-[color:var(--ledger-paper)]">FOREX User Management</h1>
+            <p className="text-sm text-[color:var(--ledger-paper-dim)] mt-1">
               Currency exchange dealers, treasury operators, and international settlements specialists.
             </p>
           </div>
           <Link
             href="/forex/create"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[color:var(--brass)] hover:bg-[#d7ab5c] text-[color:var(--ink-navy)] font-bold text-xs transition-all shadow-lg shadow-[color:var(--brass)]/20"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[color:var(--brass)] hover:bg-[#d7ab5c] text-[color:var(--ink-navy)] text-sm font-bold transition-all shadow-lg shadow-[color:var(--brass)]/20"
           >
             <Plus className="w-4 h-4" />
             <span>Add FOREX User</span>
@@ -103,169 +103,163 @@ export default function FOREXUsersListPage() {
         </div>
 
         {/* KPI Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[color:var(--brass)]/10 text-[color:var(--brass)] border border-[color:var(--brass)]/30 flex items-center justify-center">
-              <Users className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
-                Total FOREX Users
-              </p>
-              <p className="text-xl font-bold text-[color:var(--ledger-paper)]">
-                {totalUsers}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[color:var(--moss)]/10 text-[color:var(--moss)] border border-[color:var(--moss)]/30 flex items-center justify-center">
-              <UserCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
-                Active
-              </p>
-              <p className="text-xl font-bold text-[color:var(--moss)]">
-                {activeUsers}
-              </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[28px] p-6 shadow-xl backdrop-blur-xl group hover:border-[color:var(--brass)]/30 transition-all cursor-pointer relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[color:var(--brass)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-[color:var(--brass)]/10 text-[color:var(--brass)] border border-[color:var(--brass)]/20 flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(212,175,55,0.1)]">
+                <Users className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wider font-bold text-white/50">Total FOREX Users</p>
+                <p className="text-2xl font-bold text-white mt-0.5">{totalUsers}</p>
+              </div>
             </div>
           </div>
 
-          <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[color:var(--clay)]/10 text-[color:var(--clay)] border border-[color:var(--clay)]/30 flex items-center justify-center">
-              <UserX className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
-                Suspended
-              </p>
-              <p className="text-xl font-bold text-[color:var(--clay)]">
-                {suspendedUsers}
-              </p>
+          <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[28px] p-6 shadow-xl backdrop-blur-xl group hover:border-[color:var(--moss)]/30 transition-all cursor-pointer relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[color:var(--moss)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-[color:var(--moss)]/10 text-[color:var(--moss)] border border-[color:var(--moss)]/20 flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(76,122,94,0.1)]">
+                <UserCheck className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wider font-bold text-white/50">Active</p>
+                <p className="text-2xl font-bold text-[color:var(--moss)] mt-0.5">{activeUsers}</p>
+              </div>
             </div>
           </div>
 
-          <div className="bg-[color:var(--vault-charcoal)] border border-[color:var(--line)] rounded-lg p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[color:var(--brass-dim)]/10 text-[color:var(--brass-dim)] border border-[color:var(--brass-dim)]/30 flex items-center justify-center">
-              <Globe className="w-5 h-5" />
+          <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[28px] p-6 shadow-xl backdrop-blur-xl group hover:border-[color:var(--clay)]/30 transition-all cursor-pointer relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-[color:var(--clay)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-[color:var(--clay)]/10 text-[color:var(--clay)] border border-[color:var(--clay)]/20 flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(217,119,108,0.1)]">
+                <UserX className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wider font-bold text-white/50">Suspended</p>
+                <p className="text-2xl font-bold text-[color:var(--clay)] mt-0.5">{suspendedUsers}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.06em] text-[color:var(--ledger-paper-dim)]">
-                Specializations
-              </p>
-              <p className="text-xl font-bold text-[color:var(--brass-dim)]">
-                {specializations}
-              </p>
+          </div>
+
+          <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[28px] p-6 shadow-xl backdrop-blur-xl group hover:border-white/30 transition-all cursor-pointer relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-white/5 text-white/70 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Globe className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wider font-bold text-white/50">Specializations</p>
+                <p className="text-2xl font-bold text-white mt-0.5">{specializations}</p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 glass-panel p-4 rounded-xl border border-slate-800">
-          <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[20px] p-4 shadow-xl backdrop-blur-xl">
+          <div className="relative w-full sm:w-80">
+            <Search className="w-5 h-5 text-white/40 absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by name, ID, email, specialization..."
+              placeholder="Search users..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full bg-[#0B192C] border border-[#1E293B] rounded-lg pl-9 pr-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-colors placeholder:text-slate-500"
+              className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:bg-white/10 focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] outline-none transition-all placeholder:text-white/30"
             />
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <select
               value={statusFilter}
               onChange={(e) => handleStatusChange(e.target.value)}
-              className="bg-[#0B192C] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-colors"
+              className="w-full sm:w-auto bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:bg-white/10 focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] outline-none transition-all"
             >
               {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>
+                <option key={s} value={s} className="bg-[#0f1728] text-white">
                   {s === "ALL" ? "All Status" : s}
                 </option>
               ))}
             </select>
-
             <select
               value={specializationFilter}
               onChange={(e) => handleSpecializationChange(e.target.value)}
-              className="bg-[#0B192C] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-[color:var(--brass)] transition-colors"
+              className="w-full sm:w-auto bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:bg-white/10 focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] outline-none transition-all"
             >
               {SPECIALIZATION_OPTIONS.map((s) => (
-                <option key={s} value={s}>
+                <option key={s} value={s} className="bg-[#0f1728] text-white">
                   {s === "ALL" ? "All Specializations" : s}
                 </option>
               ))}
             </select>
-
-            <span className="text-[11px] text-slate-500 font-mono pl-1">
+            <span className="text-xs text-white/40 font-mono font-medium whitespace-nowrap pl-2">
               {filtered.length} record{filtered.length !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
 
         {/* Table */}
-        <div className="ledger-panel">
-          <div className="ledger-head">
-            <h3 className="display">FOREX Personnel</h3>
-            <span className="mono text-xs text-[color:var(--ledger-paper-dim)]">{filtered.length} entries</span>
+        <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[28px] shadow-xl backdrop-blur-xl overflow-hidden flex flex-col">
+          <div className="p-8 border-b border-white/10 flex items-center justify-between">
+            <h3 className="text-xl font-semibold text-white">FOREX Personnel</h3>
+            <span className="text-xs font-mono text-[color:var(--brass)] bg-[color:var(--brass)]/10 px-3 py-1.5 rounded-full border border-[color:var(--brass)]/20">{filtered.length} active entries</span>
           </div>
           <div className="overflow-x-auto">
-            <table>
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr>
-                  <th>Employee ID</th>
-                  <th>Full Name</th>
-                  <th>Email</th>
-                  <th>Specialization</th>
-                  <th>Certification Level</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
+                <tr className="bg-white/5 border-b border-white/10">
+                  <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider">Employee ID</th>
+                  <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider">Full Name</th>
+                  <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider">Email</th>
+                  <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider">Specialization</th>
+                  <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider">Certification</th>
+                  <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider">Status</th>
+                  <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-white/5">
                 {paginated.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12 text-slate-500">
-                      <UserX className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                      No FOREX users found.
+                    <td colSpan={7} className="text-center py-12 text-white/40">
+                      <UserX className="w-8 h-8 text-white/20 mx-auto mb-3" />
+                      <p className="font-medium">No FOREX users found.</p>
                     </td>
                   </tr>
                 ) : (
                   paginated.map((user) => (
-                    <tr key={user.id} className="hover:bg-[rgba(198,154,76,0.04)] transition-colors">
-                      <td className="mono-cell font-semibold text-[color:var(--brass)]">{user.employeeId}</td>
-                      <td className="font-semibold">{user.fullName}</td>
-                      <td className="text-[color:var(--ledger-paper-dim)]">{user.email}</td>
-                      <td>{user.specialization}</td>
-                      <td>
-                        <span className="text-xs text-[color:var(--brass)] font-medium">{user.certificationLevel}</span>
+                    <tr key={user.id} className="hover:bg-white/[0.02] transition-colors group">
+                      <td className="py-5 px-8 font-mono text-sm font-semibold text-[color:var(--brass)]">{user.employeeId}</td>
+                      <td className="py-5 px-8 text-sm text-white font-medium">{user.fullName}</td>
+                      <td className="py-5 px-8 text-sm text-white/60">{user.email}</td>
+                      <td className="py-5 px-8 text-sm text-white/80">{user.specialization}</td>
+                      <td className="py-5 px-8">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold text-[color:var(--brass)] bg-[color:var(--brass)]/10 border border-[color:var(--brass)]/20 uppercase tracking-wider">{user.certificationLevel}</span>
                       </td>
-                      <td>
+                      <td className="py-5 px-8">
                         <StatusBadge status={user.status} />
                       </td>
-                      <td style={{ textAlign: "right" }}>
-                        <div className="flex justify-end gap-1.5">
+                      <td className="py-5 px-8 text-right">
+                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Link
                             href={`/forex/details?id=${user.id}`}
-                            className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors border border-white/5 hover:border-white/20"
                             title="View Details"
                           >
-                            <Eye className="w-3.5 h-3.5" />
+                            <Eye className="w-4 h-4" />
                           </Link>
                           <Link
                             href={`/forex/edit?id=${user.id}`}
-                            className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                            className="p-2 rounded-lg bg-white/5 hover:bg-[color:var(--brass)]/10 text-white/50 hover:text-[color:var(--brass)] transition-colors border border-white/5 hover:border-[color:var(--brass)]/30"
                             title="Edit"
                           >
-                            <Pencil className="w-3.5 h-3.5" />
+                            <Pencil className="w-4 h-4" />
                           </Link>
                           <button
-                            className="p-1.5 rounded-lg bg-[#0B192C] hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors"
+                            className="p-2 rounded-lg bg-white/5 hover:bg-[color:var(--clay)]/10 text-white/50 hover:text-[color:var(--clay)] transition-colors border border-white/5 hover:border-[color:var(--clay)]/30"
                             onClick={() => setDeleteTarget({ id: user.id, name: user.fullName })}
                             title="Remove User"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>

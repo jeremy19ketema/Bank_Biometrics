@@ -604,8 +604,8 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
 
     const passwordHash = await bcrypt.hash(passcode, 10);
 
-    // If HR is creating, or if role is SUPER_ADMIN_IT, force approval
-    const requiresApproval = req.user.role === "HR" || role === "SUPER_ADMIN_IT";
+    // If HR is creating, or if role requires approval (IT, FOREX)
+    const requiresApproval = req.user.role === "HR" || ["SUPER_ADMIN_IT", "SUPER_ADMIN_FOREX"].includes(role);
     const userStatus = requiresApproval ? "PENDING_APPROVAL" : "PENDING_FIRST_LOGIN";
 
     const user = await prisma.user.create({

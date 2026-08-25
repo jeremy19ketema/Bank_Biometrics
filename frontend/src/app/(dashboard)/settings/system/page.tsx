@@ -55,6 +55,7 @@ import {
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { getStoredUser } from "@/lib/auth";
 
 type Section =
   | "general"
@@ -110,6 +111,11 @@ export default function SystemSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveTarget, setSaveTarget] = useState<Section | "all" | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [user, setUser] = useState<{ role: string } | null>(null);
+
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, []);
 
   // ---- General Settings ----
   const [general, setGeneral] = useState({
@@ -308,7 +314,7 @@ export default function SystemSettingsPage() {
   });
 
   // ---- Navigation items ----
-  const navItems: NavItem[] = [
+  const allNavItems: NavItem[] = [
     { id: "general", label: "General Settings", icon: <Settings className="w-4 h-4" /> },
     { id: "security", label: "Security Settings", icon: <Shield className="w-4 h-4" /> },
     { id: "roles", label: "Role Management", icon: <Users className="w-4 h-4" /> },
@@ -325,6 +331,10 @@ export default function SystemSettingsPage() {
     { id: "appearance", label: "Appearance", icon: <Palette className="w-4 h-4" /> },
     { id: "about", label: "About System", icon: <Info className="w-4 h-4" /> },
   ];
+
+  const navItems = user?.role === "SUPER_ADMIN_IT" 
+    ? allNavItems.filter(item => ["general", "security", "biometric", "backup", "api", "maintenance", "audit", "notifications", "about", "appearance"].includes(item.id))
+    : allNavItems;
 
   // ---- Save functions ----
   const handleSaveSection = (section: Section) => {

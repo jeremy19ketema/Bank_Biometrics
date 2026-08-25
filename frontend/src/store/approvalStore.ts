@@ -85,6 +85,7 @@ export const useApprovalStore = create<ApprovalState>((set, get) => ({
         await get().fetchPendingApprovals();
         return true;
       }
+      console.warn("Backend rejected approval:", data.message);
       return false;
     } catch (error) {
       console.warn("Failed to approve request:", error);
@@ -99,6 +100,7 @@ export const useApprovalStore = create<ApprovalState>((set, get) => ({
         await get().fetchPendingApprovals();
         return true;
       }
+      console.warn("Backend rejected rejection:", data.message);
       return false;
     } catch (error) {
       console.warn("Failed to reject request:", error);

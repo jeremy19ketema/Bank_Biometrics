@@ -239,44 +239,49 @@ export default function FOREXDashboard() {
 
       {/* Recent Trades Table */}
       <div className="bg-[rgba(15,23,40,0.82)] border border-white/10 rounded-[28px] shadow-xl backdrop-blur-xl overflow-hidden flex flex-col">
-        <div className="p-8 border-b border-white/10 flex items-center justify-between">
-          <h3 className="text-xl font-semibold text-white">Recent Trades</h3>
-          <Link href="/transactions/history" className="text-sm font-semibold text-[color:var(--brass)] hover:text-[#d7ab5c] transition-colors flex items-center gap-1">
+        <div className="p-8 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+          <div>
+            <h3 className="text-xl font-semibold text-white">Recent Trades</h3>
+            <p className="text-xs text-white/50 mt-1">Latest forex transaction records</p>
+          </div>
+          <Link href="/transactions/history" className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-xs font-semibold transition-all border border-white/10">
             View All
           </Link>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
-              <tr className="bg-white/5 border-b border-white/10">
-                <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider">Reference</th>
-                <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider">Pair</th>
-                <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider">Type</th>
-                <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider text-right">Amount</th>
-                <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider text-right">Rate</th>
-                <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider">Status</th>
-                <th className="py-4 px-8 text-xs font-bold text-white/50 uppercase tracking-wider text-right">Actions</th>
+              <tr className="border-b border-white/10 bg-[#0B192C]/50">
+                <th className="py-4 px-8 text-xs font-semibold text-slate-300 uppercase tracking-wider">Reference</th>
+                <th className="py-4 px-8 text-xs font-semibold text-slate-300 uppercase tracking-wider">Pair</th>
+                <th className="py-4 px-8 text-xs font-semibold text-slate-300 uppercase tracking-wider">Type</th>
+                <th className="py-4 px-8 text-xs font-semibold text-slate-300 uppercase tracking-wider text-right">Amount</th>
+                <th className="py-4 px-8 text-xs font-semibold text-slate-300 uppercase tracking-wider text-right">Rate</th>
+                <th className="py-4 px-8 text-xs font-semibold text-slate-300 uppercase tracking-wider">Status</th>
+                <th className="py-4 px-8 text-xs font-semibold text-slate-300 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-white/5 bg-transparent">
               {recentTrades.map((trade) => (
-                <tr key={trade.ref} className="hover:bg-white/[0.02] transition-colors group">
-                  <td className="py-5 px-8 font-mono text-sm font-semibold text-[color:var(--brass)]">{trade.ref}</td>
-                  <td className="py-5 px-8 text-sm text-white font-medium">{trade.pair}</td>
+                <tr key={trade.ref} className="hover:bg-white/[0.03] transition-colors group">
+                  <td className="py-5 px-8 font-mono text-xs font-semibold text-[color:var(--brass)]">{trade.ref}</td>
+                  <td className="py-5 px-8 text-sm text-white font-medium">
+                    <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/10">{trade.pair}</span>
+                  </td>
                   <td className={`py-5 px-8 text-sm font-bold ${trade.type === "Buy" ? "text-[color:var(--moss)]" : "text-[color:var(--clay)]"}`}>{trade.type}</td>
                   <td className="py-5 px-8 text-right font-mono text-sm text-white">${trade.amount.toLocaleString()}</td>
                   <td className="py-5 px-8 text-right font-mono text-sm text-white/70">{trade.rate}</td>
                   <td className="py-5 px-8">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    <span className={`inline-flex items-center px-3 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider ${
                       trade.status === "Completed" ? "bg-[color:var(--moss)]/10 text-[color:var(--moss)] border border-[color:var(--moss)]/20" :
-                      trade.status === "Pending Approval" ? "bg-white/10 text-white/70 border border-white/20" :
+                      trade.status === "Pending Approval" ? "bg-white/5 text-white/60 border border-white/10" :
                       "bg-[color:var(--clay)]/10 text-[color:var(--clay)] border border-[color:var(--clay)]/20"
                     }`}>
                       {trade.status}
                     </span>
                   </td>
                   <td className="py-5 px-8 text-right">
-                    <button className="px-4 py-1.5 rounded-lg bg-white/5 hover:bg-[color:var(--brass)]/10 text-white/50 hover:text-[color:var(--brass)] text-xs font-bold transition-colors border border-white/10 hover:border-[color:var(--brass)]/30 opacity-0 group-hover:opacity-100">
+                    <button className="px-4 py-1.5 rounded-lg bg-white/5 hover:bg-[color:var(--brass)]/10 text-white/50 hover:text-[color:var(--brass)] text-xs font-bold transition-all border border-white/10 hover:border-[color:var(--brass)]/30 opacity-0 group-hover:opacity-100 shadow-sm">
                       View
                     </button>
                   </td>

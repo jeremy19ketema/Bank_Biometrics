@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { prisma } from "../config/db.js";
 import { AuthenticatedRequest } from "../middleware/auth.js";
 import { logAuditEvent } from "../utils/audit.js";
+import { generateSecurePassword } from "../utils/passwordGenerator.js";
 
 // ──────────────────────────────────────────────
 // GET ROUTES
@@ -213,10 +214,10 @@ export async function getHR(req: AuthenticatedRequest, res: Response): Promise<v
 
 // Super Admin creates Bank Manager (goes through approval)
 export async function createBankManager(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { username, fullName, email, branchId, passcode } = req.body;
+  const { username, fullName, email, branchId } = req.body;
   const ipAddress = req.ip || "unknown";
 
-  if (!username || !fullName || !email || !passcode) {
+  if (!username || !fullName || !email) {
     res.status(400).json({ success: false, message: "Missing required fields" });
     return;
   }
@@ -230,7 +231,8 @@ export async function createBankManager(req: AuthenticatedRequest, res: Response
       return;
     }
 
-    const passwordHash = await bcrypt.hash(passcode, 10);
+    const generatedPasscode = generateSecurePassword();
+    const passwordHash = await bcrypt.hash(generatedPasscode, 10);
 
     const user = await prisma.user.create({
       data: {
@@ -274,7 +276,8 @@ export async function createBankManager(req: AuthenticatedRequest, res: Response
         email: user.email,
         role: user.role,
         branchId: user.branchId,
-        status: user.status
+        status: user.status,
+        temporaryPasscode: generatedPasscode
       }
     });
   } catch (error: any) {
@@ -284,7 +287,7 @@ export async function createBankManager(req: AuthenticatedRequest, res: Response
 
 // Bank Manager creates Accountant (branch-level)
 export async function createAccountant(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { username, fullName, email, passcode } = req.body;
+  const { username, fullName, email } = req.body;
   const ipAddress = req.ip || "unknown";
 
   if (!req.user) {
@@ -292,7 +295,7 @@ export async function createAccountant(req: AuthenticatedRequest, res: Response)
     return;
   }
 
-  if (!username || !fullName || !email || !passcode) {
+  if (!username || !fullName || !email) {
     res.status(400).json({ success: false, message: "Missing required fields" });
     return;
   }
@@ -306,7 +309,8 @@ export async function createAccountant(req: AuthenticatedRequest, res: Response)
       return;
     }
 
-    const passwordHash = await bcrypt.hash(passcode, 10);
+    const generatedPasscode = generateSecurePassword();
+    const passwordHash = await bcrypt.hash(generatedPasscode, 10);
 
     const user = await prisma.user.create({
       data: {
@@ -336,7 +340,8 @@ export async function createAccountant(req: AuthenticatedRequest, res: Response)
         email: user.email,
         role: user.role,
         branchId: user.branchId,
-        status: user.status
+        status: user.status,
+        temporaryPasscode: generatedPasscode
       }
     });
   } catch (error: any) {
@@ -346,7 +351,7 @@ export async function createAccountant(req: AuthenticatedRequest, res: Response)
 
 // Bank Manager creates Branch IT (branch-level)
 export async function createBranchIT(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { username, fullName, email, passcode } = req.body;
+  const { username, fullName, email } = req.body;
   const ipAddress = req.ip || "unknown";
 
   if (!req.user) {
@@ -354,7 +359,7 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
     return;
   }
 
-  if (!username || !fullName || !email || !passcode) {
+  if (!username || !fullName || !email) {
     res.status(400).json({ success: false, message: "Missing required fields" });
     return;
   }
@@ -368,7 +373,8 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
       return;
     }
 
-    const passwordHash = await bcrypt.hash(passcode, 10);
+    const generatedPasscode = generateSecurePassword();
+    const passwordHash = await bcrypt.hash(generatedPasscode, 10);
 
     const user = await prisma.user.create({
       data: {
@@ -398,7 +404,8 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
         email: user.email,
         role: user.role,
         branchId: user.branchId,
-        status: user.status
+        status: user.status,
+        temporaryPasscode: generatedPasscode
       }
     });
   } catch (error: any) {
@@ -408,10 +415,10 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
 
 // Super Admin creates Super Admin roles (goes through approval)
 export async function createSuperAdminRole(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { username, fullName, email, role, passcode } = req.body;
+  const { username, fullName, email, role } = req.body;
   const ipAddress = req.ip || "unknown";
 
-  if (!username || !fullName || !email || !role || !passcode) {
+  if (!username || !fullName || !email || !role) {
     res.status(400).json({ success: false, message: "Missing required fields" });
     return;
   }
@@ -431,7 +438,8 @@ export async function createSuperAdminRole(req: AuthenticatedRequest, res: Respo
       return;
     }
 
-    const passwordHash = await bcrypt.hash(passcode, 10);
+    const generatedPasscode = generateSecurePassword();
+    const passwordHash = await bcrypt.hash(generatedPasscode, 10);
 
     const user = await prisma.user.create({
       data: {
@@ -459,7 +467,8 @@ export async function createSuperAdminRole(req: AuthenticatedRequest, res: Respo
         fullName: user.fullName,
         email: user.email,
         role: user.role,
-        status: user.status
+        status: user.status,
+        temporaryPasscode: generatedPasscode
       }
     });
   } catch (error: any) {
@@ -469,7 +478,7 @@ export async function createSuperAdminRole(req: AuthenticatedRequest, res: Respo
 
 // HR creates users (goes through approval by Super Admin Manager)
 export async function createHR(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { username, fullName, email, role, branchId, passcode } = req.body;
+  const { username, fullName, email, role, branchId } = req.body;
   const ipAddress = req.ip || "unknown";
 
   if (!req.user) {
@@ -489,7 +498,7 @@ export async function createHR(req: AuthenticatedRequest, res: Response): Promis
 
   // HR cannot create SUPER_ADMIN or SUPER_ADMIN_MANAGER (blocked by allowedRolesForHR)
 
-  if (!username || !fullName || !email || !passcode) {
+  if (!username || !fullName || !email) {
     res.status(400).json({ success: false, message: "Missing required fields" });
     return;
   }
@@ -503,7 +512,8 @@ export async function createHR(req: AuthenticatedRequest, res: Response): Promis
       return;
     }
 
-    const passwordHash = await bcrypt.hash(passcode, 10);
+    const generatedPasscode = generateSecurePassword();
+    const passwordHash = await bcrypt.hash(generatedPasscode, 10);
 
     // Create user with PENDING_APPROVAL status (HR-created users need approval)
     const user = await prisma.user.create({
@@ -553,7 +563,8 @@ export async function createHR(req: AuthenticatedRequest, res: Response): Promis
         email: user.email,
         role: user.role,
         branchId: user.branchId,
-        status: user.status
+        status: user.status,
+        temporaryPasscode: generatedPasscode
       }
     });
   } catch (error: any) {
@@ -565,7 +576,7 @@ export async function createHR(req: AuthenticatedRequest, res: Response): Promis
 // ──────────────────────────────────────────────
 
 export async function createStaff(req: AuthenticatedRequest, res: Response): Promise<void> {
-  const { username, fullName, email, role, branchId, passcode, department } = req.body;
+  const { username, fullName, email, role, branchId, department } = req.body;
   const ipAddress = req.ip || "unknown";
 
   if (!req.user) {
@@ -585,7 +596,7 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
     }
   }
 
-  if (!username || !fullName || !email || !role || !passcode) {
+  if (!username || !fullName || !email || !role) {
     res.status(400).json({ success: false, message: "Missing required personnel fields" });
     return;
   }
@@ -602,7 +613,8 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
       return;
     }
 
-    const passwordHash = await bcrypt.hash(passcode, 10);
+    const generatedPasscode = generateSecurePassword();
+    const passwordHash = await bcrypt.hash(generatedPasscode, 10);
 
     // If HR is creating, or if role requires approval (IT, FOREX)
     const requiresApproval = req.user.role === "HR" || ["SUPER_ADMIN_IT", "SUPER_ADMIN_FOREX"].includes(role);
@@ -657,7 +669,8 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
           email: user.email,
           role: user.role,
           branchId: user.branchId,
-          status: user.status
+          status: user.status,
+          temporaryPasscode: generatedPasscode
         }
       });
     } else {
@@ -682,7 +695,8 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
           branchId: user.branchId,
           isActive: user.isActive,
           status: user.status,
-          isFirstLogin: user.isFirstLogin
+          isFirstLogin: user.isFirstLogin,
+          temporaryPasscode: generatedPasscode
         }
       });
     }

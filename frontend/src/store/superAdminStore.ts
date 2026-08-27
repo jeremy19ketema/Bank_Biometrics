@@ -81,9 +81,9 @@ interface SuperAdminState {
     email: string;
     role: string;
     branchId?: string;
-    passcode: string;
+    passcode?: string;
     department?: string;
-  }) => Promise<{success: boolean, message?: string}>;
+  }) => Promise<{success: boolean, message?: string, data?: any}>;
 
   // Real backend integration
   createBranch: (data: any) => Promise<{success: boolean, message?: string}>;
@@ -456,7 +456,7 @@ export const useSuperAdminStore = create<SuperAdminState>((set, get) => ({
       const result = await res.json();
       if (!result.success) throw new Error(result.message);
       
-      return { success: true };
+      return { success: true, data: result.data };
     } catch (error: any) {
       return { success: false, message: error.message || "Failed to create user" };
     }

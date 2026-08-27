@@ -55,17 +55,24 @@ export default function CreateFOREXUserPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to create FOREX user");
+        throw new Error(result.message || result.error || "Failed to create FOREX user");
       }
 
-      toast.success(
-        "FOREX User Created",
-        "The user has been created and is pending approval."
-      );
+      if (result.data?.temporaryPasscode) {
+        window.prompt(
+          "FOREX User Created and pending approval.\n\nIMPORTANT: Copy this temporary passcode and share it securely with the user:",
+          result.data.temporaryPasscode
+        );
+      } else {
+        toast.success(
+          "FOREX User Created",
+          "The user has been created and is pending approval."
+        );
+      }
       
       setTimeout(() => {
         router.push("/forex/users");
-      }, 2000);
+      }, 1000);
     } catch (error: any) {
       toast.error("Creation Failed", error.message || "An unexpected error occurred");
       setIsSubmitting(false);

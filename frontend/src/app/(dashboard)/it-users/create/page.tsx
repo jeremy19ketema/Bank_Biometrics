@@ -38,13 +38,19 @@ export default function CreateITUserPage() {
       fullName: data.fullName,
       email: data.email,
       role: "SUPER_ADMIN_IT",
-      department: data.department,
-      passcode: "TempPass123!" // Default temporary passcode
+      department: data.department
     });
 
     if (res.success) {
-      toast.success("Approval Requested", `${data.fullName} has been sent for Super Admin Manager approval.`);
-      setTimeout(() => router.push("/it-users"), 1500);
+      if (res.data?.temporaryPasscode) {
+        window.prompt(
+          `${data.fullName} has been sent for Super Admin Manager approval.\n\nIMPORTANT: Copy this temporary passcode and share it securely with the user:`,
+          res.data.temporaryPasscode
+        );
+      } else {
+        toast.success("Approval Requested", `${data.fullName} has been sent for Super Admin Manager approval.`);
+      }
+      router.push("/it-users");
     } else {
       toast.error("Failed to create IT User", res.message || "Unknown error occurred.");
     }

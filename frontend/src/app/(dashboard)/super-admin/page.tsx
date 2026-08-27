@@ -33,7 +33,6 @@ const createUserSchema = z.object({
   role: z.string().min(1, "Role is required"),
   branchId: z.string().optional(),
   department: z.string().optional(),
-  passcode: z.string().min(6, "Passcode must be at least 6 characters"),
 }).superRefine((data, ctx) => {
   if (["SUPER_ADMIN_IT", "BRANCH_IT"].includes(data.role) && !data.department) {
     ctx.addIssue({
@@ -71,7 +70,6 @@ export default function SuperAdminDashboard() {
       role: "BANK_MANAGER",
       branchId: "",
       department: "",
-      passcode: "",
     },
   });
 
@@ -87,13 +85,21 @@ export default function SuperAdminDashboard() {
       fullName: `${data.firstName} ${data.lastName}`,
     };
     
-    const { success, message } = await createUser(submissionData);
+    const { success, message, data: resData } = await createUser(submissionData);
     setLoading(false);
 
     if (success) {
-      toast.success("Success", `User ${submissionData.fullName} created successfully.`);
-      setSuccessMsg(`User ${submissionData.fullName} was successfully provisioned!`);
+      if (resData?.temporaryPasscode) {
+        window.prompt(
+          `User ${submissionData.fullName} created successfully.\n\nIMPORTANT: Copy this temporary passcode and share it securely with the user:`,
+          resData.temporaryPasscode
+        );
+      } else {
+        toast.success("Success", `User ${submissionData.fullName} created successfully.`);
+        setSuccessMsg(`User ${submissionData.fullName} was successfully provisioned!`);
+      }
       reset();
+      setShowAddModal(false);
     } else {
       toast.error("Error", message || "Failed to create staff member.");
       setErrorMsg(message || "Failed to create staff member.");
@@ -554,15 +560,7 @@ export default function SuperAdminDashboard() {
                   </div>
                 )}
 
-                <div>
-                  <div className="relative">
-                    <input {...register("passcode")} type={showPassword ? "text" : "password"} placeholder="Initial Passcode" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none pr-10" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  {errors.passcode && <span className="text-xs text-red-400 mt-1 block">{errors.passcode.message}</span>}
-                </div>
+
 
                 <div className="flex gap-3 justify-end pt-4">
                   <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 rounded-xl border border-white/10 text-white text-sm font-semibold hover:bg-white/5">Cancel</button>

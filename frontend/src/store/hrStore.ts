@@ -15,8 +15,8 @@ interface HRStoreState {
     email: string;
     role: string;
     branchId?: string;
-    passcode: string;
-  }) => Promise<boolean>;
+    passcode?: string;
+  }) => Promise<{ success: boolean; data?: any; message?: string }>;
 }
 
 export const useHRStore = create<HRStoreState>((set) => ({
@@ -69,10 +69,10 @@ export const useHRStore = create<HRStoreState>((set) => ({
       if (!result.success) throw new Error(result.message);
       
       set({ loading: false });
-      return true;
+      return { success: true, data: result.data };
     } catch (error: any) {
       set({ error: error.message, loading: false });
-      return false;
+      return { success: false, message: error.message };
     }
   },
 }));

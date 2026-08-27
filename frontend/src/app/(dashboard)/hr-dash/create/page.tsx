@@ -20,22 +20,28 @@ export default function CreateEmployeePage() {
     email: "",
     role: "BANK_MANAGER",
     branchId: "",
-    passcode: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.username || !formData.fullName || !formData.email || !formData.passcode) {
+    if (!formData.username || !formData.fullName || !formData.email) {
       toast.error("Missing Fields", "Please fill in all required fields.");
       return;
     }
 
-    const success = await createStaffRequest(formData);
-    if (success) {
-      toast.success("Success", `${formData.role.replace(/_/g, " ")} created and sent for Super Admin approval.`);
-      setTimeout(() => router.push("/hr-dash"), 1200);
+    const res = await createStaffRequest(formData);
+    if (res.success) {
+      if (res.data?.temporaryPasscode) {
+        window.prompt(
+          `${formData.role.replace(/_/g, " ")} created and sent for Super Admin approval.\n\nIMPORTANT: Copy this temporary passcode and share it securely with the user:`,
+          res.data.temporaryPasscode
+        );
+      } else {
+        toast.success("Success", `${formData.role.replace(/_/g, " ")} created and sent for Super Admin approval.`);
+      }
+      router.push("/hr-dash");
     } else {
-      toast.error("Error", "Failed to create staff member. Check console or try again.");
+      toast.error("Error", res.message || "Failed to create staff member. Check console or try again.");
     }
   };
 
@@ -117,28 +123,7 @@ export default function CreateEmployeePage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-white/70 uppercase tracking-wider flex items-center gap-2">
-                <KeyRound className="w-3.5 h-3.5" /> Initial Passcode
-              </label>
-              <div className="relative">
-                <input 
-                  required 
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 pr-12 text-sm text-white focus:bg-white/10 focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] outline-none transition-all font-mono" 
-                  placeholder="••••••••" 
-                  type={showPassword ? "text" : "password"} 
-                  value={formData.passcode} 
-                  onChange={e => setFormData({...formData, passcode: e.target.value})} 
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-[color:var(--brass)] transition-colors focus:outline-none"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
+
 
             <div className="space-y-2">
               <label className="text-xs font-semibold text-white/70 uppercase tracking-wider flex items-center gap-2">

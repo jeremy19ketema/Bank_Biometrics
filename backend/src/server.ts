@@ -1,9 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import apiRoutes from "./routes/index.js";
 import { logger } from "./utils/logger.js";
-
 dotenv.config();
 
 const app = express();
@@ -17,6 +18,19 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Security Middleware
+app.use(helmet());
+
+// Global Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Too many requests from this IP, please try again after 15 minutes" }
+});
+app.use(globalLimiter);
 
 // Request logger middleware
 app.use((req, res, next) => {
@@ -34,9 +48,16 @@ app.get("/health", (req, res) => {
 
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  logger.error(`Unhandle Exception: ${err.message}`);
+  logger.error(`Unhandled Exception: ${err.message}`);
   console.error("FULL ERROR DETAILS:", err);
-  res.status(500).json({ success: false, message: "An unexpected system error occurred", error: err.message });
+  
+  const errorDetails = process.env.NODE_ENV === "production" ? undefined : err.message;
+  
+  res.status(500).json({ 
+    success: false, 
+    message: "An unexpected system error occurred", 
+    ...(errorDetails && { error: errorDetails })
+  });
 });
 
 app.listen(PORT, () => {

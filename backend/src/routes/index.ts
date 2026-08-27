@@ -8,9 +8,16 @@ import transactionRoutes from "./transactionRoutes.js";
 import auditRoutes from "./auditRoutes.js";
 import approvalRoutes from "./approvalRoutes.js";
 
+import { authenticateJWT, requireFirstLoginComplete } from "../middleware/auth.js";
+
 const router = Router();
 
 router.use("/auth", authRoutes);
+
+// Apply authentication and first login check globally to all non-auth routes
+router.use(authenticateJWT);
+router.use(requireFirstLoginComplete);
+
 router.use("/branches", branchRoutes);
 router.use("/staff", staffRoutes);
 router.use("/customers", customerRoutes);

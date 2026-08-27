@@ -21,6 +21,11 @@ function getJwtSecret(): string {
 }
 
 export function authenticateJWT(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
+  if (req.user) {
+    next();
+    return;
+  }
+
   const authHeader = req.headers.authorization;
   const cookieToken = req.headers.cookie
     ?.split(";")

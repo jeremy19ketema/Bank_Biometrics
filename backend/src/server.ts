@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import apiRoutes from "./routes/index.js";
+import webauthnRoutes from "./routes/webauthnRoutes.js";
 import { logger } from "./utils/logger.js";
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use((req, res, next) => {
 
 // Register API Routes
 app.use("/api", apiRoutes);
+app.use("/api/auth/webauthn", webauthnRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

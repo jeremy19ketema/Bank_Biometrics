@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useHRStore } from "@/store/hrStore";
+import { useSuperAdminStore } from "@/store/superAdminStore";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
 import { UserPlus, ArrowLeft, Briefcase, Shield, KeyRound, Building, Mail, User, Eye, EyeOff } from "lucide-react";
@@ -11,6 +12,7 @@ import { UserPlus, ArrowLeft, Briefcase, Shield, KeyRound, Building, Mail, User,
 export default function CreateEmployeePage() {
   const router = useRouter();
   const { loading, createStaffRequest } = useHRStore();
+  const { branches } = useSuperAdminStore();
   const { toasts, toast, dismissToast } = useToast();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -24,8 +26,8 @@ export default function CreateEmployeePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.username || !formData.fullName || !formData.email) {
-      toast.error("Missing Fields", "Please fill in all required fields.");
+    if (!formData.username || !formData.fullName || !formData.email || !formData.branchId) {
+      toast.error("Missing Fields", "Please fill in all required fields, including branch selection.");
       return;
     }
 
@@ -45,7 +47,7 @@ export default function CreateEmployeePage() {
     }
   };
 
-  const showBranchId = ["BANK_MANAGER", "BRANCH_IT", "ACCOUNTANT"].includes(formData.role);
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -147,20 +149,27 @@ export default function CreateEmployeePage() {
               </div>
             </div>
 
-            {showBranchId && (
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-white/70 uppercase tracking-wider flex items-center gap-2">
-                  <Building className="w-3.5 h-3.5" /> Assigned Branch ID (Optional)
-                </label>
-                <input 
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:bg-white/10 focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] outline-none transition-all font-mono" 
-                  placeholder="e.g. BR-001" 
-                  type="text" 
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-white/70 uppercase tracking-wider flex items-center gap-2">
+                <Building className="w-3.5 h-3.5" /> Assigned Branch ID <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <select 
+                  required
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:bg-white/10 focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] outline-none transition-all appearance-none cursor-pointer" 
                   value={formData.branchId} 
-                  onChange={e => setFormData({...formData, branchId: e.target.value})} 
-                />
+                  onChange={e => setFormData({...formData, branchId: e.target.value})}
+                >
+                  <option value="" disabled className="bg-slate-900 text-white">Select Branch</option>
+                  {branches.filter(b => b.status === "ACTIVE").map(b => (
+                    <option key={b.id} value={b.id} className="bg-slate-900 text-white">{b.name} ({b.code})</option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </div>
               </div>
-            )}
+            </div>
           </div>
 
           <div className="pt-6 border-t border-white/10 flex items-center justify-end gap-4">

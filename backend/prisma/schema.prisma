@@ -99,6 +99,7 @@ model User {
   biometricScans        BiometricScanResult[]
   approvalRequests      ApprovalRequest[] @relation("ApprovalRequester")
   approvalActions       ApprovalRequest[] @relation("ApprovalActor")
+  passkeys              PasskeyCredential[]
 }
 
 model Branch {
@@ -198,4 +199,14 @@ model ApprovalRequest {
   rejectionReason String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
+}
+
+model PasskeyCredential {
+  id           String   @id // The credential ID base64url encoded
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  publicKey    Bytes
+  counter      BigInt
+  transports   String[] // Array of transports like 'internal', 'usb', 'ble', 'nfc'
+  createdAt    DateTime @default(now())
 }

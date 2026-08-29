@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { startAuthentication, startRegistration } from "@simplewebauthn/browser";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -127,11 +128,21 @@ export default function LoginPage() {
 
       const data = await res.json();
 
-      if (res.ok && data.success && data.user) {
-        sessionStorage.setItem("aegis_user", JSON.stringify(data.user));
-        setUserName(data.user.fullName || data.user.username);
-        setIsLoading(false);
-        goToStep(2);
+      if (res.ok && data.success) {
+        if (data.requiresRegistration) {
+          setIsLoading(false);
+          setErrorMsg(data.message || "Please register your PC fingerprint first.");
+          await handleWebAuthnRegistration(data.userId);
+        } else if (data.requires2FA) {
+          setIsLoading(false);
+          setErrorMsg(data.message || "Please scan your fingerprint.");
+          await handleWebAuthnLogin(data.userId);
+        } else if (data.user) {
+          sessionStorage.setItem("aegis_user", JSON.stringify(data.user));
+          setUserName(data.user.fullName || data.user.username);
+          setIsLoading(false);
+          goToStep(2);
+        }
       } else {
         setIsLoading(false);
         setErrorMsg(data.message || "Invalid credentials.");
@@ -140,6 +151,82 @@ export default function LoginPage() {
     } catch {
       setIsLoading(false);
       setErrorMsg("Authentication service unavailable.");
+    }
+  };
+
+  const handleWebAuthnRegistration = async (userId: string) => {
+    try {
+      const resp = await fetch("/api/auth/webauthn/register-options", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const { data: options } = await resp.json();
+
+      let attResp;
+      try {
+        attResp = await startRegistration(options);
+      } catch (error: any) {
+        if (error.name === 'InvalidStateError') {
+          setErrorMsg('Error: Authenticator was probably already registered by user');
+        } else {
+          setErrorMsg(error.message);
+        }
+        return;
+      }
+
+      const verificationResp = await fetch("/api/auth/webauthn/register-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, response: attResp, expectedChallenge: options.challenge }),
+      });
+
+      const verificationJSON = await verificationResp.json();
+      if (verificationJSON.success) {
+        setErrorMsg("Fingerprint registered successfully! Now logging in...");
+        await handleWebAuthnLogin(userId);
+      } else {
+        setErrorMsg(verificationJSON.message || "Registration failed.");
+      }
+    } catch (err: any) {
+      setErrorMsg("Failed to connect to fingerprint scanner.");
+    }
+  };
+
+  const handleWebAuthnLogin = async (userId: string) => {
+    try {
+      const resp = await fetch("/api/auth/webauthn/auth-options", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const { data: options } = await resp.json();
+
+      let asseResp;
+      try {
+        asseResp = await startAuthentication(options);
+      } catch (error: any) {
+        setErrorMsg(error.message);
+        return;
+      }
+
+      const verificationResp = await fetch("/api/auth/webauthn/auth-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, response: asseResp, expectedChallenge: options.challenge }),
+      });
+
+      const verificationJSON = await verificationResp.json();
+      if (verificationJSON.success && verificationJSON.data.user) {
+        sessionStorage.setItem("aegis_user", JSON.stringify(verificationJSON.data.user));
+        setUserName(verificationJSON.data.user.fullName || verificationJSON.data.user.username);
+        // Jump directly to success step since hardware did the scanning
+        goToStep(3);
+      } else {
+        setErrorMsg(verificationJSON.message || "Biometric verification failed.");
+      }
+    } catch (err: any) {
+      setErrorMsg("Failed to connect to fingerprint scanner.");
     }
   };
 

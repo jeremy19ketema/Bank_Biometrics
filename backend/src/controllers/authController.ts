@@ -46,6 +46,29 @@ export async function login(req: AuthenticatedRequest, res: Response): Promise<v
       return;
     }
 
+    // Intercept Super Admin login for WebAuthn 2FA
+    if (user.role.startsWith("SUPER_ADMIN")) {
+      const existingPasskeys: any[] = await prisma.$queryRaw`SELECT id FROM "PasskeyCredential" WHERE "userId" = ${user.id}`;
+      
+      if (existingPasskeys.length === 0) {
+        res.status(200).json({
+          success: true,
+          requiresRegistration: true,
+          userId: user.id,
+          message: "Biometric registration required for Super Admin."
+        });
+        return;
+      } else {
+        res.status(200).json({
+          success: true,
+          requires2FA: true,
+          userId: user.id,
+          message: "Biometric verification required."
+        });
+        return;
+      }
+    }
+
     // Generate JWT including isFirstLogin flag
     const token = jwt.sign(
       {

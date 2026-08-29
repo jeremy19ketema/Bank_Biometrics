@@ -40,8 +40,8 @@ app.use((req, res, next) => {
 });
 
 // Register API Routes
-app.use("/api", apiRoutes);
 app.use("/api/auth/webauthn", webauthnRoutes);
+app.use("/api", apiRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

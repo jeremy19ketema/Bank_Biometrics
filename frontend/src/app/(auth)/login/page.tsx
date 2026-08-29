@@ -210,7 +210,7 @@ export default function LoginPage() {
         return;
       }
 
-      const verificationResp = await fetch("/api/auth/webauthn/auth-verify", {
+      const verificationResp = await fetch("/api/auth/webauthn-verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, response: asseResp, expectedChallenge: options.challenge }),

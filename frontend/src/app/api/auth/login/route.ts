@@ -163,7 +163,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const { token, user, isFirstLogin } = data;
+    const { token, user, isFirstLogin, requiresRegistration, requires2FA, userId, message } = data;
+
+    // If WebAuthn is required, forward that to the frontend immediately
+    if (requiresRegistration || requires2FA) {
+      return NextResponse.json({
+        success: true,
+        requiresRegistration,
+        requires2FA,
+        userId,
+        message
+      });
+    }
 
     // Determine redirect
     const redirect = isFirstLogin ? "/change-credentials" : redirectMap[user.role] || "/super-admin";

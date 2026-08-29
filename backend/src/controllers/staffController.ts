@@ -4,6 +4,7 @@ import { prisma } from "../config/db.js";
 import { AuthenticatedRequest } from "../middleware/auth.js";
 import { logAuditEvent } from "../utils/audit.js";
 import { generateSecurePassword } from "../utils/passwordGenerator.js";
+import { sendWelcomeEmail } from "../utils/emailService.js";
 
 // ──────────────────────────────────────────────
 // GET ROUTES
@@ -224,7 +225,7 @@ export async function createBankManager(req: AuthenticatedRequest, res: Response
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { OR: [{ username }, { email }] }
+      where: { username }
     });
     if (existingUser) {
       res.status(400).json({ success: false, message: "Username or email already exists" });
@@ -247,6 +248,14 @@ export async function createBankManager(req: AuthenticatedRequest, res: Response
         isFirstLogin: true
       }
     });
+
+    try {
+      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
+    } catch (emailError: any) {
+      await prisma.user.delete({ where: { id: user.id } });
+      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
+      return;
+    }
 
     // Create approval request for the new Bank Manager
     await prisma.approvalRequest.create({
@@ -302,7 +311,7 @@ export async function createAccountant(req: AuthenticatedRequest, res: Response)
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { OR: [{ username }, { email }] }
+      where: { username }
     });
     if (existingUser) {
       res.status(400).json({ success: false, message: "Username or email already exists" });
@@ -325,6 +334,14 @@ export async function createAccountant(req: AuthenticatedRequest, res: Response)
         isFirstLogin: true
       }
     });
+
+    try {
+      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
+    } catch (emailError: any) {
+      await prisma.user.delete({ where: { id: user.id } });
+      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
+      return;
+    }
 
     if (req.user) {
       await logAuditEvent(req.user.id, "ACCOUNTANT_CREATE", "ADMINISTRATION", ipAddress, `Created Accountant: ${fullName} for branch: ${req.user.branchId}`, "SUCCESS");
@@ -366,7 +383,7 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { OR: [{ username }, { email }] }
+      where: { username }
     });
     if (existingUser) {
       res.status(400).json({ success: false, message: "Username or email already exists" });
@@ -389,6 +406,14 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
         isFirstLogin: true
       }
     });
+
+    try {
+      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
+    } catch (emailError: any) {
+      await prisma.user.delete({ where: { id: user.id } });
+      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
+      return;
+    }
 
     if (req.user) {
       await logAuditEvent(req.user.id, "BRANCH_IT_CREATE", "ADMINISTRATION", ipAddress, `Created Branch IT: ${fullName} for branch: ${req.user.branchId}`, "SUCCESS");
@@ -431,7 +456,7 @@ export async function createSuperAdminRole(req: AuthenticatedRequest, res: Respo
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { OR: [{ username }, { email }] }
+      where: { username }
     });
     if (existingUser) {
       res.status(400).json({ success: false, message: "Username or email already exists" });
@@ -453,6 +478,14 @@ export async function createSuperAdminRole(req: AuthenticatedRequest, res: Respo
         isFirstLogin: true
       }
     });
+
+    try {
+      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
+    } catch (emailError: any) {
+      await prisma.user.delete({ where: { id: user.id } });
+      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
+      return;
+    }
 
     if (req.user) {
       await logAuditEvent(req.user.id, "SUPER_ADMIN_ROLE_CREATE", "ADMINISTRATION", ipAddress, `Created ${role}: ${fullName}`, "SUCCESS");
@@ -505,7 +538,7 @@ export async function createHR(req: AuthenticatedRequest, res: Response): Promis
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { OR: [{ username }, { email }] }
+      where: { username }
     });
     if (existingUser) {
       res.status(400).json({ success: false, message: "Username or email already exists" });
@@ -529,6 +562,14 @@ export async function createHR(req: AuthenticatedRequest, res: Response): Promis
         isFirstLogin: true
       }
     });
+
+    try {
+      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
+    } catch (emailError: any) {
+      await prisma.user.delete({ where: { id: user.id } });
+      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
+      return;
+    }
 
     // Create approval request
     await prisma.approvalRequest.create({
@@ -603,9 +644,7 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ username }, { email }]
-      }
+      where: { username }
     });
 
     if (existingUser) {
@@ -634,6 +673,14 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
         isFirstLogin: true
       }
     });
+
+    try {
+      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
+    } catch (emailError: any) {
+      await prisma.user.delete({ where: { id: user.id } });
+      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
+      return;
+    }
 
     // If it requires approval, create an approval request
     if (requiresApproval) {

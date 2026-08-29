@@ -17,6 +17,7 @@ import {
   UserPlus,
   Eye,
   EyeOff,
+  Copy,
 } from "lucide-react";
 import { useSuperAdminStore } from "@/store/superAdminStore";
 import { useToast } from "@/hooks/useToast";
@@ -51,6 +52,7 @@ export default function SuperAdminDashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [createdPassword, setCreatedPassword] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   
@@ -90,10 +92,8 @@ export default function SuperAdminDashboard() {
 
     if (success) {
       if (resData?.temporaryPasscode) {
-        window.prompt(
-          `User ${submissionData.fullName} created successfully.\n\nIMPORTANT: Copy this temporary passcode and share it securely with the user:`,
-          resData.temporaryPasscode
-        );
+        setCreatedPassword(resData.temporaryPasscode);
+        toast.success("Success", `User ${submissionData.fullName} created successfully.`);
       } else {
         toast.success("Success", `User ${submissionData.fullName} created successfully.`);
         setSuccessMsg(`User ${submissionData.fullName} was successfully provisioned!`);
@@ -570,6 +570,43 @@ export default function SuperAdminDashboard() {
                   </button>
                 </div>
               </form>
+           </div>
+        </div>
+      )}
+
+      {createdPassword && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+           <div className="relative w-full max-w-md rounded-[28px] border border-[color:var(--moss)]/30 bg-[rgba(15,23,40,0.95)] p-8 shadow-[0_0_40px_rgba(76,122,94,0.2)]">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--moss)]/10 mb-6">
+                <CheckCircle2 className="h-8 w-8 text-[color:var(--moss)]" />
+              </div>
+              <h3 className="text-xl font-semibold text-white text-center mb-2">User Created Successfully!</h3>
+              <p className="text-sm text-slate-400 text-center mb-6">
+                Please copy and share this temporary passcode securely with the user. They will be prompted to change it upon first login.
+              </p>
+              
+              <div className="mb-6 flex items-center justify-between rounded-xl border border-[color:var(--brass)]/30 bg-[color:var(--brass)]/5 p-4">
+                <code className="text-xl font-mono text-[color:var(--brass)] font-bold tracking-wider">
+                  {createdPassword}
+                </code>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(createdPassword);
+                    toast.success("Copied", "Password copied to clipboard!");
+                  }}
+                  className="rounded-lg bg-[color:var(--brass)]/10 p-2 text-[color:var(--brass)] hover:bg-[color:var(--brass)]/20 transition-colors"
+                  title="Copy to clipboard"
+                >
+                  <Copy className="h-5 w-5" />
+                </button>
+              </div>
+
+              <button
+                onClick={() => setCreatedPassword("")}
+                className="w-full rounded-xl bg-[color:var(--brass)] px-4 py-3 text-[#16233A] font-bold shadow-lg hover:bg-[#d7ab5c] transition-colors"
+              >
+                Done
+              </button>
            </div>
         </div>
       )}

@@ -4,6 +4,7 @@ import { z } from "zod";
 // Branch
 // ──────────────────────────────────────────────
 export const branchSchema = z.object({
+  code: z.string().min(2, "Branch code is required"),
   name: z
     .string()
     .min(3, "Branch name must be at least 3 characters")

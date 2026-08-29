@@ -25,6 +25,7 @@ export default function CreateBranchPage() {
   } = useForm<BranchFormValues>({
     resolver: zodResolver(branchSchema),
     defaultValues: {
+      code: nextCode,
       name: "",
       city: "",
       address: "",
@@ -36,10 +37,7 @@ export default function CreateBranchPage() {
   });
 
   const onSubmit = async (data: BranchFormValues) => {
-    const { success, message } = await useSuperAdminStore.getState().createBranch({
-      code: nextCode,
-      ...data,
-    });
+    const { success, message } = await useSuperAdminStore.getState().createBranch(data);
 
     if (success) {
       toast.success("Branch Provisioned", `${data.name} has been successfully created.`);
@@ -92,10 +90,11 @@ export default function CreateBranchPage() {
                 </label>
                 <input
                   type="text"
-                  readOnly
-                  value={nextCode}
-                  className="w-full bg-[#0B192C]/50 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-[color:var(--brass)] font-bold cursor-not-allowed focus:outline-none"
+                  placeholder="e.g. BR-001"
+                  {...register("code")}
+                  className="w-full bg-[#0B192C] border border-[#1E293B] rounded-xl px-4 py-3 text-sm font-mono text-[color:var(--brass)] font-bold focus:outline-none focus:border-[color:var(--brass)] focus:ring-1 focus:ring-[color:var(--brass)] transition-all placeholder:text-slate-600 shadow-inner"
                 />
+                {errors.code && <p className="text-rose-400 text-xs mt-1">{errors.code.message}</p>}
               </div>
 
               <div className="space-y-3">

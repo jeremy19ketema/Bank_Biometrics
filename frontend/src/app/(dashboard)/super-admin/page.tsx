@@ -32,7 +32,7 @@ const createUserSchema = z.object({
   username: z.string().min(4, "Username must be at least 4 characters"),
   email: z.string().email("Invalid email address"),
   role: z.string().min(1, "Role is required"),
-  branchId: z.string().optional(),
+  branchId: z.string().min(1, "Branch is required"),
   department: z.string().optional(),
 }).superRefine((data, ctx) => {
   if (["SUPER_ADMIN_IT", "BRANCH_IT"].includes(data.role) && !data.department) {
@@ -547,11 +547,15 @@ export default function SuperAdminDashboard() {
                   {errors.role && <span className="text-xs text-red-400 mt-1 block">{errors.role.message}</span>}
                 </div>
 
-                {["BANK_MANAGER", "BRANCH_IT", "ACCOUNTANT"].includes(selectedRole) && (
-                  <div>
-                    <input {...register("branchId")} type="text" placeholder="Branch ID (Optional)" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none" />
-                  </div>
-                )}
+                <div>
+                  <select {...register("branchId")} defaultValue="" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-[color:var(--brass)] focus:outline-none appearance-none">
+                    <option value="" disabled className="bg-slate-900 text-white">Select Branch</option>
+                    {branches.filter(b => b.status === "ACTIVE").map(b => (
+                      <option key={b.id} value={b.id} className="bg-slate-900 text-white">{b.name} ({b.code})</option>
+                    ))}
+                  </select>
+                  {errors.branchId && <span className="text-xs text-red-400 mt-1 block">{errors.branchId.message}</span>}
+                </div>
 
                 {["SUPER_ADMIN_IT", "BRANCH_IT"].includes(selectedRole) && (
                   <div>

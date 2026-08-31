@@ -35,50 +35,93 @@ export async function sendWelcomeEmail(to: string, username: string, tempPasswor
   const frontendUrl = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') : 'http://localhost:3000';
 
   const htmlContent = `
-    <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; padding: 40px 20px; text-align: center;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: left;">
-        
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #0f1728; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">AEGIS<span style="color: #d7ab5c;">BIOMETRICS</span></h1>
-        </div>
-        
-        <h2 style="color: #1e293b; font-size: 20px; margin-top: 0;">Welcome to the team!</h2>
-        <p style="color: #475569; font-size: 16px; line-height: 1.6;">Hello,</p>
-        <p style="color: #475569; font-size: 16px; line-height: 1.6;">An official account has been provisioned for you on the Aegis Biometrics Banking platform.</p>
-        
-        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 24px; margin: 30px 0;">
-          <h3 style="margin-top: 0; color: #0f1728; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Your Credentials</h3>
-          
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 12px 0; color: #64748b; font-size: 14px; width: 40%;"><strong>Role / Department</strong></td>
-              <td style="padding: 12px 0; color: #0f1728; font-size: 15px; font-weight: 500;">${role}</td>
-            </tr>
-            <tr>
-              <td style="padding: 12px 0; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0;"><strong>Username</strong></td>
-              <td style="padding: 12px 0; color: #0f1728; font-size: 15px; font-weight: 500; border-top: 1px solid #e2e8f0;">${username}</td>
-            </tr>
-            <tr>
-              <td style="padding: 12px 0; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0;"><strong>Temporary Password</strong></td>
-              <td style="padding: 12px 0; border-top: 1px solid #e2e8f0;">
-                <code style="background-color: #0f1728; color: #d7ab5c; padding: 8px 12px; border-radius: 6px; font-size: 16px; font-weight: 600; display: inline-block;">${tempPassword}</code>
-              </td>
-            </tr>
-          </table>
-        </div>
-        
-        <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">Please log in using these credentials. For security purposes, you will be required to change your password immediately upon your first login.</p>
-        
-        <a href="${frontendUrl}/login" style="display: block; width: 100%; text-align: center; background-color: #0f1728; color: #ffffff; text-decoration: none; padding: 16px 0; border-radius: 8px; font-weight: 600; font-size: 16px;">Sign In to Aegis</a>
-        
-        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 40px 0 20px 0;" />
-        
-        <p style="color: #94a3b8; font-size: 13px; text-align: center; margin: 0;">
-          Secure System Communication<br>
-          Aegis System Administrator
-        </p>
-      </div>
-    </div>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Aegis Biometrics - Credentials</title>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0F1B2B; color: #EDE7D9; -webkit-font-smoothing: antialiased;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0F1B2B; padding: 40px 20px;">
+        <tr>
+          <td align="center">
+            <!-- Main Card -->
+            <table width="100%" max-width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background-color: #16233A; border: 1px solid rgba(198, 154, 76, 0.2); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); overflow: hidden;">
+              
+              <!-- Header -->
+              <tr>
+                <td align="center" style="padding: 40px 40px 30px; border-bottom: 1px solid rgba(198, 154, 76, 0.1);">
+                  <h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 2px; color: #EDE7D9; text-transform: uppercase;">
+                    AEGIS<span style="color: #C69A4C;">BIOMETRICS</span>
+                  </h1>
+                  <p style="margin: 8px 0 0; font-size: 11px; letter-spacing: 4px; color: #C9C2AE; text-transform: uppercase; font-family: monospace;">Secure Access Portal</p>
+                </td>
+              </tr>
+              
+              <!-- Content -->
+              <tr>
+                <td style="padding: 40px;">
+                  <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 600; color: #EDE7D9;">Welcome to the Aegis Network.</h2>
+                  <p style="margin: 0 0 10px; font-size: 15px; line-height: 1.6; color: #C9C2AE;">Hello,</p>
+                  <p style="margin: 0 0 30px; font-size: 15px; line-height: 1.6; color: #C9C2AE;">An official administrative account has been provisioned for you on the Aegis Biometrics Banking platform. Your secure access credentials are listed below.</p>
+                  
+                  <!-- Credentials Box -->
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0B121E; border: 1px solid rgba(237, 231, 217, 0.1); border-radius: 8px; margin-bottom: 30px;">
+                    <tr>
+                      <td style="padding: 24px;">
+                        <p style="margin: 0 0 16px; font-size: 12px; letter-spacing: 2px; color: #C69A4C; text-transform: uppercase; font-family: monospace; font-weight: bold;">[ SYSTEM CREDENTIALS ]</p>
+                        
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td width="35%" style="padding: 12px 0; color: #C9C2AE; font-size: 13px; font-family: monospace; letter-spacing: 1px; border-bottom: 1px solid rgba(237, 231, 217, 0.05);">ROLE</td>
+                            <td width="65%" style="padding: 12px 0; color: #EDE7D9; font-size: 14px; font-weight: 600; border-bottom: 1px solid rgba(237, 231, 217, 0.05);">${role}</td>
+                          </tr>
+                          <tr>
+                            <td width="35%" style="padding: 12px 0; color: #C9C2AE; font-size: 13px; font-family: monospace; letter-spacing: 1px; border-bottom: 1px solid rgba(237, 231, 217, 0.05);">USERNAME</td>
+                            <td width="65%" style="padding: 12px 0; color: #EDE7D9; font-size: 14px; font-weight: 600; border-bottom: 1px solid rgba(237, 231, 217, 0.05);">${username}</td>
+                          </tr>
+                          <tr>
+                            <td width="35%" style="padding: 12px 0; color: #C9C2AE; font-size: 13px; font-family: monospace; letter-spacing: 1px;">PASSCODE</td>
+                            <td width="65%" style="padding: 12px 0;">
+                              <span style="display: inline-block; background-color: rgba(198, 154, 76, 0.15); color: #C69A4C; padding: 6px 12px; border-radius: 4px; font-family: monospace; font-size: 16px; font-weight: 700; letter-spacing: 2px;">${tempPassword}</span>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                  
+                  <p style="margin: 0 0 30px; font-size: 14px; line-height: 1.6; color: #C9C2AE; font-style: italic;">
+                    <strong style="color: #C69A4C;">Action Required:</strong> For security compliance, you must authenticate and change your temporary passcode immediately upon your first login.
+                  </p>
+                  
+                  <!-- Button -->
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td align="center">
+                        <a href="${frontendUrl}/login" style="display: inline-block; background-color: #C69A4C; color: #0F1B2B; font-size: 14px; font-weight: bold; text-decoration: none; padding: 16px 40px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">Initialize Session</a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              
+              <!-- Footer -->
+              <tr>
+                <td align="center" style="padding: 24px; background-color: #0B121E; border-top: 1px solid rgba(237, 231, 217, 0.05);">
+                  <p style="margin: 0; font-size: 11px; color: #64748b; font-family: monospace; letter-spacing: 1px; text-transform: uppercase;">
+                    This is an automated encrypted transmission.<br>Aegis System Administrator
+                  </p>
+                </td>
+              </tr>
+              
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
   `;
 
   const info = await transporter.sendMail({
@@ -86,6 +129,7 @@ export async function sendWelcomeEmail(to: string, username: string, tempPasswor
     to,
     subject: "Your Aegis Bank Credentials",
     html: htmlContent,
+    text: `Welcome to the team!\n\nAn official account has been provisioned for you on the Aegis Biometrics Banking platform.\n\nYour Credentials:\nRole: ${role}\nUsername: ${username}\nTemporary Password: ${tempPassword}\n\nPlease log in and change your password immediately.`,
   });
 
   if (!smtpUser || !smtpPass) {

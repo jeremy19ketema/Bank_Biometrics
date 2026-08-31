@@ -47,8 +47,6 @@ export default function CreateEmployeePage() {
     }
   };
 
-  };
-
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}

@@ -249,13 +249,10 @@ export async function createBankManager(req: AuthenticatedRequest, res: Response
       }
     });
 
-    try {
-      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
-    } catch (emailError: any) {
-      await prisma.user.delete({ where: { id: user.id } });
-      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
-      return;
-    }
+    // Send welcome email asynchronously so it doesn't block the response
+    sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff').catch(err => {
+      console.error("Background email sending failed:", err);
+    });
 
     // Create approval request for the new Bank Manager
     await prisma.approvalRequest.create({
@@ -335,13 +332,10 @@ export async function createAccountant(req: AuthenticatedRequest, res: Response)
       }
     });
 
-    try {
-      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
-    } catch (emailError: any) {
-      await prisma.user.delete({ where: { id: user.id } });
-      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
-      return;
-    }
+    // Send welcome email asynchronously so it doesn't block the response
+    sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff').catch(err => {
+      console.error("Background email sending failed:", err);
+    });
 
     if (req.user) {
       await logAuditEvent(req.user.id, "ACCOUNTANT_CREATE", "ADMINISTRATION", ipAddress, `Created Accountant: ${fullName} for branch: ${req.user.branchId}`, "SUCCESS");
@@ -407,13 +401,10 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
       }
     });
 
-    try {
-      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
-    } catch (emailError: any) {
-      await prisma.user.delete({ where: { id: user.id } });
-      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
-      return;
-    }
+    // Send welcome email asynchronously so it doesn't block the response
+    sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff').catch(err => {
+      console.error("Background email sending failed:", err);
+    });
 
     if (req.user) {
       await logAuditEvent(req.user.id, "BRANCH_IT_CREATE", "ADMINISTRATION", ipAddress, `Created Branch IT: ${fullName} for branch: ${req.user.branchId}`, "SUCCESS");
@@ -479,13 +470,10 @@ export async function createSuperAdminRole(req: AuthenticatedRequest, res: Respo
       }
     });
 
-    try {
-      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
-    } catch (emailError: any) {
-      await prisma.user.delete({ where: { id: user.id } });
-      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
-      return;
-    }
+    // Send welcome email asynchronously so it doesn't block the response
+    sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff').catch(err => {
+      console.error("Background email sending failed:", err);
+    });
 
     if (req.user) {
       await logAuditEvent(req.user.id, "SUPER_ADMIN_ROLE_CREATE", "ADMINISTRATION", ipAddress, `Created ${role}: ${fullName}`, "SUCCESS");
@@ -563,13 +551,10 @@ export async function createHR(req: AuthenticatedRequest, res: Response): Promis
       }
     });
 
-    try {
-      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
-    } catch (emailError: any) {
-      await prisma.user.delete({ where: { id: user.id } });
-      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
-      return;
-    }
+    // Send welcome email asynchronously so it doesn't block the response
+    sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff').catch(err => {
+      console.error("Background email sending failed:", err);
+    });
 
     // Create approval request
     await prisma.approvalRequest.create({

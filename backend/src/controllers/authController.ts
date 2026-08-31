@@ -4,6 +4,7 @@ import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 import { prisma } from "../config/db.js";
 import { AuthenticatedRequest } from "../middleware/auth.js";
 import { logAuditEvent } from "../utils/audit.js";
+import { sendWelcomeEmail, sendPasswordResetEmail, sendPasswordChangedEmail } from "../utils/emailService.js";
 
 const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || "8h") as SignOptions["expiresIn"];
 
@@ -165,6 +166,8 @@ export async function updatePasscode(req: AuthenticatedRequest, res: Response): 
 
     await logAuditEvent(user.id, user.isFirstLogin ? "FIRST_LOGIN_CREDENTIAL_CHANGE" : "PASSCODE_UPDATE_SUCCESS", "SECURITY", ipAddress, "Passcode updated successfully", "SUCCESS");
 
+    sendPasswordChangedEmail(user.email, user.username).catch(err => console.error("Background password changed email failed:", err));
+
     res.status(200).json({ success: true, message: "Passcode updated successfully", isFirstLoginCompleted: user.isFirstLogin });
   } catch (error) {
     console.error("Update Passcode Error:", error);
@@ -285,6 +288,8 @@ export async function completeFirstLogin(req: AuthenticatedRequest, res: Respons
 
     await logAuditEvent(req.user.id, "FIRST_LOGIN_COMPLETED", "SECURITY", ipAddress, "First login credential change completed", "SUCCESS");
 
+    sendPasswordChangedEmail(user.email, user.username).catch(err => console.error("Background password changed email failed:", err));
+
     res.status(200).json({
       success: true,
       message: "Credentials updated successfully. You can now access the dashboard.",
@@ -382,6 +387,11 @@ export async function resetUserPassword(req: AuthenticatedRequest, res: Response
     });
 
     await logAuditEvent(req.user.id, "PASSWORD_RESET", "ADMINISTRATION", ipAddress, `Password reset for user: ${targetUser.username}`, "SUCCESS");
+
+    // Send the password reset email asynchronously
+    sendPasswordResetEmail(targetUser.email, targetUser.username, temporaryPasscode).catch(err => {
+      console.error("Background reset email sending failed:", err);
+    });
 
     res.status(200).json({ success: true, message: "Password reset successfully. User will be required to change credentials on next login." });
   } catch (error: any) {

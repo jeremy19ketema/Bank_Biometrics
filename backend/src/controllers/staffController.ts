@@ -225,7 +225,7 @@ export async function createBankManager(req: AuthenticatedRequest, res: Response
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { username }
+      where: { OR: [{ username }, { email }] }
     });
     if (existingUser) {
       res.status(400).json({ success: false, message: "Username or email already exists" });
@@ -242,7 +242,7 @@ export async function createBankManager(req: AuthenticatedRequest, res: Response
         email,
         passwordHash,
         role: "BANK_MANAGER",
-        branchId: branchId || null,
+        branchId: (typeof branchId === "string" && branchId.trim() !== "" && branchId !== "null" && branchId !== "undefined") ? branchId : null,
         isActive: true,
         status: "PENDING_APPROVAL",
         isFirstLogin: true
@@ -311,7 +311,7 @@ export async function createAccountant(req: AuthenticatedRequest, res: Response)
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { username }
+      where: { OR: [{ username }, { email }] }
     });
     if (existingUser) {
       res.status(400).json({ success: false, message: "Username or email already exists" });
@@ -383,7 +383,7 @@ export async function createBranchIT(req: AuthenticatedRequest, res: Response): 
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { username }
+      where: { OR: [{ username }, { email }] }
     });
     if (existingUser) {
       res.status(400).json({ success: false, message: "Username or email already exists" });
@@ -456,7 +456,7 @@ export async function createSuperAdminRole(req: AuthenticatedRequest, res: Respo
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { username }
+      where: { OR: [{ username }, { email }] }
     });
     if (existingUser) {
       res.status(400).json({ success: false, message: "Username or email already exists" });
@@ -538,7 +538,7 @@ export async function createHR(req: AuthenticatedRequest, res: Response): Promis
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { username }
+      where: { OR: [{ username }, { email }] }
     });
     if (existingUser) {
       res.status(400).json({ success: false, message: "Username or email already exists" });
@@ -556,7 +556,7 @@ export async function createHR(req: AuthenticatedRequest, res: Response): Promis
         email,
         passwordHash,
         role: role as any,
-        branchId: branchId || null,
+        branchId: (typeof branchId === "string" && branchId.trim() !== "" && branchId !== "null" && branchId !== "undefined") ? branchId : null,
         isActive: true,
         status: "PENDING_APPROVAL",
         isFirstLogin: true
@@ -644,7 +644,12 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
 
   try {
     const existingUser = await prisma.user.findFirst({
-      where: { username }
+      where: {
+        OR: [
+          { username },
+          { email }
+        ]
+      }
     });
 
     if (existingUser) {
@@ -659,6 +664,13 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
     const requiresApproval = req.user.role === "HR" || ["SUPER_ADMIN_IT", "SUPER_ADMIN_FOREX"].includes(role);
     const userStatus = requiresApproval ? "PENDING_APPROVAL" : "PENDING_FIRST_LOGIN";
 
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const processedBranchId = (branchId && typeof branchId === 'string' && uuidRegex.test(branchId)) ? branchId : undefined;
+    
+    console.log("DEBUG: Creating Staff User");
+    console.log("Original branchId from req.body:", branchId, "type:", typeof branchId);
+    console.log("Processed branchId:", processedBranchId, "type:", typeof processedBranchId);
+
     const user = await prisma.user.create({
       data: {
         username,
@@ -666,7 +678,7 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
         email,
         passwordHash,
         role: role as any,
-        branchId: branchId || null,
+        branchId: processedBranchId,
         department: department || null,
         isActive: true,
         status: userStatus,
@@ -674,13 +686,10 @@ export async function createStaff(req: AuthenticatedRequest, res: Response): Pro
       }
     });
 
-    try {
-      await sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff');
-    } catch (emailError: any) {
-      await prisma.user.delete({ where: { id: user.id } });
-      res.status(500).json({ success: false, message: "Failed to send welcome email. Account creation aborted." });
-      return;
-    }
+    // Send welcome email asynchronously so it doesn't block the response (SMTP can be slow)
+    sendWelcomeEmail(email, username, generatedPasscode, req.body.role || req.body.department || 'Staff').catch(err => {
+      console.error("Background email sending failed:", err);
+    });
 
     // If it requires approval, create an approval request
     if (requiresApproval) {
